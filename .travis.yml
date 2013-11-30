@@ -3,5 +3,8 @@ python:
   - 3.3
 install:
   - python setup.py dev
+  - pip install coveralls
 script:
   - nosetests
+after_success:
+  - coveralls
