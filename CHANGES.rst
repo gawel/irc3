@@ -1,4 +1,4 @@
-0.1 (2013-11-30)
+0.1 (unreleaded)
 ================
 
-Nothing done yet
+Initial release
