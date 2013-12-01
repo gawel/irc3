@@ -30,8 +30,10 @@ Contents
    :maxdepth: 2
    :glob:
 
-   plugins/*
+   dec
+   utils
    rfc
+   plugins/*
 
 
 

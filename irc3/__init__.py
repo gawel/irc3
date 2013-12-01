@@ -62,30 +62,34 @@ class IrcBot:
         ssl=False,
         cmdchar='!',
         encoding='utf8',
+        testing=False,
         async=True,
     )
 
     def __init__(self, **config):
         self.config = utils.Config(dict(self.defaults, **config))
         self.async = self.config.async
-        self.host = self.config['host']
-        self.port = self.config['port']
         self.encoding = self.config['encoding']
-        self.plugins = {}
         self.events = []
         self.log = logging.getLogger('irc3.' + self.nick)
+        self._sent = []
+
+        self.plugins = {}
+        self.include(*self.config.get('includes', []))
+        self.recompile()
 
     def get_plugin(self, ob):
         if isinstance(ob, str):
-            plugins = [(p.__name__.lower(), p) for p in self.plugins.keys()]
-            plugins = [(name, p) for name, p in plugins if name == ob]
-            if len(plugins) == 1:
-                return self.plugins[plugins[0][1]]
-            else:
-                names = [p.__name__.lower() for p in self.plugins.keys()]
-                raise LookupError('Plugin %s not found in %s' % (ob, names))
+            name = ob
+            ob = utils.maybedotted(ob)
+            if ob not in self.plugins:
+                plugins = [(p.__module__, p.__name__)
+                           for p in self.plugins.keys()]
+                names = ['%s.%s' % p for p in plugins]
+                raise LookupError('Plugin %s not found in %s' % (name, names))
         if ob not in self.plugins:
-            self.log.info('Register plugin %r', ob.__name__.lower())
+            self.log.info("Register plugin '%s.%s'",
+                          ob.__module__, ob.__name__)
             plugin = ob(self)
             self.plugins[ob] = plugin
         return self.plugins[ob]
@@ -99,10 +103,8 @@ class IrcBot:
 
     def include(self, *modules):
         for module in modules:
-            if isinstance(module, str):
-                module = __import__(module, globals(), locals(), [''])
             scanner = self.venusian.Scanner(bot=self)
-            scanner.scan(module)
+            scanner.scan(utils.maybedotted(module))
 
     def connection_made(self, f):  # pragma: no cover
         self.log.info('Connected')
@@ -138,16 +140,19 @@ class IrcBot:
                 events.append((e, match))
         return events
 
-    def send(self, data):  # pragma: no cover
-        self.log.debug('> %s', data.strip())
-        self.protocol.write(data)
+    def send(self, data):
+        if not self.config.testing:  # pragma: no cover
+            self.log.debug('> %s', data.strip())
+            self.protocol.write(data)
+        else:
+            self._sent.append(data)
 
     def privmsg(self, target, message):
         if message:
-            self.send('PRIVMSG %s :%s\r\n' % (target, message))
+            self.send('PRIVMSG %s :%s' % (target, message))
 
     def join(self, target):
-        self.send('JOIN %s\r\n' % target)
+        self.send('JOIN %s' % target)
 
     def part(self, target, reason=None):
         if reason:
@@ -160,6 +165,15 @@ class IrcBot:
 
     def set_nick(self, nick):
         self.send('NICK ' + nick)
+
+    def test(self, data):
+        self.dispatch(data)
+
+    @property
+    def sent(self):
+        sent = self._sent
+        self._sent = []
+        return sent
 
     def create_connection(self, loop=None,
                           protocol=IrcConnection):  # pragma: no cover

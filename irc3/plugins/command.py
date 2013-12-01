@@ -17,16 +17,25 @@ Create a python module with some commands:
 ..
     >>> import sys
     >>> sys.path.append('examples')
+    >>> from irc3 import IrcBot
+    >>> IrcBot.defaults.update(async=False, testing=True)
 
 And register it::
 
     >>> from irc3 import IrcBot
-    >>> bot = IrcBot(cmd='$', async=False)
+    >>> bot = IrcBot()
     >>> bot.include('irc3.plugins.command')  # register the plugin
     >>> bot.include('mycommands')            # register your commands
 
-``%%`` is replaced by the command character. ``!`` by default. You can override
-it by passing a ``cmd`` parameter to bot's config::
+
+Check the result::
+
+    >>> bot.test(':gawel!user@host PRIVMSG #chan :!echo foo')
+    >>> bot.sent
+    ['PRIVMSG gawel :foo']
+
+In the docstring, ``%%`` is replaced by the command character. ``!`` by
+default. You can override it by passing a ``cmd`` parameter to bot's config.
 
 
 You can use a guard to prevent untrusted users to run some commands. The
@@ -45,13 +54,19 @@ Guard usage::
     >>> bot = IrcBot(**config)
     >>> bot.include('irc3.plugins.command')  # register the plugin
     >>> bot.include('mycommands')            # register your commands
+    >>> bot.test(':foo!u@h PRIVMSG #chan :!echo bar')
+    >>> bot.sent
+    ["PRIVMSG foo :You are not allowed to use the 'echo' command"]
+    >>> bot.test(':gawel!u@h PRIVMSG #chan :!echo bar')
+    >>> bot.sent
+    ['PRIVMSG gawel :bar']
 
 '''
-from irc3 import event
 import functools
 import venusian
 import fnmatch
 import docopt
+import irc3
 
 
 class free_policy:
@@ -99,6 +114,7 @@ def command(wrapped):
     return wrapped
 
 
+@irc3.plugin
 class Commands(dict):
 
     def __init__(self, bot):
@@ -108,8 +124,8 @@ class Commands(dict):
         self.guard = guard(bot)
         bot.log.info('Use %r as security guard', guard.__name__)
 
-    @event((r':(?P<mask>\S+) PRIVMSG (?P<target>\S+) '
-            r':%(cmd)s(?P<cmd>\w+)(\s(?P<data>\w+.*)|$)'))
+    @irc3.event((r':(?P<mask>\S+) PRIVMSG (?P<target>\S+) '
+                 r':%(cmd)s(?P<cmd>\w+)(\s(?P<data>\w+.*)|$)'))
     def on_command(self, cmd, mask=None, target=None, data=None, **kw):
         nick = self.bot.nick
         to = target == nick and mask.nick or target

@@ -5,6 +5,7 @@ import re
 
 
 def plugin(wrapped):
+    """register a class as plugin"""
     def callback(context, name, ob):
         bot = context.bot
         bot.get_plugin(ob)
@@ -14,6 +15,7 @@ def plugin(wrapped):
 
 
 class event(object):
+    """register a method or function an irc event callback"""
 
     venusian = venusian
 

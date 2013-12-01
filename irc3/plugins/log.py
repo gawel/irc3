@@ -16,15 +16,16 @@ import logging
 import irc3
 
 
+@irc3.plugin
 class RawLog:
 
     def __init__(self, bot):
         self.bot = bot
         self.log = logging.getLogger('raw.' + bot.nick)
 
-    @irc3.event(r'^:(?P<raw>.*)')
+    @irc3.event(r'^(?P<raw>.*)')
     def debug(self, raw):
         if ' 372 ' in raw or raw.startswith('PING'):
-            self.log.debug(':' + raw)
+            self.log.debug(raw)
         else:
-            self.log.info(':' + raw)
+            self.log.info(raw)

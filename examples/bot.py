@@ -15,7 +15,6 @@ def main():
     bot.include('irc3.plugins.log')
     bot.include('irc3.plugins.command')
     bot.include('irc3.plugins.userlist')
-    bot.include('mycommand')
     loop = bot.create_connection()
     loop.add_signal_handler(signal.SIGINT, loop.stop)
     loop.run_forever()
