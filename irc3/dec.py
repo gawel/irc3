@@ -15,7 +15,15 @@ def plugin(wrapped):
 
 
 class event(object):
-    """register a method or function an irc event callback"""
+    """register a method or function an irc event callback::
+
+        >>> @event('^:\S+ 353 [^&#]+(?P<channel>\S+) :(?P<nicknames>.*)')
+        ... def on_names(self, channel=None, nicknames=None):
+        ...     '''this will catch nickname when you enter a channel'''
+        ...     print(channel, nicknames.split(':'))
+
+    The callback can be either a function or a plugin method
+    """
 
     venusian = venusian
 

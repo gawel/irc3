@@ -11,7 +11,7 @@ Usage::
     >>> from irc3 import IrcBot
     >>> bot = IrcBot(async=False)
     >>> bot.include('irc3.plugins.userlist')
-    >>> events = bot.dispatch(':gawel!user@host JOIN #chan')
+    >>> bot.test(':gawel!user@host JOIN #chan')
 
     >>> plugin = bot.get_plugin('irc3.plugins.userlist.Userlist')
     >>> plugin.channels.items()
