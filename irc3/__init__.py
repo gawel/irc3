@@ -38,14 +38,7 @@ class IrcConnection(asyncio.Protocol):  # pragma: no cover
         self.factory.log.critical('connection lost: %r', exc)
         # reconnect
         self.factory.propagate('connection_lost')
-        self.factory.create_connection()
-        loop = self.factory.loop
-        t = asyncio.Task(
-            loop.create_connection(
-                self.__class__, self.factory.config.host,
-                self.factory.config.port, ssl=self.factory.config.ssl),
-            loop=loop)
-        t.add_done_callback(self.connection_made)
+        self.factory.create_connection(protocol=self.__class__)
 
 
 class IrcBot:
