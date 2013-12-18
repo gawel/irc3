@@ -99,7 +99,13 @@ class Config(dict):
 
 
 def maybedotted(name):
-    """Resolve dotted names"""
+    """Resolve dotted names::
+
+        >>> maybedotted('http.server')
+        <module 'http.server' from '...'>
+        >>> maybedotted('http.server.HTTPServer')
+        <class 'http.server.HTTPServer'>
+    """
     if not name:
         raise LookupError(
             'Not able to resolve %s' % name)
