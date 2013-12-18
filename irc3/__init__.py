@@ -38,11 +38,13 @@ class IrcConnection(asyncio.Protocol):  # pragma: no cover
         self.factory.log.critical('connection lost: %r', exc)
         # reconnect
         self.factory.propagate('connection_lost')
-        loop = asyncio.get_event_loop()
+        self.factory.create_connection()
+        loop = self.factory.loop
         t = asyncio.Task(
             loop.create_connection(
                 self.__class__, self.factory.config.host,
-                self.factory.config.port, ssl=self.factory.config.ssl))
+                self.factory.config.port, ssl=self.factory.config.ssl),
+            loop=loop)
         t.add_done_callback(self.connection_made)
 
 
@@ -64,12 +66,14 @@ class IrcBot:
         encoding='utf8',
         testing=False,
         async=True,
+        loop=None,
     )
 
     def __init__(self, **config):
         self.config = utils.Config(dict(self.defaults, **config))
         self.async = self.config.async
         self.encoding = self.config['encoding']
+        self.loop = self.config['loop']
         self.events = []
         self.log = logging.getLogger('irc3.' + self.nick)
         self._sent = []
@@ -133,8 +137,7 @@ class IrcBot:
                     if value is not None:
                         match[key] = IrcString(value)
                 if self.async:  # pragma: no cover
-                    loop = asyncio.get_event_loop()
-                    loop.call_soon(e.async_callback, match)
+                    self.loop.call_soon(e.async_callback, match)
                 else:
                     e.callback(**match)
                 events.append((e, match))
@@ -175,13 +178,13 @@ class IrcBot:
         self._sent = []
         return sent
 
-    def create_connection(self, loop=None,
-                          protocol=IrcConnection):  # pragma: no cover
-        if loop is None:
-            loop = asyncio.get_event_loop()
+    def create_connection(self, protocol=IrcConnection):  # pragma: no cover
+        if self.loop is None:
+            self.loop = asyncio.get_event_loop()
         t = asyncio.Task(
-            loop.create_connection(
+            self.loop.create_connection(
                 protocol, self.config.host,
-                self.config.port, ssl=self.config.ssl))
+                self.config.port, ssl=self.config.ssl),
+            loop=self.loop)
         t.add_done_callback(self.connection_made)
-        return loop
+        return self.loop
