@@ -144,7 +144,7 @@ class IrcBot:
             self._sent.append(data)
 
     def privmsg(self, target, message):
-        if message:
+        if target and message:
             self.send('PRIVMSG %s :%s' % (target, message))
 
     def join(self, target):
