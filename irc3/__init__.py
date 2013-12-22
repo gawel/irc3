@@ -7,9 +7,10 @@ from .utils import IrcString
 from . import config
 from . import utils
 from . import rfc
+import logging.config
+import logging
 import venusian
 import asyncio
-import logging
 import signal
 import time
 
@@ -73,8 +74,9 @@ class IrcBot:
         'irc3.plugins.command',
     ]
 
+    logging_config = config.LOGGING
+
     defaults = dict(
-        cmd='!',
         nick='irc3',
         realname='irc3',
         info='Irc bot based on irc3',
@@ -90,14 +92,18 @@ class IrcBot:
 
     def __init__(self, **config):
         self.config = utils.Config(dict(self.defaults, **config))
+        logging.config.dictConfig(self.logging_config)
+        self.log = logging.getLogger('irc3.' + self.nick)
+        if config.get('verbose'):
+            logging.getLogger('irc3').setLevel(logging.DEBUG)
         self.encoding = self.config['encoding']
         self.loop = self.config.loop
         self.events_re = []
         self.events = defaultdict(list)
-        self.log = logging.getLogger('irc3.' + self.nick)
         self._sent = []
 
         self.plugins = {}
+        self.includes = set()
         self.include(*self.config.get('includes', []))
         self.recompile()
 
@@ -131,8 +137,12 @@ class IrcBot:
         self.events[event.regexp].append(event)
 
     def include(self, *modules, **kwargs):
-        categories = kwargs.get('categories', self.venusian_categories)
+        categories = kwargs.get('venusian_categories',
+                                self.venusian_categories)
         for module in modules:
+            if module in self.includes:
+                self.log.warn('%s included twice', module)
+            self.includes.add(module)
             scanner = self.venusian.Scanner(bot=self)
             scanner.scan(utils.maybedotted(module), categories=categories)
 
@@ -246,3 +256,31 @@ class IrcBot:
         loop.add_signal_handler(signal.SIGHUP, self.SIGHUP)
         loop.add_signal_handler(signal.SIGINT, self.SIGINT)
         loop.run_forever()
+
+
+def run():
+    """
+    Run an irc bot from a config file
+
+    Usage: irc3 [options] <config>
+
+    Options:
+
+    -v,--verbose    Increase verbosity
+    -r,--raw        Show raw irc log on the console
+    -d,--debug      Add some debug commands/utils
+    """
+    import sys
+    import docopt
+    import textwrap
+    args = docopt.docopt(textwrap.dedent(run.__doc__), sys.argv[1:])
+    config = utils.parse_config(args['<config>'])
+    config.update(
+        verbose=args['--verbose'],
+    )
+    if args['--debug']:
+        IrcBot.venusian_categories.append('irc3.debug')
+    bot = IrcBot(**config)
+    if args['--raw']:
+        bot.include('irc3.plugins.log', venusian_categories=['irc3.debug'])
+    bot.run()

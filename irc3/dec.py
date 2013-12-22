@@ -27,9 +27,10 @@ class event(object):
 
     venusian = venusian
 
-    def __init__(self, regexp, callback=None):
+    def __init__(self, regexp, callback=None, venusian_category=None):
         self.regexp = regexp
         self.callback = callback
+        self.venusian_category = venusian_category or 'irc3.rfc1459'
 
     def async_callback(self, kwargs):  # pragma: no cover
         return self.callback(**kwargs)
@@ -54,10 +55,12 @@ class event(object):
                 self.callback = wrapper
             # a new instance is needed to keep this related to *one* bot
             # instance
-            e = self.__class__(self.regexp, self.callback)
+            e = self.__class__(self.regexp, self.callback,
+                               venusian_category=self.venusian_category)
             e.compile(bot.config)
             bot.add_event(e)
-        info = self.venusian.attach(wrapped, callback, category='irc3.rfc1459')
+        info = self.venusian.attach(wrapped, callback,
+                                    category=self.venusian_category)
         return wrapped
 
     def __repr__(self):

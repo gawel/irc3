@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import configparser
+import os
 
 
 class IrcString(str):
@@ -96,6 +98,34 @@ class Config(dict):
 
     def __getattr__(self, attr):
         return self[attr]
+
+
+def parse_config(filename):
+    filename = os.path.abspath(filename)
+    here = os.path.dirname(filename)
+    defaults = dict(here=here, config=filename)
+
+    config = configparser.ConfigParser(defaults, allow_no_value=False)
+    config.read([filename, os.path.expanduser('~/.irc3/passwd.ini')])
+
+    value = {}
+    for s in config.sections():
+        items = {}
+        for k, v in config.items(s):
+            if '\n' in v:
+                v = v.strip().split('\n')
+            elif v.isdigit():
+                v = int(v)
+            elif v in ('true', 'false'):
+                v = v == 'true' and True or False
+            items[k] = v
+        if s == 'bot':
+            value.update(items)
+        else:
+            for k in ('here', 'config'):
+                items.pop(k, '')
+            value[s] = items
+    return value
 
 
 def maybedotted(name):

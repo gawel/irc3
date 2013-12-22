@@ -39,8 +39,8 @@ class TestBot(BotTestCase):
     def test_nick(self):
         bot = self.callFTU()
         bot.include('irc3.plugins.core')
-        self.assertEqual(bot.nick, 'foo')
-        bot.dispatch(':foo!user@host NICK bar')
+        self.assertEqual(bot.nick, 'nono')
+        bot.dispatch(':nono!user@host NICK bar')
         self.assertEqual(bot.nick, 'bar')
         bot.dispatch(':h.net 432 * bar :xx')
         self.assertSent(['NICK bar_'])

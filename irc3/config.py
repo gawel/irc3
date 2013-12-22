@@ -18,20 +18,20 @@ LOGGING = {
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'stream': 'ext://sys.stderr',
+            'stream': 'ext://sys.stdout',
             'formatter': 'console',
         },
         'logs': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'stream': 'ext://sys.stderr',
+            'stream': 'ext://sys.stdout',
             'formatter': 'console',
         }
     },
     'loggers': {
         'irc3': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': False,
         },
         'raw': {

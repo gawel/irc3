@@ -41,4 +41,8 @@ setup(
             'nose', 'coverage'
         ],
     },
+    entry_points='''
+    [console_scripts]
+    irc3 = irc3:run
+    ''',
 )

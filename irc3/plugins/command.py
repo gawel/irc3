@@ -55,7 +55,9 @@ There is two builtin policy:
 
 Guard usage::
 
-    >>> config = {'cmd.guard': mask_based_policy, 'cmd.masks': ['gawel!*@*']}
+    >>> config = {
+    ...     'irc3.plugins.command': {'guard': mask_based_policy},
+    ...     'irc3.plugins.command.masks': ['gawel!*@*']}
     >>> bot = IrcBot(**config)
     >>> bot.include('irc3.plugins.command')  # register the plugin
     >>> bot.include('mycommands')            # register your commands
@@ -68,7 +70,9 @@ Guard usage::
 
 Mask based guard using permissions::
 
-    >>> config = {'cmd.guard': mask_based_policy, 'cmd.masks': {
+    >>> config = {
+    ...     'irc3.plugins.command': {'guard': mask_based_policy},
+    ...     'irc3.plugins.command.masks': {
     ...     'gawel!*@*': ['all_permissions'],
     ...     'foo!*@*': ['help'],
     ... }}
@@ -82,9 +86,11 @@ Mask based guard using permissions::
     ['NOTICE gawel :PONG gawel!']
 
 '''
+from irc3 import utils
 import functools
 import venusian
 import fnmatch
+import logging
 import docopt
 import irc3
 
@@ -102,7 +108,9 @@ class mask_based_policy:
     """Allow only valid masks. Able to take care or permissions"""
     def __init__(self, bot):
         self.bot = bot
-        self.masks = bot.config['cmd.masks']
+        self.log = logging.getLogger(__name__)
+        self.masks = bot.config[__name__ + '.masks']
+        self.log.debug('Masks: %r', self.masks)
 
     def has_permission(self, mask, permission):
         for pattern in self.masks:
@@ -129,18 +137,18 @@ class command:
     defaults = {'permission': None}
 
     def __init__(self, *func, **predicates):
-
         self.predicates = predicates
         if func:
             self.__call__ = self.func = func[0]
             self.info = self.venusian.attach(self, self.callback,
-                                             category='irc3.plugins.command')
+                                             category=self.__module__)
+        self.category = self.predicates.pop('venusian_category',
+                                            self.__module__)
 
     def callback(self, context, name, ob):
         bot = context.bot
         if self.info.scope == 'class':
             callback = self.func.__get__(bot.get_plugin(ob), ob)
-            bot.log.info('Register command %r', callback)
         else:
             @functools.wraps(self.func)
             def wrapper(*args, **kwargs):
@@ -154,7 +162,7 @@ class command:
     def __call__(self, func):
         self.__call__ = self.func = func
         self.info = self.venusian.attach(func, self.callback,
-                                         category='irc3.plugins.command')
+                                         category=self.category)
         return func
 
 
@@ -163,10 +171,13 @@ class Commands(dict):
 
     def __init__(self, bot):
         self.bot = bot
-        bot.config['cmd'] = self.cmd = bot.config.get('cmd', '!')
-        guard = bot.config.get('cmd.guard', free_policy)
+        config = bot.config.get(__name__, {})
+        self.log = logging.getLogger(__name__)
+        self.log.debug('Config: %r', config)
+        bot.config['cmd'] = self.cmd = config.get('cmd', '!')
+        guard = utils.maybedotted(config.get('guard', free_policy))
+        self.log.debug('Guard: %s', guard.__name__)
         self.guard = guard(bot)
-        bot.log.info('Use %r as security guard', guard.__name__)
 
     @irc3.event((r':(?P<mask>\S+) PRIVMSG (?P<target>\S+) '
                  r':%(cmd)s(?P<cmd>\w+)(\s(?P<data>\w+.*)|$)'))
@@ -232,3 +243,14 @@ def ping(bot, mask, target, args):
         %%ping
     """
     bot.send('NOTICE %(nick)s :PONG %(nick)s!' % dict(nick=mask.nick))
+
+
+@command(venusian_category='irc3.debug')
+def quote(bot, mask, target, args):
+    """send quote to the server
+
+        %%quote <args>...
+    """
+    msg = ' '.join(args['<args>'])
+    bot.log.info('quote> %r', msg)
+    bot.send(msg)

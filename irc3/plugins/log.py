@@ -22,10 +22,10 @@ class RawLog:
     def __init__(self, bot):
         self.bot = bot
         self.log = logging.getLogger('raw.' + bot.nick)
+        self.log.setLevel(logging.DEBUG)
 
-    @irc3.event(r'^(?P<raw>.*)')
+    @irc3.event(r'^(?P<raw>.*)', venusian_category='irc3.debug')
     def debug(self, raw):
-        if ' 372 ' in raw or raw.startswith('PING'):
-            self.log.debug(raw)
-        else:
-            self.log.info(raw)
+        if not (' 372 ' in raw or ' 00' in raw or raw.startswith('PING')):
+            if raw.strip():
+                self.log.debug(raw)

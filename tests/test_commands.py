@@ -34,7 +34,7 @@ class TestCommands(BotTestCase):
         )
 
     def test_command_char(self):
-        bot = self.callFTU(cmd='\$')
+        bot = self.callFTU(**{'irc3.plugins.command': {'cmd': '\$'}})
         bot.dispatch(':bar!user@host PRIVMSG foo :$ping')
         self.assertSent(['NOTICE bar :PONG bar!'])
 

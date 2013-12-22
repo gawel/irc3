@@ -5,7 +5,7 @@ import irc3
 
 class BotTestCase(TestCase):
 
-    config = {'nick': 'foo'}
+    config = {'nick': 'nono'}
 
     def callFTU(self, **config):
         config = dict(self.config, **config)
