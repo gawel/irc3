@@ -1,24 +1,34 @@
 # -*- coding: utf-8 -*-
 import irc3
-import signal
-import logging.config
+from irc3.plugins.command import command
 from irc3 import config
+import logging.config
+
+
+@command
+def quote(bot, mask, target, args):
+    """send quote to the server
+
+        %%quote <args>...
+    """
+    msg = ' '.join(args['<args>'])
+    bot.log.info('quote> %r', msg)
+    bot.send(msg)
 
 
 def main():
     logging.config.dictConfig(config.LOGGING)
-    bots = []
-    bot = irc3.IrcBot(nick='irc3', autojoins=['#irc3'],
-                      host='irc.undernet.org', port=6667, ssl=False)
-    bots.append(bot)
-    bot.include('irc3.plugins.core')
-    bot.include('irc3.plugins.log')
-    bot.include('irc3.plugins.command')
-    bot.include('irc3.plugins.human')
-    bot.include('irc3.plugins.userlist')
-    loop = bot.create_connection()
-    loop.add_signal_handler(signal.SIGINT, loop.stop)
-    loop.run_forever()
+    irc3.IrcBot(
+        nick='irc3', autojoins=['#irc3'],
+        host='irc.freenode.net', port=7000, ssl=True,
+        includes=[
+            'irc3.plugins.core',
+            'irc3.plugins.log',
+            'irc3.plugins.userlist',
+            'irc3.plugins.command',
+            'irc3.plugins.human',
+            __name__,
+        ]).run()
 
 if __name__ == '__main__':
     main()

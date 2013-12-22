@@ -21,13 +21,18 @@ Register the plugin::
 
 And it should work::
 
-    >>> bot.test(':foo!m@h PRIVMSG nono :Yo!')
+    >>> bot.test(':foo!m@h PRIVMSG nono :nono: Yo!')
     >>> bot.sent
     ['PRIVMSG foo :Yo!']
 
     >>> bot.test(':foo!m@h PRIVMSG #chan :nono: Yo!')
     >>> bot.sent
     ['PRIVMSG #chan :foo: Yo!']
+
+..
+    >>> bot.test(':foo!m@h PRIVMSG #chan :!ping')
+    >>> bot.sent
+    []
 
 '''
 import os

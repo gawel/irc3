@@ -74,6 +74,7 @@ class IrcBot:
     ]
 
     defaults = dict(
+        cmd='!',
         nick='irc3',
         realname='irc3',
         info='Irc bot based on irc3',
@@ -235,8 +236,13 @@ class IrcBot:
         finally:
             pass
 
+    def SIGINT(self):  # pragma: no cover
+        self.quit('INT')
+        time.sleep(1)
+        self.loop.stop()
+
     def run(self):  # pragma: no cover
         loop = self.create_connection()
         loop.add_signal_handler(signal.SIGHUP, self.SIGHUP)
-        loop.add_signal_handler(signal.SIGINT, self.loop.stop)
+        loop.add_signal_handler(signal.SIGINT, self.SIGINT)
         loop.run_forever()
