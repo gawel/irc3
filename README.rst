@@ -16,4 +16,5 @@ Source: https://github.com/gawel/irc3/
 
 Docs: https://irc3.readthedocs.org/
 
-Irc: irc://irc.freenode.net/irc3
+Irc: irc://irc.freenode.net/irc3 (`www
+<https://kiwiirc.com/client/irc.freenode.net/?nick=irc3|?&theme=basic#irc3>`_
