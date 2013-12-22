@@ -13,11 +13,10 @@ Usage::
     >>> bot.include('irc3.plugins.userlist')
     >>> bot.test(':gawel!user@host JOIN #chan')
 
-    >>> plugin = bot.get_plugin('irc3.plugins.userlist.Userlist')
-    >>> plugin.channels.items()
-    dict_items([('#chan', Channel({'gawel'}))])
-    >>> plugin.nicks.items()
-    dict_items([('gawel', 'gawel!user@host')])
+    >>> bot.channels.items()
+    dict_items([('#chan', {'gawel'})])
+    >>> bot.nicks
+    {'gawel': 'gawel!user@host'}
 
 '''
 from irc3 import plugin
@@ -25,12 +24,6 @@ from irc3 import event
 from irc3 import rfc
 from irc3.utils import IrcString
 from collections import defaultdict
-
-
-class Channel(set):
-
-    def __init__(self):
-        self.ops = set()
 
 
 @plugin
@@ -41,21 +34,21 @@ class Userlist:
         self.connection_lost()
 
     def connection_lost(self):
-        self.channels = defaultdict(Channel)
+        self.channels = defaultdict(set)
+        self.bot.channels = self.channels
         self.nicks = {}
+        self.bot.nicks = self.nicks
 
     @event(rfc.JOIN_PART_QUIT)
     def join_part_quit(self, mask, event, channel=None, **kw):
-        getattr(self, event.lower())(mask, channel)
+        getattr(self, event.lower())(mask.lnick, mask, channel)
 
-    def join(self, mask, channel):
-        nick = mask.lnick
+    def join(self, nick, mask, channel):
         if nick != self.bot.nick.lower():
             self.channels[channel].add(mask.nick)
             self.nicks[mask.nick] = mask
 
-    def part(self, mask, channel):
-        nick = mask.lnick
+    def part(self, nick, mask, channel):
         if nick == self.bot.nick.lower():
             del self.channels[channel]
         else:
@@ -63,8 +56,7 @@ class Userlist:
             if True not in [nick in c for c in self.channels.values()]:
                 del self.nicks[nick]
 
-    def quit(self, mask, channel):
-        nick = mask.lnick
+    def quit(self, nick, mask, channel):
         if nick == self.bot.nick.lower():
             self.connection_lost()
         else:

@@ -15,8 +15,9 @@ def render_attrs(title, attrs, out):
         out.write(title + '\n')
         out.write(len(title)*'-' + '\n\n')
         out.write('Match ``%s``\n\n' % attr.re)
-        out.write('Example::\n\n')
-        out.write('    @event(rfc.%s)\n' % name)
+        out.write('Example:\n\n')
+        out.write('.. code-block:: python\n\n')
+        out.write('    @irc3.event(rfc.%s)\n' % name)
         params = getattr(attr, 'params', [])
         if params:
             params = '=None, '.join(params)

@@ -26,6 +26,18 @@ JOIN_PART_QUIT = raw.new(
     (r':(?P<mask>\S+) '
      r'(?P<event>JOIN|PART|QUIT)\s*(?P<channel>\S*)(\s+:(?P<data>.*)|$)'))
 
+MY_PRIVMSG = raw.new(
+    'MY_PRIVMSG',
+    (r':(?P<mask>\S+) (?P<event>(PRIVMSG|NOTICE)) '
+        r'((?P<target>(#\S+|%(nick)s)) :\s*'
+        r'|(?P=target) :%(nick)s[:,\s]\s+)'
+        r'(?P<data>\S+.*)$'))
+
+PRIVMSG = raw.new(
+    'PRIVMSG',
+    (r':(?P<mask>\S+) (?P<event>(PRIVMSG|NOTICE)) '
+        r'((?P<target>\S+) :\s*(?P<data>\S+.*)$'))
+
 ERR_NICK = raw.new(
     'ERR_NICK',
     ":(?P<srv>\S+) (?P<retcode>(432|433|436)) (?P<me>\S+) "

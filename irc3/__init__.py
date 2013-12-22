@@ -1,18 +1,24 @@
 # -*- coding: utf-8 -*-
+from collections import defaultdict
 from .dec import event
+from .dec import extend
 from .dec import plugin
 from .utils import IrcString
+from . import config
 from . import utils
 from . import rfc
 import venusian
 import asyncio
 import logging
+import signal
+import time
 
 
 class IrcConnection(asyncio.Protocol):  # pragma: no cover
 
     def connection_made(self, transport):
         self.transport = transport
+        self.closed = False
         self.buf = ''
 
     def data_received(self, data):
@@ -35,18 +41,37 @@ class IrcConnection(asyncio.Protocol):  # pragma: no cover
             self.transport.write(data)
 
     def connection_lost(self, exc):
-        self.factory.log.critical('connection lost: %r', exc)
-        # reconnect
+        self.factory.log.critical('connection lost (%s): %r',
+                                  id(self.transport),
+                                  exc)
         self.factory.propagate('connection_lost')
-        self.factory.create_connection(protocol=self.__class__)
+        if not self.closed:
+            self.close()
+            # wait a few before reconnect
+            time.sleep(2)
+            # reconnect
+            self.factory.create_connection(protocol=self.__class__)
+
+    def close(self):
+        if not self.closed:
+            self.factory.log.critical('closing old transport (%r)',
+                                      id(self.transport))
+            try:
+                self.transport.close()
+            finally:
+                self.closed = True
 
 
 class IrcBot:
 
+    _pep8 = [event, extend, plugin, rfc, config]
     venusian = venusian
-    event = event
-    plugin = plugin
-    rfc = rfc
+    venusian_categories = [
+        'irc3.plugin',
+        'irc3.extend',
+        'irc3.rfc1459',
+        'irc3.plugins.command',
+    ]
 
     defaults = dict(
         nick='irc3',
@@ -64,10 +89,10 @@ class IrcBot:
 
     def __init__(self, **config):
         self.config = utils.Config(dict(self.defaults, **config))
-        self.async = self.config.async
         self.encoding = self.config['encoding']
-        self.loop = self.config['loop']
-        self.events = []
+        self.loop = self.config.loop
+        self.events_re = []
+        self.events = defaultdict(list)
         self.log = logging.getLogger('irc3.' + self.nick)
         self._sent = []
 
@@ -92,18 +117,27 @@ class IrcBot:
         return self.plugins[ob]
 
     def recompile(self):
-        for e in self.events:
+        events_re = []
+        for regexp, cregexp in self.events_re:
+            e = self.events[regexp][0]
             e.compile(self.config)
+            events_re.append((regexp, e.cregexp))
+        self.events_re = events_re
 
     def add_event(self, event):
-        self.events.append(event)
+        if event.regexp not in self.events_re:
+            self.events_re.append((event.regexp, event.cregexp))
+        self.events[event.regexp].append(event)
 
-    def include(self, *modules):
+    def include(self, *modules, **kwargs):
+        categories = kwargs.get('categories', self.venusian_categories)
         for module in modules:
             scanner = self.venusian.Scanner(bot=self)
-            scanner.scan(utils.maybedotted(module))
+            scanner.scan(utils.maybedotted(module), categories=categories)
 
     def connection_made(self, f):  # pragma: no cover
+        if getattr(self, 'protocol', None):
+            self.protocol.close()
         self.log.info('Connected')
         transport, protocol = f.result()
         self.protocol = protocol
@@ -122,18 +156,19 @@ class IrcBot:
 
     def dispatch(self, data):
         events = []
-        for e in self.events:
-            match = e.cregexp.search(data)
+        for regexp, cregexp in self.events_re:
+            match = cregexp.search(data)
             if match is not None:
                 match = match.groupdict()
                 for key, value in match.items():
                     if value is not None:
                         match[key] = IrcString(value)
-                if self.async:  # pragma: no cover
-                    self.loop.call_soon(e.async_callback, match)
-                else:
-                    e.callback(**match)
-                events.append((e, match))
+                for e in self.events[regexp]:
+                    if self.config.async:  # pragma: no cover
+                        self.loop.call_soon(e.async_callback, match)
+                    else:
+                        e.callback(**match)
+                    events.append((e, match))
         return events
 
     def send(self, data):
@@ -147,20 +182,30 @@ class IrcBot:
         if target and message:
             self.send('PRIVMSG %s :%s' % (target, message))
 
+    def notice(self, target, message):
+        if target and message:
+            self.send('NOTICE %s :%s' % (target, message))
+
     def join(self, target):
         self.send('JOIN %s' % target)
 
     def part(self, target, reason=None):
         if reason:
             target += ' :' + reason
-        self.send('PART %s\r\n' % target)
+        self.send('PART %s' % target)
 
-    @property
-    def nick(self):
+    def quit(self, reason=None):
+        if not reason:
+            reason = 'bye'
+        self.send('QUIT :%s' % reason)
+
+    def get_nick(self):
         return self.config.nick
 
     def set_nick(self, nick):
         self.send('NICK ' + nick)
+
+    nick = property(get_nick, set_nick)
 
     def test(self, data):
         self.dispatch(data)
@@ -181,3 +226,17 @@ class IrcBot:
             loop=self.loop)
         t.add_done_callback(self.connection_made)
         return self.loop
+
+    def SIGHUP(self):
+        self.quit('HUP')
+        time.sleep(1)
+        try:
+            self.protocol.transport.close()
+        finally:
+            pass
+
+    def run(self):
+        loop = self.create_connection()
+        loop.add_signal_handler(signal.SIGHUP, self.SIGHUP)
+        loop.add_signal_handler(signal.SIGINT, self.loop.stop)
+        loop.run_forever()

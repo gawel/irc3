@@ -105,6 +105,8 @@ def maybedotted(name):
         <module 'http.server' from '...'>
         >>> maybedotted('http.server.HTTPServer')
         <class 'http.server.HTTPServer'>
+
+    ..
     """
     if not name:
         raise LookupError(

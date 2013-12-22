@@ -12,10 +12,17 @@ class TestBot(BotTestCase):
         self.assertRaises(LookupError, bot.get_plugin,
                           'irc3.plugins.command.Commands')
 
+    def test_message(self):
+        bot = self.callFTU()
+        bot.privmsg('gawel', 'Youhou!')
+        self.assertSent(['PRIVMSG gawel :Youhou!'])
+        bot.notice('gawel', 'Youhou!')
+        self.assertSent(['NOTICE gawel :Youhou!'])
+
     def test_event(self):
         bot = self.callFTU()
         bot.include('irc3.plugins.core')
-        self.assertIn('<event ', repr(bot.events[0]))
+        self.assertIn('<event ', repr(list(bot.events.values())[0]))
 
     def test_log(self):
         bot = self.callFTU()

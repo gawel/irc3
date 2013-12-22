@@ -9,7 +9,7 @@ extracted from this file.
 
 ..
     >>> from irc3 import IrcBot
-    >>> IrcBot.defaults.update(async=False, testing=True)
+    >>> IrcBot.defaults.update(async=False, testing=True, nick='nono')
     >>> with open('/tmp/human.db', 'wb') as fd:
     ...     s = fd.write(b'Yo!\\nYo!\\nYo!\\nYo!\\n')
 
@@ -20,6 +20,10 @@ Register the plugin::
     >>> bot.include('irc3.plugins.human')
 
 And it should work::
+
+    >>> bot.test(':foo!m@h PRIVMSG nono :Yo!')
+    >>> bot.sent
+    ['PRIVMSG foo :Yo!']
 
     >>> bot.test(':foo!m@h PRIVMSG #chan :nono: Yo!')
     >>> bot.sent
@@ -41,6 +45,7 @@ class Human:
         self.bot = bot
         self.db = os.path.expanduser(
             bot.config.get('human', '~/.irc3/human.db'))
+        self.delay = (2, 7)
         try:
             os.makedirs(os.path.dirname(self.db))
         except OSError:
@@ -57,9 +62,8 @@ class Human:
         for p in processes:
             p.wait()
 
-    @irc3.event((r':(?P<mask>\S+) PRIVMSG (?P<target>#\S+) '
-                 r':%(nick)s.(\s+(?P<data>\w+.*)|$)'))
-    def on_channel_message(self, mask=None, target=None, data=None):
+    @irc3.event(irc3.rfc.MY_PRIVMSG)
+    def on_message(self, mask=None, event=None, target=None, data=None):
         with codecs.open(self.db, 'ab+', encoding=self.bot.encoding) as fd:
             fd.write(data + '\n')
 
@@ -73,4 +77,16 @@ class Human:
                 pass
 
         message = message or 'Yo!'
-        self.bot.privmsg(target, '{0}: {1}'.format(mask.nick, message))
+        if target.is_channel:
+            message = '{0}: {1}'.format(mask.nick, message)
+        else:
+            target = mask.nick
+        self.call_with_human_delay(self.bot.privmsg, target, message)
+
+    @irc3.extend
+    def call_with_human_delay(self, func, *args, **kwargs):
+        if self.bot.config.async:  # pragma: no cover
+            delay = random.randint(*self.delay)
+            self.bot.loop.call_later(delay, func, *args, **kwargs)
+        else:
+            func(*args, **kwargs)

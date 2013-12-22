@@ -1,28 +1,29 @@
 # -*- coding: utf-8 -*-
-import signal
 import logging.config
 from irc3.plugins.command import command
-from irc3.dec import plugin
-from irc3.dec import event
-from irc3 import rfc
-from irc3 import config
+import logging
 import irc3
 
 
-@plugin
+@irc3.plugin
 class MyPlugin:
     """A plugin is a class which take the IrcBot as argument
     """
 
     def __init__(self, bot):
         self.bot = bot
+        self.log = self.bot.log
 
-    @event(rfc.JOIN)
+    @irc3.event(irc3.rfc.JOIN)
     def welcome(self, mask, channel):
         """Welcome people who join a channel"""
         bot = self.bot
         if mask.nick != self.bot.nick:
-            bot.privmsg(channel, 'Welcome %s!' % mask.nick)
+            bot.call_with_human_delay(
+                bot.privmsg, channel, 'Welcome %s!' % mask.nick)
+        else:
+            bot.call_with_human_delay(
+                bot.privmsg, channel, "Hi guys!")
 
     @command
     def echo(self, mask, target, args):
@@ -32,24 +33,29 @@ class MyPlugin:
         """
         self.bot.privmsg(mask.nick, ' '.join(args['<words>']))
 
+    @irc3.extend
+    def my_usefull_command(self):
+        """The extend decorator will allow you to call::
+
+            >>> bot.my_usefull_command()
+
+        """
+
 
 def main():
     # logging configuration
-    logging.config.dictConfig(config.LOGGING)
+    logging.config.dictConfig(irc3.config.LOGGING)
 
     # instanciate a bot
-    bot = irc3.IrcBot(nick='irc3', autojoins=['#irc3'],
-                      host='irc.undernet.org', port=6667, ssl=False)
-    bot.include('irc3.plugins.core')
-    bot.include('irc3.plugins.command')
-    bot.include(__name__)  # this register MyPlugin
-
-    # create an asyncio connection
-    loop = bot.create_connection()
-
-    # start the loop
-    loop.add_signal_handler(signal.SIGINT, loop.stop)
-    loop.run_forever()
+    irc3.IrcBot(
+        nick='irc3', autojoins=['#irc3'],
+        host='irc.undernet.org', port=6667, ssl=False,
+        includes=[
+            'irc3.plugins.core',
+            'irc3.plugins.command',
+            'irc3.plugins.human',
+            __name__,  # this register MyPlugin
+        ]).run()
 
 if __name__ == '__main__':
     main()

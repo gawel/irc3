@@ -10,9 +10,11 @@ Replies (REPL)
 
 Match ``^:(?P<srv>\S+) 259 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_ADMINEMAIL)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_ADMINEMAIL)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -21,9 +23,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 257 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_ADMINLOC1)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_ADMINLOC1)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -32,9 +36,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 258 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_ADMINLOC2)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_ADMINLOC2)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -43,9 +49,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 256 (?P<me>\S+) (?P<server>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_ADMINME)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_ADMINME)
     def myevent(bot, srv=None, me=None, server=None, data=None):
         # do something
 
@@ -54,9 +62,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 301 (?P<me>\S+) (?P<nick>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_AWAY)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_AWAY)
     def myevent(bot, srv=None, me=None, nick=None, data=None):
         # do something
 
@@ -65,9 +75,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 367 (?P<me>\S+) (?P<channel>\S+) (?P<banid>\S+)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_BANLIST)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_BANLIST)
     def myevent(bot, srv=None, me=None, channel=None, banid=None):
         # do something
 
@@ -76,9 +88,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 324 (?P<me>\S+) (?P<channel>\S+) (?P<mode>\S+) (?P<mode_params>\S+)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_CHANNELMODEIS)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_CHANNELMODEIS)
     def myevent(bot, srv=None, me=None, channel=None, mode=None, mode_params=None):
         # do something
 
@@ -87,9 +101,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 368 (?P<me>\S+) (?P<channel>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_ENDOFBANLIST)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_ENDOFBANLIST)
     def myevent(bot, srv=None, me=None, channel=None, data=None):
         # do something
 
@@ -98,9 +114,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 374 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_ENDOFINFO)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_ENDOFINFO)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -109,9 +127,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 365 (?P<me>\S+) (?P<mask>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_ENDOFLINKS)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_ENDOFLINKS)
     def myevent(bot, srv=None, me=None, mask=None, data=None):
         # do something
 
@@ -120,9 +140,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 376 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_ENDOFMOTD)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_ENDOFMOTD)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -131,9 +153,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 366 (?P<me>\S+) (?P<channel>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_ENDOFNAMES)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_ENDOFNAMES)
     def myevent(bot, srv=None, me=None, channel=None, data=None):
         # do something
 
@@ -142,9 +166,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 219 (?P<me>\S+) (?P<stats_letter>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_ENDOFSTATS)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_ENDOFSTATS)
     def myevent(bot, srv=None, me=None, stats_letter=None, data=None):
         # do something
 
@@ -153,9 +179,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 394 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_ENDOFUSERS)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_ENDOFUSERS)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -164,9 +192,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 315 (?P<me>\S+) (?P<name>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_ENDOFWHO)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_ENDOFWHO)
     def myevent(bot, srv=None, me=None, name=None, data=None):
         # do something
 
@@ -175,9 +205,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 318 (?P<me>\S+) (?P<nick>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_ENDOFWHOIS)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_ENDOFWHOIS)
     def myevent(bot, srv=None, me=None, nick=None, data=None):
         # do something
 
@@ -186,9 +218,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 369 (?P<me>\S+) (?P<nick>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_ENDOFWHOWAS)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_ENDOFWHOWAS)
     def myevent(bot, srv=None, me=None, nick=None, data=None):
         # do something
 
@@ -197,9 +231,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 371 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_INFO)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_INFO)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -208,9 +244,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 341 (?P<me>\S+) (?P<channel>\S+) (?P<nick>\S+)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_INVITING)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_INVITING)
     def myevent(bot, srv=None, me=None, channel=None, nick=None):
         # do something
 
@@ -219,9 +257,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 303 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_ISON)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_ISON)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -230,21 +270,25 @@ Example::
 
 Match ``^:(?P<srv>\S+) 364 (?P<me>\S+) (?P<mask>\S+) (?P<server>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_LINKS)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_LINKS)
     def myevent(bot, srv=None, me=None, mask=None, server=None, data=None):
         # do something
 
 322 - RPL_LIST
 --------------
 
-Match ``^:(?P<srv>\S+) 322 (?P<me>\S+) (?P<channel>\S+) (?P<#_visible>\S+) :(?P<data>.*)``
+Match ``^:(?P<srv>\S+) 322 (?P<me>\S+) (?P<channel>\S+) (?P<visible>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_LIST)
-    def myevent(bot, srv=None, me=None, channel=None, #_visible=None, data=None):
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_LIST)
+    def myevent(bot, srv=None, me=None, channel=None, visible=None, data=None):
         # do something
 
 323 - RPL_LISTEND
@@ -252,9 +296,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 323 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_LISTEND)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_LISTEND)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -263,9 +309,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 321 (?P<me>\S+) Channel :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_LISTSTART)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_LISTSTART)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -274,9 +322,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 254 (?P<me>\S+) (?P<integer>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_LUSERCHANNELS)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_LUSERCHANNELS)
     def myevent(bot, srv=None, me=None, integer=None, data=None):
         # do something
 
@@ -285,9 +335,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 251 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_LUSERCLIENT)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_LUSERCLIENT)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -296,9 +348,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 255 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_LUSERME)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_LUSERME)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -307,9 +361,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 252 (?P<me>\S+) (?P<integer>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_LUSEROP)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_LUSEROP)
     def myevent(bot, srv=None, me=None, integer=None, data=None):
         # do something
 
@@ -318,9 +374,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 253 (?P<me>\S+) (?P<integer>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_LUSERUNKNOWN)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_LUSERUNKNOWN)
     def myevent(bot, srv=None, me=None, integer=None, data=None):
         # do something
 
@@ -329,9 +387,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 372 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_MOTD)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_MOTD)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -340,9 +400,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 375 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_MOTDSTART)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_MOTDSTART)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -351,9 +413,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 353 (?P<me>\S+) (?P<channel>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_NAMREPLY)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_NAMREPLY)
     def myevent(bot, srv=None, me=None, channel=None, data=None):
         # do something
 
@@ -362,9 +426,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 331 (?P<me>\S+) (?P<channel>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_NOTOPIC)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_NOTOPIC)
     def myevent(bot, srv=None, me=None, channel=None, data=None):
         # do something
 
@@ -373,9 +439,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 395 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_NOUSERS)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_NOUSERS)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -384,9 +452,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 306 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_NOWAWAY)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_NOWAWAY)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -395,9 +465,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 382 (?P<me>\S+) (?P<config_file>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_REHASHING)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_REHASHING)
     def myevent(bot, srv=None, me=None, config_file=None, data=None):
         # do something
 
@@ -406,9 +478,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 213 (?P<me>\S+) C (?P<host>\S+) * (?P<name>\S+) (?P<port>\S+) (?P<class>\S+)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_STATSCLINE)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_STATSCLINE)
     def myevent(bot, srv=None, me=None, host=None, name=None, port=None, class=None):
         # do something
 
@@ -417,9 +491,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 212 (?P<me>\S+) (?P<command>\S+) (?P<count>\S+)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_STATSCOMMANDS)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_STATSCOMMANDS)
     def myevent(bot, srv=None, me=None, command=None, count=None):
         # do something
 
@@ -428,9 +504,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 244 (?P<me>\S+) H (?P<hostmask>\S+) * (?P<servername>\S+)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_STATSHLINE)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_STATSHLINE)
     def myevent(bot, srv=None, me=None, hostmask=None, servername=None):
         # do something
 
@@ -439,9 +517,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 215 (?P<me>\S+) I (?P<host>\S+) * (?P<host>\S+) (?P<port>\S+) (?P<class>\S+)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_STATSILINE)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_STATSILINE)
     def myevent(bot, srv=None, me=None, host=None, host=None, port=None, class=None):
         # do something
 
@@ -450,9 +530,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 216 (?P<me>\S+) K (?P<host>\S+) * (?P<username>\S+) (?P<port>\S+) (?P<class>\S+)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_STATSKLINE)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_STATSKLINE)
     def myevent(bot, srv=None, me=None, host=None, username=None, port=None, class=None):
         # do something
 
@@ -461,9 +543,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 211 (?P<me>\S+) (?P<linkname>\S+) (?P<sendq>\S+) (?P<sent_messages>\S+) (?P<received_bytes>\S+) (?P<time_open>\S+)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_STATSLINKINFO)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_STATSLINKINFO)
     def myevent(bot, srv=None, me=None, linkname=None, sendq=None, sent_messages=None, received_bytes=None, time_open=None):
         # do something
 
@@ -472,9 +556,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 241 (?P<me>\S+) L (?P<hostmask>\S+) * (?P<servername>\S+) (?P<maxdepth>\S+)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_STATSLLINE)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_STATSLLINE)
     def myevent(bot, srv=None, me=None, hostmask=None, servername=None, maxdepth=None):
         # do something
 
@@ -483,9 +569,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 214 (?P<me>\S+) N (?P<host>\S+) * (?P<name>\S+) (?P<port>\S+) (?P<class>\S+)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_STATSNLINE)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_STATSNLINE)
     def myevent(bot, srv=None, me=None, host=None, name=None, port=None, class=None):
         # do something
 
@@ -494,9 +582,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 243 (?P<me>\S+) O (?P<hostmask>\S+) * (?P<name>\S+)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_STATSOLINE)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_STATSOLINE)
     def myevent(bot, srv=None, me=None, hostmask=None, name=None):
         # do something
 
@@ -505,9 +595,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 242 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_STATSUPTIME)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_STATSUPTIME)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -516,9 +608,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 218 (?P<me>\S+) frequency> (?P<max_sendq>\S+)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_STATSYLINE)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_STATSYLINE)
     def myevent(bot, srv=None, me=None, max_sendq=None):
         # do something
 
@@ -527,9 +621,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 342 (?P<me>\S+) (?P<user>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_SUMMONING)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_SUMMONING)
     def myevent(bot, srv=None, me=None, user=None, data=None):
         # do something
 
@@ -538,9 +634,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 391 (?P<me>\S+) (?P<server>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_TIME)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_TIME)
     def myevent(bot, srv=None, me=None, server=None, data=None):
         # do something
 
@@ -549,9 +647,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 332 (?P<me>\S+) (?P<channel>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_TOPIC)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_TOPIC)
     def myevent(bot, srv=None, me=None, channel=None, data=None):
         # do something
 
@@ -560,9 +660,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 201 (?P<me>\S+) Try. (?P<class>\S+) (?P<server>\S+)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_TRACECONNECTING)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_TRACECONNECTING)
     def myevent(bot, srv=None, me=None, class=None, server=None):
         # do something
 
@@ -571,9 +673,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 202 (?P<me>\S+) H.S. (?P<class>\S+) (?P<server>\S+)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_TRACEHANDSHAKE)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_TRACEHANDSHAKE)
     def myevent(bot, srv=None, me=None, class=None, server=None):
         # do something
 
@@ -582,9 +686,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 200 (?P<me>\S+) (?P<next_server>\S+)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_TRACELINK)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_TRACELINK)
     def myevent(bot, srv=None, me=None, next_server=None):
         # do something
 
@@ -593,9 +699,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 261 (?P<me>\S+) File (?P<logfile>\S+) (?P<debug_level>\S+)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_TRACELOG)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_TRACELOG)
     def myevent(bot, srv=None, me=None, logfile=None, debug_level=None):
         # do something
 
@@ -604,9 +712,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 208 (?P<me>\S+) (?P<newtype>\S+) 0 (?P<client>\S+)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_TRACENEWTYPE)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_TRACENEWTYPE)
     def myevent(bot, srv=None, me=None, newtype=None, client=None):
         # do something
 
@@ -615,9 +725,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 204 (?P<me>\S+) Oper (?P<class>\S+) (?P<nick>\S+)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_TRACEOPERATOR)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_TRACEOPERATOR)
     def myevent(bot, srv=None, me=None, class=None, nick=None):
         # do something
 
@@ -626,9 +738,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 206 (?P<me>\S+) (?P<mask>\S+)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_TRACESERVER)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_TRACESERVER)
     def myevent(bot, srv=None, me=None, mask=None):
         # do something
 
@@ -637,9 +751,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 203 (?P<me>\S+) ???? (?P<class>\S+) [(?P<clientip>\S+)]``
 
-Example::
+Example:
 
-    @event(rfc.RPL_TRACEUNKNOWN)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_TRACEUNKNOWN)
     def myevent(bot, srv=None, me=None, class=None, clientip=None):
         # do something
 
@@ -648,9 +764,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 205 (?P<me>\S+) User (?P<class>\S+) (?P<nick>\S+)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_TRACEUSER)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_TRACEUSER)
     def myevent(bot, srv=None, me=None, class=None, nick=None):
         # do something
 
@@ -659,9 +777,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 221 (?P<me>\S+) (?P<user_mode_string>\S+)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_UMODEIS)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_UMODEIS)
     def myevent(bot, srv=None, me=None, user_mode_string=None):
         # do something
 
@@ -670,9 +790,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 305 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_UNAWAY)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_UNAWAY)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -681,9 +803,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 302 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_USERHOST)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_USERHOST)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -692,9 +816,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 393 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_USERS)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_USERS)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -703,9 +829,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 392 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_USERSSTART)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_USERSSTART)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -714,9 +842,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 351 (?P<me>\S+) (?P<version>\S+).(?P<debuglevel>\S+) (?P<server>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_VERSION)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_VERSION)
     def myevent(bot, srv=None, me=None, version=None, debuglevel=None, server=None, data=None):
         # do something
 
@@ -725,9 +855,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 319 (?P<me>\S+) (?P<nick>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_WHOISCHANNELS)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_WHOISCHANNELS)
     def myevent(bot, srv=None, me=None, nick=None, data=None):
         # do something
 
@@ -736,9 +868,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 317 (?P<me>\S+) (?P<nick>\S+) (?P<integer>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_WHOISIDLE)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_WHOISIDLE)
     def myevent(bot, srv=None, me=None, nick=None, integer=None, data=None):
         # do something
 
@@ -747,9 +881,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 313 (?P<me>\S+) (?P<nick>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_WHOISOPERATOR)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_WHOISOPERATOR)
     def myevent(bot, srv=None, me=None, nick=None, data=None):
         # do something
 
@@ -758,9 +894,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 312 (?P<me>\S+) (?P<nick>\S+) (?P<server>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_WHOISSERVER)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_WHOISSERVER)
     def myevent(bot, srv=None, me=None, nick=None, server=None, data=None):
         # do something
 
@@ -769,9 +907,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 311 (?P<me>\S+) (?P<nick>\S+) (?P<user>\S+) (?P<host>\S+) * :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_WHOISUSER)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_WHOISUSER)
     def myevent(bot, srv=None, me=None, nick=None, user=None, host=None, data=None):
         # do something
 
@@ -780,9 +920,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 352 (?P<me>\S+) (?P<channel>\S+) (?P<user>\S+) (?P<host>\S+) (?P<server>\S+) (?P<nick>\S+) (?P<modes>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_WHOREPLY)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_WHOREPLY)
     def myevent(bot, srv=None, me=None, channel=None, user=None, host=None, server=None, nick=None, modes=None, data=None):
         # do something
 
@@ -791,9 +933,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 314 (?P<me>\S+) (?P<nick>\S+) (?P<user>\S+) (?P<host>\S+) * :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_WHOWASUSER)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_WHOWASUSER)
     def myevent(bot, srv=None, me=None, nick=None, user=None, host=None, data=None):
         # do something
 
@@ -802,9 +946,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 381 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.RPL_YOUREOPER)
+.. code-block:: python
+
+    @irc3.event(rfc.RPL_YOUREOPER)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -816,9 +962,11 @@ Errors (ERR)
 
 Match ``^:(?P<srv>\S+) 462 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_ALREADYREGISTRED)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_ALREADYREGISTRED)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -827,9 +975,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 475 (?P<me>\S+) (?P<channel>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_BADCHANNELKEY)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_BADCHANNELKEY)
     def myevent(bot, srv=None, me=None, channel=None, data=None):
         # do something
 
@@ -838,9 +988,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 474 (?P<me>\S+) (?P<channel>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_BANNEDFROMCHAN)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_BANNEDFROMCHAN)
     def myevent(bot, srv=None, me=None, channel=None, data=None):
         # do something
 
@@ -849,9 +1001,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 404 (?P<me>\S+) (?P<channel>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_CANNOTSENDTOCHAN)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_CANNOTSENDTOCHAN)
     def myevent(bot, srv=None, me=None, channel=None, data=None):
         # do something
 
@@ -860,9 +1014,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 483 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_CANTKILLSERVER)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_CANTKILLSERVER)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -871,9 +1027,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 471 (?P<me>\S+) (?P<channel>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_CHANNELISFULL)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_CHANNELISFULL)
     def myevent(bot, srv=None, me=None, channel=None, data=None):
         # do something
 
@@ -882,9 +1040,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 482 (?P<me>\S+) (?P<channel>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_CHANOPRIVSNEEDED)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_CHANOPRIVSNEEDED)
     def myevent(bot, srv=None, me=None, channel=None, data=None):
         # do something
 
@@ -893,9 +1053,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 432 (?P<me>\S+) (?P<nick>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_ERRONEUSNICKNAME)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_ERRONEUSNICKNAME)
     def myevent(bot, srv=None, me=None, nick=None, data=None):
         # do something
 
@@ -904,9 +1066,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 473 (?P<me>\S+) (?P<channel>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_INVITEONLYCHAN)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_INVITEONLYCHAN)
     def myevent(bot, srv=None, me=None, channel=None, data=None):
         # do something
 
@@ -915,9 +1079,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 467 (?P<me>\S+) (?P<channel>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_KEYSET)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_KEYSET)
     def myevent(bot, srv=None, me=None, channel=None, data=None):
         # do something
 
@@ -926,9 +1092,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 461 (?P<me>\S+) (?P<command>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_NEEDMOREPARAMS)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_NEEDMOREPARAMS)
     def myevent(bot, srv=None, me=None, command=None, data=None):
         # do something
 
@@ -937,9 +1105,11 @@ ERR_NICK
 
 Match ``:(?P<srv>\S+) (?P<retcode>(432|433|436)) (?P<me>\S+) (?P<nick>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_NICK)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_NICK)
     def myevent(bot):
         # do something
 
@@ -948,9 +1118,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 436 (?P<me>\S+) (?P<nick>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_NICKCOLLISION)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_NICKCOLLISION)
     def myevent(bot, srv=None, me=None, nick=None, data=None):
         # do something
 
@@ -959,9 +1131,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 433 (?P<me>\S+) (?P<nick>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_NICKNAMEINUSE)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_NICKNAMEINUSE)
     def myevent(bot, srv=None, me=None, nick=None, data=None):
         # do something
 
@@ -970,9 +1144,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 423 (?P<me>\S+) (?P<server>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_NOADMININFO)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_NOADMININFO)
     def myevent(bot, srv=None, me=None, server=None, data=None):
         # do something
 
@@ -981,9 +1157,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 444 (?P<me>\S+) (?P<user>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_NOLOGIN)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_NOLOGIN)
     def myevent(bot, srv=None, me=None, user=None, data=None):
         # do something
 
@@ -992,9 +1170,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 422 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_NOMOTD)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_NOMOTD)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -1003,9 +1183,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 431 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_NONICKNAMEGIVEN)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_NONICKNAMEGIVEN)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -1014,9 +1196,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 491 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_NOOPERHOST)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_NOOPERHOST)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -1025,9 +1209,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 409 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_NOORIGIN)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_NOORIGIN)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -1036,9 +1222,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 463 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_NOPERMFORHOST)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_NOPERMFORHOST)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -1047,9 +1235,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 481 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_NOPRIVILEGES)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_NOPRIVILEGES)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -1058,9 +1248,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 411 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_NORECIPIENT)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_NORECIPIENT)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -1069,9 +1261,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 403 (?P<me>\S+) (?P<channel>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_NOSUCHCHANNEL)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_NOSUCHCHANNEL)
     def myevent(bot, srv=None, me=None, channel=None, data=None):
         # do something
 
@@ -1080,9 +1274,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 401 (?P<me>\S+) (?P<nick>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_NOSUCHNICK)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_NOSUCHNICK)
     def myevent(bot, srv=None, me=None, nick=None, data=None):
         # do something
 
@@ -1091,9 +1287,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 402 (?P<me>\S+) (?P<server>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_NOSUCHSERVER)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_NOSUCHSERVER)
     def myevent(bot, srv=None, me=None, server=None, data=None):
         # do something
 
@@ -1102,9 +1300,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 412 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_NOTEXTTOSEND)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_NOTEXTTOSEND)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -1113,9 +1313,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 442 (?P<me>\S+) (?P<channel>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_NOTONCHANNEL)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_NOTONCHANNEL)
     def myevent(bot, srv=None, me=None, channel=None, data=None):
         # do something
 
@@ -1124,9 +1326,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 413 (?P<me>\S+) (?P<mask>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_NOTOPLEVEL)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_NOTOPLEVEL)
     def myevent(bot, srv=None, me=None, mask=None, data=None):
         # do something
 
@@ -1135,9 +1339,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 451 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_NOTREGISTERED)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_NOTREGISTERED)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -1146,9 +1352,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 464 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_PASSWDMISMATCH)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_PASSWDMISMATCH)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -1157,9 +1365,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 445 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_SUMMONDISABLED)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_SUMMONDISABLED)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -1168,9 +1378,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 405 (?P<me>\S+) (?P<channel>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_TOOMANYCHANNELS)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_TOOMANYCHANNELS)
     def myevent(bot, srv=None, me=None, channel=None, data=None):
         # do something
 
@@ -1179,9 +1391,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 407 (?P<me>\S+) (?P<target>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_TOOMANYTARGETS)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_TOOMANYTARGETS)
     def myevent(bot, srv=None, me=None, target=None, data=None):
         # do something
 
@@ -1190,9 +1404,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 501 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_UMODEUNKNOWNFLAG)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_UMODEUNKNOWNFLAG)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -1201,9 +1417,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 421 (?P<me>\S+) (?P<command>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_UNKNOWNCOMMAND)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_UNKNOWNCOMMAND)
     def myevent(bot, srv=None, me=None, command=None, data=None):
         # do something
 
@@ -1212,9 +1430,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 472 (?P<me>\S+) (?P<char>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_UNKNOWNMODE)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_UNKNOWNMODE)
     def myevent(bot, srv=None, me=None, char=None, data=None):
         # do something
 
@@ -1223,9 +1443,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 441 (?P<me>\S+) (?P<nick>\S+) (?P<channel>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_USERNOTINCHANNEL)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_USERNOTINCHANNEL)
     def myevent(bot, srv=None, me=None, nick=None, channel=None, data=None):
         # do something
 
@@ -1234,9 +1456,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 443 (?P<me>\S+) (?P<user>\S+) (?P<channel>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_USERONCHANNEL)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_USERONCHANNEL)
     def myevent(bot, srv=None, me=None, user=None, channel=None, data=None):
         # do something
 
@@ -1245,9 +1469,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 446 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_USERSDISABLED)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_USERSDISABLED)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -1256,9 +1482,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 502 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_USERSDONTMATCH)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_USERSDONTMATCH)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -1267,9 +1495,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 406 (?P<me>\S+) (?P<nick>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_WASNOSUCHNICK)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_WASNOSUCHNICK)
     def myevent(bot, srv=None, me=None, nick=None, data=None):
         # do something
 
@@ -1278,9 +1508,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 414 (?P<me>\S+) (?P<mask>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_WILDTOPLEVEL)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_WILDTOPLEVEL)
     def myevent(bot, srv=None, me=None, mask=None, data=None):
         # do something
 
@@ -1289,9 +1521,11 @@ Example::
 
 Match ``^:(?P<srv>\S+) 465 (?P<me>\S+) :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.ERR_YOUREBANNEDCREEP)
+.. code-block:: python
+
+    @irc3.event(rfc.ERR_YOUREBANNEDCREEP)
     def myevent(bot, srv=None, me=None, data=None):
         # do something
 
@@ -1303,9 +1537,11 @@ JOIN
 
 Match ``:(?P<mask>\S+) JOIN (?P<channel>\S+)``
 
-Example::
+Example:
 
-    @event(rfc.JOIN)
+.. code-block:: python
+
+    @irc3.event(rfc.JOIN)
     def myevent(bot):
         # do something
 
@@ -1314,9 +1550,24 @@ JOIN_PART_QUIT
 
 Match ``:(?P<mask>\S+) (?P<event>JOIN|PART|QUIT)\s*(?P<channel>\S*)(\s+:(?P<data>.*)|$)``
 
-Example::
+Example:
 
-    @event(rfc.JOIN_PART_QUIT)
+.. code-block:: python
+
+    @irc3.event(rfc.JOIN_PART_QUIT)
+    def myevent(bot):
+        # do something
+
+MY_PRIVMSG
+----------
+
+Match ``:(?P<mask>\S+) (?P<event>(PRIVMSG|NOTICE)) ((?P<target>(#\S+|%(nick)s)) :\s*|(?P=target) :%(nick)s[:,\s]\s+)(?P<data>\S+.*)$``
+
+Example:
+
+.. code-block:: python
+
+    @irc3.event(rfc.MY_PRIVMSG)
     def myevent(bot):
         # do something
 
@@ -1325,9 +1576,11 @@ NEW_NICK
 
 Match ``:(?P<nick>\S+) NICK (?P<new_nick>\S+)``
 
-Example::
+Example:
 
-    @event(rfc.NEW_NICK)
+.. code-block:: python
+
+    @irc3.event(rfc.NEW_NICK)
     def myevent(bot):
         # do something
 
@@ -1336,9 +1589,11 @@ PART
 
 Match ``:(?P<mask>\S+) PART (?P<channel>\S+)(\s+:(?P<data>.*)|$)``
 
-Example::
+Example:
 
-    @event(rfc.PART)
+.. code-block:: python
+
+    @irc3.event(rfc.PART)
     def myevent(bot):
         # do something
 
@@ -1347,9 +1602,24 @@ PING
 
 Match ``PING :(?P<data>.*)``
 
-Example::
+Example:
 
-    @event(rfc.PING)
+.. code-block:: python
+
+    @irc3.event(rfc.PING)
+    def myevent(bot):
+        # do something
+
+PRIVMSG
+-------
+
+Match ``:(?P<mask>\S+) (?P<event>(PRIVMSG|NOTICE)) ((?P<target>\S+) :\s*(?P<data>\S+.*)$``
+
+Example:
+
+.. code-block:: python
+
+    @irc3.event(rfc.PRIVMSG)
     def myevent(bot):
         # do something
 
@@ -1358,9 +1628,11 @@ QUIT
 
 Match ``:(?P<mask>\S+) QUIT(\s+:(?P<data>.*)|$)``
 
-Example::
+Example:
 
-    @event(rfc.QUIT)
+.. code-block:: python
+
+    @irc3.event(rfc.QUIT)
     def myevent(bot):
         # do something
 

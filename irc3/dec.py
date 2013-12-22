@@ -10,7 +10,7 @@ def plugin(wrapped):
         bot = context.bot
         bot.get_plugin(ob)
     assert isinstance(wrapped, type)
-    venusian.attach(wrapped, callback, category='irc3')
+    venusian.attach(wrapped, callback, category='irc3.plugin')
     return wrapped
 
 
@@ -57,9 +57,45 @@ class event(object):
             e = self.__class__(self.regexp, self.callback)
             e.compile(bot.config)
             bot.add_event(e)
-        info = self.venusian.attach(wrapped, callback, category='rfc1459')
+        info = self.venusian.attach(wrapped, callback, category='irc3.rfc1459')
         return wrapped
 
     def __repr__(self):
         s = getattr(self.regexp, 'name', self.regexp)
         return '<event %s>' % s
+
+
+def extend(func):
+    """Allow to extend a bot:
+
+    Create a module with some usefull routine:
+
+    .. literalinclude:: ../examples/myextends.py
+    ..
+        >>> import sys
+        >>> sys.path.append('examples')
+        >>> from irc3 import IrcBot
+        >>> IrcBot.defaults.update(async=False, testing=True)
+
+    Now you can use those routine in your bot::
+
+        >>> bot = IrcBot()
+        >>> bot.include('myextends')
+        >>> bot.my_usefull_function('foo')
+        "my_usefull_function(*('foo',))"
+        >>> bot.my_usefull_method('bar')
+        "my_usefull_method(*('bar',))"
+
+    """
+    def callback(context, name, ob):
+        bot = context.bot
+        if info.scope == 'class':
+            @functools.wraps(func)
+            def f(self, *args, **kwargs):
+                plugin = bot.get_plugin(ob)
+                return getattr(plugin, func.__name__)(*args, **kwargs)
+            setattr(bot, func.__name__, f.__get__(bot, bot.__class__))
+        else:
+            setattr(bot, func.__name__, func.__get__(bot, bot.__class__))
+    info = venusian.attach(func, callback, category='irc3.extend')
+    return func

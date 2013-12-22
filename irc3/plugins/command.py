@@ -74,7 +74,7 @@ class free_policy:
     def __init__(self, bot):
         self.bot = bot
 
-    def __call__(self, meth, mask, target, args):
+    def __call__(self, predicates, meth, mask, target, args):
         return meth(mask, target, args)
 
 
@@ -84,34 +84,58 @@ class mask_based_policy:
         self.bot = bot
         self.masks = bot.config['cmd.masks']
 
-    def __call__(self, meth, mask, target, args):
+    def has_permission(self, mask, permission):
+        if permission is None or not isinstance(self.masks, dict):
+            return True
+        permissions = self.masks[mask]
+        if permission in permissions or 'all_permissions' in permissions:
+            return True
+        return False
+
+    def __call__(self, predicates, meth, mask, target, args):
         for pattern in self.masks:
             if fnmatch.fnmatch(mask, pattern):
-                return meth(mask, target, args)
+                if self.has_permission(mask, predicates.get('permission')):
+                    return meth(mask, target, args)
         self.bot.privmsg(
             mask.nick,
             'You are not allowed to use the %r command' % meth.__name__
         )
 
 
-def command(wrapped):
-    def callback(context, name, ob):
+class command:
+
+    venusian = venusian
+    defaults = {'permission': None}
+
+    def __init__(self, *func, **predicates):
+
+        self.predicates = predicates
+        if func:
+            self.__call__ = self.func = func[0]
+            self.info = self.venusian.attach(self, self.callback,
+                                             category='irc3.plugins.command')
+
+    def callback(self, context, name, ob):
         bot = context.bot
-        if info.scope == 'class':
-            callback = getattr(
-                bot.get_plugin(ob),
-                wrapped.__name__)
+        if self.info.scope == 'class':
+            callback = self.func.__get__(bot.get_plugin(ob), ob)
+            bot.log.info('Register command %r', callback)
         else:
-            @functools.wraps(wrapped)
+            @functools.wraps(self.func)
             def wrapper(*args, **kwargs):
-                return wrapped(bot, *args, **kwargs)
+                return self.func(bot, *args, **kwargs)
             callback = wrapper
         plugin = bot.get_plugin(Commands)
-        plugin[callback.__name__] = callback
-        bot.log.info('Register command %r', callback.__name__)
-    info = venusian.attach(wrapped, callback,
-                           category='irc3.plugin.command')
-    return wrapped
+        self.predicates.update(module=self.func.__module__)
+        plugin[self.func.__name__] = (self.predicates, callback)
+        bot.log.info('Register command %r', self.func.__name__)
+
+    def __call__(self, func):
+        self.__call__ = self.func = func
+        self.info = self.venusian.attach(func, self.callback,
+                                         category='irc3.plugins.command')
+        return func
 
 
 @irc3.plugin
@@ -127,25 +151,33 @@ class Commands(dict):
     @irc3.event((r':(?P<mask>\S+) PRIVMSG (?P<target>\S+) '
                  r':%(cmd)s(?P<cmd>\w+)(\s(?P<data>\w+.*)|$)'))
     def on_command(self, cmd, mask=None, target=None, data=None, **kw):
+        predicates, meth = self.get(cmd, (None, None))
+        if meth is not None:
+            if predicates.get('public', True) is False and target.is_channel:
+                self.bot.privmsg(
+                    target,
+                    'You can only use this command in private')
+            else:
+                self.do_command(predicates, meth, mask, target, data)
+
+    def do_command(self, predicates, meth, mask, target, data):
         nick = self.bot.nick
         to = target == nick and mask.nick or target
-        meth = self.get(cmd)
-        if meth is not None:
-            doc = meth.__doc__ or ''
-            doc = [l.strip() for l in doc.strip().split('\n')]
-            doc = [nick + ' ' + l.strip('%%')
-                   for l in doc if l.startswith('%%')]
-            doc = 'Usage:' + '\n    ' + '\n    '.join(doc)
-            data = data and data.split() or []
-            try:
-                args = docopt.docopt(doc, [cmd] + data, help=False)
-            except docopt.DocoptExit:
-                self.bot.privmsg(to, 'Invalid arguments')
-            else:
-                msg = self.guard(meth, mask, target, args)
-                self.bot.privmsg(to, msg)
+        doc = meth.__doc__ or ''
+        doc = [l.strip() for l in doc.strip().split('\n')]
+        doc = [nick + ' ' + l.strip('%%')
+               for l in doc if l.startswith('%%')]
+        doc = 'Usage:' + '\n    ' + '\n    '.join(doc)
+        data = data and data.split() or []
+        try:
+            args = docopt.docopt(doc, [meth.__name__] + data, help=False)
+        except docopt.DocoptExit:
+            self.bot.privmsg(to, 'Invalid arguments')
+        else:
+            msg = self.guard(predicates, meth, mask, target, args)
+            self.bot.privmsg(to, msg)
 
-    @command
+    @command(permission='help')
     def help(self, mask, target, args):
         """Show help
 
@@ -153,7 +185,7 @@ class Commands(dict):
         """
         to = target == self.bot.nick and mask.nick or target
         if args['<cmd>']:
-            meth = self.get(args['<cmd>'])
+            predicates, meth = self.get(args['<cmd>'], (None, None))
             if meth is not None:
                 doc = meth.__doc__ or ''
                 doc = [l.strip() for l in doc.split('\n') if l.strip()]
@@ -173,7 +205,7 @@ class Commands(dict):
         return '<Commands %s>' % sorted([self.cmd + k for k in self.keys()])
 
 
-@command
+@command(permission='admin')
 def ping(bot, mask, target, args):
     """ping/pong
 

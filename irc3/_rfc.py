@@ -333,8 +333,8 @@ RPL_LIST = retcode(322)
 RPL_LIST.name = "RPL_LIST"
 RPL_LIST.re = (
     "^:(?P<srv>\S+) 322 (?P<me>\S+) "
-    "(?P<channel>\S+) (?P<#_visible>\S+) :(?P<data>.*)")
-RPL_LIST.params = ['srv', 'me', 'channel', '#_visible', 'data']
+    "(?P<channel>\S+) (?P<visible>\S+) :(?P<data>.*)")
+RPL_LIST.params = ['srv', 'me', 'channel', 'visible', 'data']
 
 RPL_LISTEND = retcode(323)
 RPL_LISTEND.name = "RPL_LISTEND"
