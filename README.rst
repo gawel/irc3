@@ -19,3 +19,4 @@ Source: https://github.com/gawel/irc3/
 
 Docs: https://irc3.readthedocs.org/
 
+Irc: irc://irc.freenode.net/irc3
