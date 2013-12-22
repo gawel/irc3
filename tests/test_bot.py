@@ -52,6 +52,13 @@ class TestBot(BotTestCase):
         bot.part('#foo', 'bye')
         self.assertSent(['PART #foo :bye'])
 
+    def test_quit(self):
+        bot = self.callFTU()
+        bot.quit()
+        self.assertSent(['QUIT :bye'])
+        bot.quit('foo')
+        self.assertSent(['QUIT :foo'])
+
     def test_autojoin(self):
         bot = self.callFTU(autojoins=['#foo'])
         bot.include('irc3.plugins.core')

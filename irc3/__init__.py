@@ -227,7 +227,7 @@ class IrcBot:
         t.add_done_callback(self.connection_made)
         return self.loop
 
-    def SIGHUP(self):
+    def SIGHUP(self):  # pragma: no cover
         self.quit('HUP')
         time.sleep(1)
         try:
@@ -235,7 +235,7 @@ class IrcBot:
         finally:
             pass
 
-    def run(self):
+    def run(self):  # pragma: no cover
         loop = self.create_connection()
         loop.add_signal_handler(signal.SIGHUP, self.SIGHUP)
         loop.add_signal_handler(signal.SIGINT, self.loop.stop)

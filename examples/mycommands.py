@@ -9,3 +9,12 @@ def echo(bot, mask, target, args):
         %%echo <words>...
     """
     bot.privmsg(mask.nick, ' '.join(args['<words>']))
+
+
+@command(permission='admin', public=False)
+def adduser(bot, mask, target, args):
+    """Add a user
+
+        %%adduser <name> <password>
+    """
+    bot.privmsg(mask.nick, 'User added')

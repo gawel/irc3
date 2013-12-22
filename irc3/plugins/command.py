@@ -37,6 +37,11 @@ Check the result::
 In the docstring, ``%%`` is replaced by the command character. ``!`` by
 default. You can override it by passing a ``cmd`` parameter to bot's config.
 
+When a command is not public, you can't use it on a channel::
+
+    >>> bot.test(':gawel!user@host PRIVMSG #chan :!adduser foo pass')
+    >>> bot.sent
+    ["PRIVMSG #chan :You can only use the 'adduser' command in private"]
 
 You can use a guard to prevent untrusted users to run some commands. The
 :class:`free_policy` is used by default.
@@ -61,6 +66,21 @@ Guard usage::
     >>> bot.sent
     ['PRIVMSG gawel :bar']
 
+Mask based guard using permissions::
+
+    >>> config = {'cmd.guard': mask_based_policy, 'cmd.masks': {
+    ...     'gawel!*@*': ['all_permissions'],
+    ...     'foo!*@*': ['help'],
+    ... }}
+    >>> bot = IrcBot(**config)
+    >>> bot.include('irc3.plugins.command')  # register the plugin
+    >>> bot.test(':foo!u@h PRIVMSG #chan :!ping')
+    >>> bot.sent
+    ["PRIVMSG foo :You are not allowed to use the 'ping' command"]
+    >>> bot.test(':gawel!u@h PRIVMSG #chan :!ping')
+    >>> bot.sent
+    ['NOTICE gawel :PONG gawel!']
+
 '''
 import functools
 import venusian
@@ -79,24 +99,24 @@ class free_policy:
 
 
 class mask_based_policy:
-    """Allow only valid masks"""
+    """Allow only valid masks. Able to take care or permissions"""
     def __init__(self, bot):
         self.bot = bot
         self.masks = bot.config['cmd.masks']
 
     def has_permission(self, mask, permission):
-        if permission is None or not isinstance(self.masks, dict):
-            return True
-        permissions = self.masks[mask]
-        if permission in permissions or 'all_permissions' in permissions:
-            return True
-        return False
-
-    def __call__(self, predicates, meth, mask, target, args):
         for pattern in self.masks:
             if fnmatch.fnmatch(mask, pattern):
-                if self.has_permission(mask, predicates.get('permission')):
-                    return meth(mask, target, args)
+                if permission is None or not isinstance(self.masks, dict):
+                    return True
+                perms = self.masks[pattern]
+                if permission in perms or 'all_permissions' in perms:
+                    return True
+                return False
+
+    def __call__(self, predicates, meth, mask, target, args):
+        if self.has_permission(mask, predicates.get('permission')):
+            return meth(mask, target, args)
         self.bot.privmsg(
             mask.nick,
             'You are not allowed to use the %r command' % meth.__name__
@@ -156,7 +176,7 @@ class Commands(dict):
             if predicates.get('public', True) is False and target.is_channel:
                 self.bot.privmsg(
                     target,
-                    'You can only use this command in private')
+                    'You can only use the %r command in private' % cmd)
             else:
                 self.do_command(predicates, meth, mask, target, data)
 
