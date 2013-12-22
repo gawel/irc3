@@ -1,4 +1,4 @@
-0.2 (unreleased)
+0.2 (2013-12-23)
 ================
 
 - We got something
