@@ -10,13 +10,15 @@ irc client based on `asyncio <http://docs.python.org/3.4/library/asyncio.html>`_
 
 Require python 3.3+
 
-Usage
-=====
+Installation
+==============
 
-Installation::
+Using pip::
 
     $ pip install irc3
 
+Usage
+=====
 
 Here is a simple bot:
 
