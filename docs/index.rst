@@ -22,6 +22,14 @@ Here is a simple bot:
 
 .. literalinclude:: ../examples/mybot.py
 
+You can also use a config file as an alternative:
+
+.. literalinclude:: ../examples/bot.ini
+
+Then run::
+
+    $ irc3 -h
+    $ irc3 bot.ini
 
 Contents
 ========
