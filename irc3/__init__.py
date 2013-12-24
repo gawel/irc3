@@ -258,7 +258,7 @@ class IrcBot:
         loop.run_forever()
 
 
-def run():
+def run(argv=None):
     """
     Run an irc bot from a config file
 
@@ -273,7 +273,8 @@ def run():
     import sys
     import docopt
     import textwrap
-    args = docopt.docopt(textwrap.dedent(run.__doc__), sys.argv[1:])
+    args = argv or sys.argv[1:]
+    args = docopt.docopt(textwrap.dedent(run.__doc__), args)
     config = utils.parse_config(args['<config>'])
     config.update(
         verbose=args['--verbose'],
@@ -283,4 +284,6 @@ def run():
     bot = IrcBot(**config)
     if args['--raw']:
         bot.include('irc3.plugins.log', venusian_categories=['irc3.debug'])
-    bot.run()
+    if argv:
+        return bot
+    bot.run()  # pragma: no cover

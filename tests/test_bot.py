@@ -4,6 +4,15 @@ from irc3.testing import BotTestCase
 
 class TestBot(BotTestCase):
 
+    def test_config(self):
+        bot = self.callFTU(verbose=True)
+        self.assertEqual(bot.config.verbose, True)
+
+    def test_include_twice(self):
+        bot = self.callFTU()
+        bot.include('irc3.plugins.log')
+        bot.include('irc3.plugins.log')
+
     def test_plugin(self):
         bot = self.callFTU()
         bot.include('irc3.plugins.log')
@@ -26,9 +35,18 @@ class TestBot(BotTestCase):
 
     def test_log(self):
         bot = self.callFTU()
-        bot.include('irc3.plugins.log')
+        bot.include('irc3.plugins.log', venusian_categories=['irc3.debug'])
         bot.dispatch('PING :youhou')
         bot.dispatch(':gawel!user@host PRIVMSG #chan :youhou')
+
+    def test_quote(self):
+        bot = self.callFTU()
+        bot.include('irc3.plugins.command',
+                    venusian_categories=bot.venusian_categories + [
+                        'irc3.debug',
+                    ])
+        bot.dispatch(':gawel!user@host PRIVMSG nono :!quote who gawel')
+        self.assertSent(['who gawel'])
 
     def test_ping(self):
         bot = self.callFTU()
