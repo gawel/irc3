@@ -6,7 +6,7 @@ from setuptools import find_packages
 
 version = '0.4.dev0'
 
-install_requires = ['venusian', 'docopt']
+install_requires = ['venusian>=1.0a8', 'docopt']
 
 if sys.version_info[:2] < (3, 4):
     install_requires.append('asyncio')
