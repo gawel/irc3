@@ -18,6 +18,7 @@ import venusian
 import signal
 import time
 import sys
+import ssl
 
 try:
     import pkg_resources
@@ -108,6 +109,7 @@ class IrcBot(object):
         ssl=False,
         timeout=320,
         max_lag=60,
+        ssl_verify=ssl.CERT_REQUIRED,
         encoding='utf8',
         testing=False,
         async=True,
@@ -376,11 +378,20 @@ class IrcBot(object):
 
     def create_connection(self):
         protocol = utils.maybedotted(self.config.connection)
+
+        if self.config.ssl:
+            context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
+            # CERT_NONE / CERT_OPTIONAL / CERT_REQUIRED
+            context.verify_mode = self.config.ssl_verify
+        else:
+            context = False
+
         t = asyncio.Task(
             self.loop.create_connection(
                 protocol, self.config.host,
-                self.config.port, ssl=self.config.ssl),
+                self.config.port, ssl=context),
             loop=self.loop)
+
         t.add_done_callback(self.connection_made)
         return self.loop
 
