@@ -55,6 +55,7 @@ def get_file_config(logdir='~/.irc3/logs'):
             'filename': os.path.join(logdir, 'irc3.log'),
             'backupCount': 5,
             'maxBytes': 1024 * 5,
+            'formatter': 'file',
         },
         'logs': {
             'level': 'INFO',
@@ -62,6 +63,7 @@ def get_file_config(logdir='~/.irc3/logs'):
             'filename': os.path.join(logdir, 'logs.log'),
             'backupCount': 5,
             'maxBytes': 1024 * 5,
+            'formatter': 'file',
         }
     }
     return config
