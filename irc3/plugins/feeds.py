@@ -25,24 +25,23 @@ Your config must looks like this:
     # custom formater for the feed
     github/irc3.fmt = [{feed.name}] New commit: {entry.title} - {entry.link}
 
-Hook is a dotted name refering to a callable (function or class) wich take 3
-arguments: ``index, feed, entry``. If the callable return None then the entry
-is skipped:
+Hook is a dotted name refering to a callable (function or class) wich take a
+list of entries as argument. It should yield the entries you want really show:
 
 .. code-block:: python
 
-    >>> def hook(i, feed, entry):
-    ...     if 'something bad' in entry.title:
-    ...         return None
-    ...     return feed, entry
+    >>> def hook(entries):
+    ...     for entry in entries:
+    ...         if 'something bad' not in entry.title:
+    ...             yield entry
 
     >>> class Hook:
     ...     def __init__(self, bot):
     ...         self.bot = bot
-    ...     def __call__(self, i, feed, entry):
-    ...         if 'something bad' in entry.title:
-    ...             return None
-    ...         return feed, entry
+    ...     def __call__(self, entries):
+    ...         for entry in entries:
+    ...             if 'something bad' not in entry.title:
+    ...                 yield entry
 
 
 Here is a more complete hook used on freenode#irc3:
@@ -58,9 +57,9 @@ import datetime
 from concurrent.futures import ThreadPoolExecutor
 
 
-def default_hook(i, feed, entry):
+def default_hook(entries):
     """Default hook called for each entry"""
-    return feed, entry
+    return entries
 
 
 def fetch(args):  # pragma: no cover
@@ -99,7 +98,8 @@ def parse(feedparser, args):
                 # skip entries older than 2 days
                 continue
             e['filename'] = filename
-            entries.append((e.updated, (args, e)))
+            e['feed'] = args
+            entries.append((e.updated, e))
         if entries:
             entries = sorted(entries)
             with open(filename + '.updated', 'w') as fd:
@@ -112,8 +112,9 @@ class Feeds:
     """Feeds plugin"""
 
     headers = {
-        'User-Agent': 'python-requests/irc3',
+        'User-Agent': 'python-requests/irc3/feeds',
         'Cache-Control': 'max-age=0',
+        'Pragma': 'no-cache',
     }
 
     def __init__(self, bot):
@@ -194,12 +195,10 @@ class Feeds:
             entries.extend(parse(self.feedparser, feed))
 
         def messages():
-            for i, (updated, entry) in enumerate(sorted(entries)):
-                entry = self.hook(i, *entry)
+            for entry in self.hook([e for u, e in sorted(entries)]):
                 if not entry:
                     continue
-                feed, entry = entry
-                message = feed['fmt'].format(feed=feed, entry=entry)
+                message = feed['fmt'].format(feed=entry.feed, entry=entry)
                 for c in feed['channels']:
                     yield c, message
 

@@ -6,8 +6,8 @@ import shutil
 import os
 
 
-def hook(i, feed, entry):
-    return None
+def hook(entries):
+    return []
 
 
 class Hook:
@@ -15,8 +15,8 @@ class Hook:
     def __init__(self, bot):
         pass
 
-    def __call__(self, i, feed, entry):
-        return None
+    def __call__(self, entries):
+        return []
 
 
 class TestFeeds(BotTestCase):
