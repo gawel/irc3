@@ -62,7 +62,7 @@ class Feeds:
         self.feeds = {}
         fmt = '[{name}] {title} {link}'
         for name, feed in config.items():
-            if feed.startswith('http'):
+            if str(feed).startswith('http'):
                 splited = feed.split('#')
                 feed = dict(
                     name=str(name), feed=str(splited.pop(0)),
