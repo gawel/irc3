@@ -35,7 +35,7 @@ class TestUserList(BotTestCase):
         self.assertIn('gawel', plugin.channels['#chan2'])
         self.assertIn('gawel', plugin.nicks)
 
-        bot.propagate('connection_lost')
+        bot.notify('connection_lost')
         self.assertEqual(len(plugin.nicks), 0)
         self.assertEqual(len(plugin.channels), 0)
 

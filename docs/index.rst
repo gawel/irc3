@@ -27,8 +27,11 @@ Here is a simple bot:
 You can also use a config file as an alternative:
 
 .. literalinclude:: ../examples/bot.ini
+   :language: ini
 
-Then run::
+Then run:
+
+.. code-block:: sh
 
     $ irc3 -h
     $ irc3 bot.ini

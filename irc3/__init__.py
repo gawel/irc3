@@ -45,7 +45,7 @@ class IrcConnection(asyncio.Protocol):  # pragma: no cover
         self.factory.log.critical('connection lost (%s): %r',
                                   id(self.transport),
                                   exc)
-        self.factory.propagate('connection_lost')
+        self.factory.notify('connection_lost')
         if not self.closed:
             self.close()
             # wait a few before reconnect
@@ -157,9 +157,9 @@ class IrcBot:
         self.send((
             'USER %(nick)s %(realname)s %(host)s :%(info)s\r\n'
             'NICK %(nick)s\r\n') % self.config)
-        self.propagate('connection_made')
+        self.notify('connection_made')
 
-    def propagate(self, event, exc=None):
+    def notify(self, event, exc=None):
         for p in self.plugins.values():
             meth = getattr(p, event, None)
             if meth is not None:
