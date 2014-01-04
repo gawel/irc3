@@ -6,6 +6,19 @@ import shutil
 import os
 
 
+def hook(i, feed, entry):
+    return None
+
+
+class Hook:
+
+    def __init__(self, bot):
+        pass
+
+    def __call__(self, i, feed, entry):
+        return None
+
+
 class TestFeeds(BotTestCase):
 
     name = 'irc3.plugins.feeds'
@@ -33,5 +46,25 @@ class TestFeeds(BotTestCase):
             'PRIVMSG #irc3 :[irc3] coverage '
             'https://github.com/gawel/irc3/commit/'
             'ec82ae2c5f8b2954f0646a2177deb65ad9db712a'])
+        bot.feeds.parse()
+        self.assertSent([])
+
+    def test_hooked_feed(self):
+        config = dict(directory=self.wd,
+                      irc3='http://xxx#irc3',
+                      hook='tests.test_feeds.hook')
+        bot = self.callFTU(includes=[self.name], **{
+            self.name: config})
+        self.copyfile()
+        bot.feeds.parse()
+        self.assertSent([])
+
+    def test_hooked_feed_with_class(self):
+        config = dict(directory=self.wd,
+                      irc3='http://xxx#irc3',
+                      hook='tests.test_feeds.Hook')
+        bot = self.callFTU(includes=[self.name], **{
+            self.name: config})
+        self.copyfile()
         bot.feeds.parse()
         self.assertSent([])
