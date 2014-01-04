@@ -3,6 +3,7 @@
 if [ "$(hostname -s)" == "amandine" ]; then
     cd $(dirname $0)
     git reset --hard HEAD
+    bin/buildout
     pkill -f irc3
 else
     git push amandine master

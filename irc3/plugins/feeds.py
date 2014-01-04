@@ -23,7 +23,7 @@ Your config must looks like this:
     # some feeds: name = http://url#channel,#channel2
     github/irc3 = https://github.com/gawel/irc3/commits/master.atom#irc3
     # custom formater for the feed
-    github/irc3.fmt = [{name}] New commit by {e.author}: {e.title} - {e.link}
+    github/irc3.fmt = [{feed.name}] New commit: {entry.title} - {entry.link}
 
 Hook is a dotted name refering to a callable (function or class) wich take 3
 arguments: ``index, feed, entry``. If the callable return None then the entry
@@ -43,6 +43,12 @@ is skipped:
     ...         if 'something bad' in entry.title:
     ...             return None
     ...         return feed, entry
+
+
+Here is a more complete hook used on freenode#irc3:
+
+.. literalinclude:: ../../examples/freenode_irc3.py
+   :pyobject: FeedsHook
 
 '''
 import os
@@ -129,7 +135,6 @@ class Feeds:
                 feed = dict(
                     name=str(name), feed=str(splited.pop(0)),
                     channels=['#' + c.strip('#,') for c in splited],
-                    directory=self.directory,
                     filename=os.path.join(self.directory,
                                           name.replace('/', '_')),
                     headers=self.headers,
@@ -188,6 +193,7 @@ class Feeds:
 
     def update(self):  # pragma: no cover
         """fault tolerent fetch and notify"""
+        self.bot.log.info('Checking feeds')
         try:
             self.fetch()
         except Exception as e:
