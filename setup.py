@@ -38,7 +38,7 @@ setup(
     install_requires=install_requires,
     extras_require={
         'test': [
-            'nose', 'coverage'
+            'nose', 'coverage', 'feedparser', 'requests',
         ],
     },
     entry_points='''
