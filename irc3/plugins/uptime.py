@@ -24,7 +24,8 @@ class Uptime:
         self.uptime = time.time()
         self.connection_uptime = None
         config = bot.config.get(__name__, {})
-        self.fmt = config.get('fmt', '{days} days {hours} hours')
+        self.fmt = config.get(
+            'fmt', '{days} days {hours} hours {minutes} minutes')
         self.privmsg = config.get('privmsg',
                                   'Up since {0}. Connected since {1}')
 
