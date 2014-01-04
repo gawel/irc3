@@ -50,5 +50,8 @@ def autojoin(bot, **kw):
     """autojoin at the end of MOTD"""
     bot.config['nick'] = kw['me']
     bot.recompile()
-    for channel in bot.config.get('autojoins', ['#irc3']):
+    for channel in bot.config.get('autojoins', []):
+        if not channel.startswith('#'):
+            channel = '#' + channel
+        bot.log.info('Trying to join %s', channel)
         bot.join(channel)
