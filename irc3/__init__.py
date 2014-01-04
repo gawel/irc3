@@ -183,34 +183,51 @@ class IrcBot:
         return events
 
     def send(self, data):
+        """send data to the server"""
         if not self.config.testing:  # pragma: no cover
             self.log.debug('> %s', data.strip())
             self.protocol.write(data)
         else:
             self._sent.append(data)
 
+    def call_many(self, callback, args):
+        """callback is run with each arg but run a call per second"""
+        if isinstance(callback, str):
+            callback = getattr(self, callback)
+        for i, arg in enumerate(args):
+            if self.loop:  # pragma: no cover
+                self.loop.call_later(i, callback, *arg)
+            else:
+                callback(*arg)
+
     def privmsg(self, target, message):
+        """send a privmsg to target"""
         if target and message:
             self.send('PRIVMSG %s :%s' % (target, message))
 
     def notice(self, target, message):
+        """send a notice to target"""
         if target and message:
             self.send('NOTICE %s :%s' % (target, message))
 
     def join(self, target):
+        """join a channel"""
         self.send('JOIN %s' % target)
 
     def part(self, target, reason=None):
+        """quit a channel"""
         if reason:
             target += ' :' + reason
         self.send('PART %s' % target)
 
     def quit(self, reason=None):
+        """disconnect"""
         if not reason:
             reason = 'bye'
         self.send('QUIT :%s' % reason)
 
     def get_nick(self):
+        """nickname"""
         return self.config.nick
 
     def set_nick(self, nick):
@@ -253,6 +270,7 @@ class IrcBot:
         self.loop.stop()
 
     def run(self):  # pragma: no cover
+        """start the bot"""
         loop = self.create_connection()
         loop.add_signal_handler(signal.SIGHUP, self.SIGHUP)
         loop.add_signal_handler(signal.SIGINT, self.SIGINT)

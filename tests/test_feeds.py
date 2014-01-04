@@ -27,7 +27,6 @@ class TestFeeds(BotTestCase):
         wd = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, wd)
         self.wd = os.path.join(wd, 'feeds')
-        self.feed = os.path.join(self.wd, 'irc3')
 
     def copyfile(self):
         dt = datetime.datetime.now().strftime('%Y-%m-%dT%M:%M:OO-08:00')
@@ -37,16 +36,18 @@ class TestFeeds(BotTestCase):
 
     def test_feed(self):
         config = dict(directory=self.wd,
-                      irc3='http://xxx#irc3')
+                      irc3='http://xxx',
+                      channels='irc3')
         bot = self.callFTU(includes=[self.name], **{
             self.name: config})
+        self.feed = bot.feeds.feeds['irc3']['filenames'][0]
         self.copyfile()
-        bot.feeds.parse()
+        bot.feeds.update()
         self.assertSent([
             'PRIVMSG #irc3 :[irc3] coverage '
             'https://github.com/gawel/irc3/commit/'
             'ec82ae2c5f8b2954f0646a2177deb65ad9db712a'])
-        bot.feeds.parse()
+        bot.feeds.update()
         self.assertSent([])
 
     def test_hooked_feed(self):
@@ -55,8 +56,9 @@ class TestFeeds(BotTestCase):
                       hook='tests.test_feeds.hook')
         bot = self.callFTU(includes=[self.name], **{
             self.name: config})
+        self.feed = bot.feeds.feeds['irc3']['filenames'][0]
         self.copyfile()
-        bot.feeds.parse()
+        bot.feeds.update()
         self.assertSent([])
 
     def test_hooked_feed_with_class(self):
@@ -65,6 +67,7 @@ class TestFeeds(BotTestCase):
                       hook='tests.test_feeds.Hook')
         bot = self.callFTU(includes=[self.name], **{
             self.name: config})
+        self.feed = bot.feeds.feeds['irc3']['filenames'][0]
         self.copyfile()
-        bot.feeds.parse()
+        bot.feeds.update()
         self.assertSent([])

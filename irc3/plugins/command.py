@@ -217,20 +217,25 @@ class Commands(dict):
         to = target == self.bot.nick and mask.nick or target
         if args['<cmd>']:
             predicates, meth = self.get(args['<cmd>'], (None, None))
-            if meth is not None:
-                doc = meth.__doc__ or ''
-                doc = [l.strip() for l in doc.split('\n') if l.strip()]
-                for line in doc:
-                    line = line.replace('%%', self.bot.config.cmd)
-                    self.bot.privmsg(to, line)
+
+            def messages():
+                if meth is not None:
+                    doc = meth.__doc__ or ''
+                    doc = [l.strip() for l in doc.split('\n') if l.strip()]
+                    for line in doc:
+                        line = line.replace('%%', self.bot.config.cmd)
+                        yield to, line
         else:
             nb = int(self.bot.config.get('help.item_per_line', 8))
             cmds = sorted([self.cmd + k for k in self.keys()])
-            msg = ', '.join(cmds[0:nb - 3])
-            self.bot.privmsg(to, 'Available commands: ' + msg)
-            for x in range(nb - 3, len(cmds), nb):
-                msg = ', '.join(cmds[x:x+nb])
-                self.bot.privmsg(to, msg)
+
+            def messages():
+                msg = ', '.join(cmds[0:nb - 3])
+                yield to, 'Available commands: ' + msg
+                for x in range(nb - 3, len(cmds), nb):
+                    msg = ', '.join(cmds[x:x+nb])
+                    yield to, msg
+        self.bot.call_many('privmsg', messages())
 
     def __repr__(self):
         return '<Commands %s>' % sorted([self.cmd + k for k in self.keys()])

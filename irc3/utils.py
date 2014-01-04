@@ -113,7 +113,7 @@ def parse_config(filename):
         items = {}
         for k, v in config.items(s):
             if '\n' in v:
-                v = v.strip().split('\n')
+                v = as_list(v)
             elif v.isdigit():
                 v = int(v)
             elif v in ('true', 'false'):
@@ -125,6 +125,55 @@ def parse_config(filename):
             for k in ('here', 'config'):
                 items.pop(k, '')
             value[s] = items
+    return value
+
+
+def extract_config(config, prefix):
+    """return all keys with the same prefix without the prefix"""
+    prefix = prefix.strip('.') + '.'
+    plen = len(prefix)
+    value = {}
+    for k, v in config.items():
+        if k.startswith(prefix):
+            value[k[plen:]] = v
+    return value
+
+
+def as_list(value):
+    """clever string spliting::
+
+        >>> print(as_list('value'))
+        ['value']
+        >>> print(as_list('v1 v2'))
+        ['v1', 'v2']
+        >>> print(as_list(None))
+        []
+        >>> print(as_list(['v1']))
+        ['v1']
+    """
+    if isinstance(value, (list, tuple)):
+        return value
+    if not value:
+        return []
+    for c in '\n ':
+        if c in value:
+            value = value.split(c)
+            return [v.strip() for v in value if v.strip()]
+    return [value]
+
+
+def as_channel(value):
+    """always return a channel name::
+
+        >>> print(as_channel('chan'))
+        #chan
+        >>> print(as_channel('#chan'))
+        #chan
+        >>> print(as_channel('&chan'))
+        &chan
+    """
+    if not value.startswith(('#', '&')):
+        return '#' + value
     return value
 
 

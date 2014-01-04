@@ -21,6 +21,7 @@ Usage::
     >>> bot = IrcBot()
     >>> bot.include('irc3.plugins.core')
 '''
+from irc3 import utils
 from irc3 import event
 from irc3 import rfc
 
@@ -51,7 +52,6 @@ def autojoin(bot, **kw):
     bot.config['nick'] = kw['me']
     bot.recompile()
     for channel in bot.config.get('autojoins', []):
-        if not channel.startswith('#'):
-            channel = '#' + channel
+        channel = utils.as_channel(channel)
         bot.log.info('Trying to join %s', channel)
         bot.join(channel)

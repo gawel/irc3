@@ -7,6 +7,7 @@ class FeedsHook:
 
     def __init__(self, bot):
         self.bot = bot
+        self.packages = ['asyncio', 'irc3']
 
     def reinit(self):
         self.travis = set()
@@ -15,7 +16,7 @@ class FeedsHook:
         """Only show the latest entry iif this entry is in a new state"""
         if feed.name not in self.travis:
             self.travis.add(feed.name)
-            fstate = feed.filename + '.state'
+            fstate = entry.filename + '.state'
             if os.path.isfile(fstate):
                 with open(fstate) as fd:
                     state = fd.read().strip()
@@ -32,9 +33,17 @@ class FeedsHook:
                 entry['title'] = 'Build #{0} {1}'.format(build, nstate)
                 return feed, entry
 
+    def filter_pypi(self, feed, entry):
+        """Show only usefull packages"""
+        for package in self.packages:
+            if entry.title.startswith(package):
+                return feed, entry
+
     def __call__(self, i, feed, entry):
         if not i:
             self.reinit()
         if feed.name.startswith('travis/'):
             return self.filter_travis(feed, entry)
+        elif feed.name.startswith('pypi/'):
+            return self.filter_pypi(feed, entry)
         return feed, entry

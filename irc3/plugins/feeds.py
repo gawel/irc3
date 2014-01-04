@@ -66,38 +66,44 @@ def default_hook(i, feed, entry):
 def fetch(args):  # pragma: no cover
     """fetch a feed"""
     import requests
-    try:
-        resp = requests.get(args['feed'], headers=args['headers'])
-        with open(args['filename'], 'wb') as fd:
-            fd.write(resp.content)
-    finally:
-        return args['name'], args['feed']
+    for feed, filename in zip(args['feeds'], args['filenames']):
+        try:
+            resp = requests.get(feed, headers=args['headers'])
+            with open(filename, 'wb') as fd:
+                fd.write(resp.content)
+        except:
+            raise
+            pass
+    return args['name']
 
 
 def parse(feedparser, args):
     """parse a feed using feedparser"""
-    try:
-        with open(args['filename'] + '.updated') as fd:
-            updated = fd.read().strip()
-    except OSError:
-        updated = '0'
+    entries = []
+    args = irc3.utils.Config(args)
     max_date = datetime.datetime.now() - datetime.timedelta(days=2)
 
-    entries = []
-    feed = feedparser.parse(args['filename'])
-    args = irc3.utils.Config(args)
-    for e in feed.entries:
-        if e.updated <= updated:
-            # skip already sent entries
-            continue
-        if datetime.datetime(*e.updated_parsed[:7]) < max_date:
-            # skip entries older than 2 days
-            continue
-        entries.append((e.updated, (args, e)))
-    if entries:
-        entries = sorted(entries)
-        with open(args['filename'] + '.updated', 'w') as fd:
-            fd.write(str(entries[-1][0]))
+    for filename in args['filenames']:
+        try:
+            with open(filename + '.updated') as fd:
+                updated = fd.read().strip()
+        except OSError:
+            updated = '0'
+
+        feed = feedparser.parse(filename)
+        for e in feed.entries:
+            if e.updated <= updated:
+                # skip already sent entries
+                continue
+            if datetime.datetime(*e.updated_parsed[:7]) < max_date:
+                # skip entries older than 2 days
+                continue
+            e['filename'] = filename
+            entries.append((e.updated, (args, e)))
+        if entries:
+            entries = sorted(entries)
+            with open(filename + '.updated', 'w') as fd:
+                fd.write(str(entries[-1][0]))
     return entries
 
 
@@ -105,7 +111,10 @@ def parse(feedparser, args):
 class Feeds:
     """Feeds plugin"""
 
-    headers = {'User-Agent': 'python-requests/irc3'}
+    headers = {
+        'User-Agent': 'python-requests/irc3',
+        'Cache-Control': 'max-age=0',
+    }
 
     def __init__(self, bot):
         bot.feeds = self
@@ -124,22 +133,38 @@ class Feeds:
             hook = hook(bot)
         self.hook = hook
 
-        fmt = config.get('fmt', '[{feed.name}] {entry.title} {entry.link}')
         self.max_workers = int(config.get('max_workers', 5))
-        self.delay = int(config.get('delay', 5)) * 60
+        delay = int(config.get('delay', 5))
+        self.delay = delay * 60
+
+        feed_config = dict(
+            fmt=config.get('fmt', '[{feed.name}] {entry.title} {entry.link}'),
+            delay=delay,
+            channels=config.get('channels', ''),
+            headers=self.headers,
+            time=0,
+        )
 
         self.feeds = {}
         for name, feed in config.items():
             if str(feed).startswith('http'):
-                splited = feed.split('#')
+                feeds = []
+                filenames = []
+                for i, feed in enumerate(irc3.utils.as_list(feed)):
+                    filename = os.path.join(self.directory,
+                                            name.replace('/', '_'))
+                    filenames.append('{0}.{1}.feed'.format(filename, i))
+                    feeds.append(feed)
                 feed = dict(
-                    name=str(name), feed=str(splited.pop(0)),
-                    channels=['#' + c.strip('#,') for c in splited],
-                    filename=os.path.join(self.directory,
-                                          name.replace('/', '_')),
-                    headers=self.headers,
-                    fmt=config.get(name + '.fmt', fmt),
-                    time=0)
+                    feed_config,
+                    name=str(name),
+                    feeds=feeds,
+                    filenames=filenames,
+                    **irc3.utils.extract_config(config, str(name))
+                )
+                feed['delay'] = feed['delay'] * 60
+                channels = irc3.utils.as_list(feed['channels'])
+                feed['channels'] = [irc3.utils.as_channel(c) for c in channels]
                 self.feeds[name] = feed
 
         self.imports()
@@ -162,44 +187,48 @@ class Feeds:
         except ImportError:  # pragma: no cover
             self.bot.log.critical('requests is not installed')
 
-    def parse(self, entries=None):
+    def parse(self):
         """parse pre-fetched feeds and notify new entries"""
-        if entries is None:
-            entries = []
+        entries = []
         for feed in self.feeds.values():
             entries.extend(parse(self.feedparser, feed))
-        for i, (updated, entry) in enumerate(sorted(entries)):
-            entry = self.hook(i, *entry)
-            if not entry:
-                continue
-            feed, entry = entry
-            for channel in feed['channels']:
-                try:
-                    self.bot.privmsg(
-                        channel,
-                        feed['fmt'].format(feed=feed, entry=entry))
-                except Exception as e:  # pragma: no cover
-                    self.bot.log.exception(e)
 
-    def fetch(self):  # pragma: no cover
+        def messages():
+            for i, (updated, entry) in enumerate(sorted(entries)):
+                entry = self.hook(i, *entry)
+                if not entry:
+                    continue
+                feed, entry = entry
+                message = feed['fmt'].format(feed=feed, entry=entry)
+                for c in feed['channels']:
+                    yield c, message
+
+        self.bot.call_many('privmsg', messages())
+
+    def fetch(self):
         """prefetch feeds"""
-        delay = time.time() - self.delay
-        feeds = [f for f in self.feeds.values() if f['time'] < delay]
-        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            for name, feed in executor.map(fetch, feeds):
-                self.bot.log.debug('Feed %s %s fetched', name, feed)
-                feed = self.feeds[name]
-                feed['time'] = time.time()
+        now = time.time()
+        feeds = [f for f in self.feeds.values()
+                 if f['time'] < now - f['delay']]
+        if not self.bot.config.testing:  # pragma: no cover
+            if not feeds:
+                return
+            self.bot.log.info('Fetching feeds %s',
+                              ', '.join([f['name'] for f in feeds]))
+            with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+                for name in executor.map(fetch, feeds):
+                    feed = self.feeds[name]
+                    feed['time'] = time.time()
 
-    def update(self):  # pragma: no cover
+    def update(self):
         """fault tolerent fetch and notify"""
-        self.bot.log.info('Checking feeds')
         try:
             self.fetch()
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             self.bot.log.exception(e)
         try:
             self.parse()
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             self.bot.log.exception(e)
-        self.bot.loop.call_later(self.delay, self.update)
+        if self.bot.loop:  # pragma: no cover
+            self.bot.loop.call_later(self.delay, self.update)
