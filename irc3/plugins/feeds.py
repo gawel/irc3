@@ -76,7 +76,7 @@ class Feeds:
                 self.feeds[name] = feed
 
         self.max_workers = int(config.get('max_workers', 5))
-        self.delay = int(config.get('delay', 2)) * 60
+        self.delay = int(config.get('delay', 5)) * 60
         self.imports()
 
     def connection_made(self):  # pragma: no cover
@@ -112,7 +112,7 @@ class Feeds:
         feeds = [f for f in self.feeds.values() if f['time'] < delay]
         with ProcessPoolExecutor(max_workers=self.max_workers) as executor:
             for name, feed in executor.map(fetch, feeds):
-                self.bot.log.info('Feed %s %s fetched', name, feed)
+                self.bot.log.debug('Feed %s %s fetched', name, feed)
                 feed = self.feeds[name]
                 feed['time'] = time.time()
 
