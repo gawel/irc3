@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" xml:lang="en-US">
+  <id>tag:github.com,2008:/gawel/irc3/commits/master</id>
+  <link type="text/html" rel="alternate" href="https://github.com/gawel/irc3/commits/master"/>
+  <link type="application/atom+xml" rel="self" href="https://github.com/gawel/irc3/commits/master.atom"/>
+  <title>Recent Commits to irc3:master</title>
+  <updated>DATE</updated>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/ec82ae2c5f8b2954f0646a2177deb65ad9db712a</id>
+    <link type="text/html" rel="alternate" href="https://github.com/gawel/irc3/commit/ec82ae2c5f8b2954f0646a2177deb65ad9db712a"/>
+    <title>
+        coverage
+    </title>
+    <updated>DATE</updated>
+    <media:thumbnail height="30" width="30" url="https://0.gravatar.com/avatar/88ce49f7443a9ef45abb3574d25c55f4?d=https%3A%2F%2Fidenticons.github.com%2Fb9d7714f958c6b3092c752e99e6e4b5d.png&amp;r=x&amp;s=30"/>
+    <author>
+      <name>gawel</name>
+      <uri>https://github.com/gawel</uri>
+    </author>
+    <content type="html">
+      &lt;pre style='white-space:pre-wrap;width:81ex'>coverage&lt;/pre>
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/27e5f3e1a06935b620936d7708cab8f3d14b1fbe</id>
+    <link type="text/html" rel="alternate" href="https://github.com/gawel/irc3/commit/27e5f3e1a06935b620936d7708cab8f3d14b1fbe"/>
+    <title>
+        Back to development: 0.4.2
+    </title>
+    <updated>2013-12-30T01:04:29-08:00</updated>
+    <media:thumbnail height="30" width="30" url="https://0.gravatar.com/avatar/88ce49f7443a9ef45abb3574d25c55f4?d=https%3A%2F%2Fidenticons.github.com%2Fb9d7714f958c6b3092c752e99e6e4b5d.png&amp;r=x&amp;s=30"/>
+    <author>
+      <name>gawel</name>
+      <uri>https://github.com/gawel</uri>
+    </author>
+    <content type="html">
+      &lt;pre style='white-space:pre-wrap;width:81ex'>Back to development: 0.4.2&lt;/pre>
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/ffb7e86a953c61579f973110350b2fffd37c92eb</id>
+    <link type="text/html" rel="alternate" href="https://github.com/gawel/irc3/commit/ffb7e86a953c61579f973110350b2fffd37c92eb"/>
+    <title>
+        Preparing release 0.4.1
+    </title>
+    <updated>2013-12-30T01:04:08-08:00</updated>
+    <media:thumbnail height="30" width="30" url="https://0.gravatar.com/avatar/88ce49f7443a9ef45abb3574d25c55f4?d=https%3A%2F%2Fidenticons.github.com%2Fb9d7714f958c6b3092c752e99e6e4b5d.png&amp;r=x&amp;s=30"/>
+    <author>
+      <name>gawel</name>
+      <uri>https://github.com/gawel</uri>
+    </author>
+    <content type="html">
+      &lt;pre style='white-space:pre-wrap;width:81ex'>Preparing release 0.4.1&lt;/pre>
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/9bd453e2960cb28513d3201266e104f934775f60</id>
+    <link type="text/html" rel="alternate" href="https://github.com/gawel/irc3/commit/9bd453e2960cb28513d3201266e104f934775f60"/>
+    <title>
+        changes
+    </title>
+    <updated>2013-12-30T00:51:03-08:00</updated>
+    <media:thumbnail height="30" width="30" url="https://0.gravatar.com/avatar/88ce49f7443a9ef45abb3574d25c55f4?d=https%3A%2F%2Fidenticons.github.com%2Fb9d7714f958c6b3092c752e99e6e4b5d.png&amp;r=x&amp;s=30"/>
+    <author>
+      <name>gawel</name>
+      <uri>https://github.com/gawel</uri>
+    </author>
+    <content type="html">
+      &lt;pre style='white-space:pre-wrap;width:81ex'>changes&lt;/pre>
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/fa05ef7832f77bf2786440d4031b32f65a8b66a8</id>
+    <link type="text/html" rel="alternate" href="https://github.com/gawel/irc3/commit/fa05ef7832f77bf2786440d4031b32f65a8b66a8"/>
+    <title>
+        require at least venusian 1.0a8
+    </title>
+    <updated>2013-12-30T00:48:37-08:00</updated>
+    <media:thumbnail height="30" width="30" url="https://0.gravatar.com/avatar/88ce49f7443a9ef45abb3574d25c55f4?d=https%3A%2F%2Fidenticons.github.com%2Fb9d7714f958c6b3092c752e99e6e4b5d.png&amp;r=x&amp;s=30"/>
+    <author>
+      <name>gawel</name>
+      <uri>https://github.com/gawel</uri>
+    </author>
+    <content type="html">
+      &lt;pre style='white-space:pre-wrap;width:81ex'>require at least venusian 1.0a8&lt;/pre>
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/b009d104772868f14fc77b1dad931af333dece54</id>
+    <link type="text/html" rel="alternate" href="https://github.com/gawel/irc3/commit/b009d104772868f14fc77b1dad931af333dece54"/>
+    <title>
+        install section
+    </title>
+    <updated>2013-12-24T09:39:31-08:00</updated>
+    <media:thumbnail height="30" width="30" url="https://0.gravatar.com/avatar/88ce49f7443a9ef45abb3574d25c55f4?d=https%3A%2F%2Fidenticons.github.com%2Fb9d7714f958c6b3092c752e99e6e4b5d.png&amp;r=x&amp;s=30"/>
+    <author>
+      <name>gawel</name>
+      <uri>https://github.com/gawel</uri>
+    </author>
+    <content type="html">
+      &lt;pre style='white-space:pre-wrap;width:81ex'>install section&lt;/pre>
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/5ffc40f842f479c0d21a0b0c6d36f9be2ce5e455</id>
+    <link type="text/html" rel="alternate" href="https://github.com/gawel/irc3/commit/5ffc40f842f479c0d21a0b0c6d36f9be2ce5e455"/>
+    <title>
+        Back to development: 0.4
+    </title>
+    <updated>2013-12-24T09:30:05-08:00</updated>
+    <media:thumbnail height="30" width="30" url="https://0.gravatar.com/avatar/88ce49f7443a9ef45abb3574d25c55f4?d=https%3A%2F%2Fidenticons.github.com%2Fb9d7714f958c6b3092c752e99e6e4b5d.png&amp;r=x&amp;s=30"/>
+    <author>
+      <name>gawel</name>
+      <uri>https://github.com/gawel</uri>
+    </author>
+    <content type="html">
+      &lt;pre style='white-space:pre-wrap;width:81ex'>Back to development: 0.4&lt;/pre>
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/e6b1861495665b0ac9c0ac7685810484112814ee</id>
+    <link type="text/html" rel="alternate" href="https://github.com/gawel/irc3/commit/e6b1861495665b0ac9c0ac7685810484112814ee"/>
+    <title>
+        Preparing release 0.3
+    </title>
+    <updated>2013-12-24T09:29:44-08:00</updated>
+    <media:thumbnail height="30" width="30" url="https://0.gravatar.com/avatar/88ce49f7443a9ef45abb3574d25c55f4?d=https%3A%2F%2Fidenticons.github.com%2Fb9d7714f958c6b3092c752e99e6e4b5d.png&amp;r=x&amp;s=30"/>
+    <author>
+      <name>gawel</name>
+      <uri>https://github.com/gawel</uri>
+    </author>
+    <content type="html">
+      &lt;pre style='white-space:pre-wrap;width:81ex'>Preparing release 0.3&lt;/pre>
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/0e9256915e84919b6d73b6e3db57b730e91c9403</id>
+    <link type="text/html" rel="alternate" href="https://github.com/gawel/irc3/commit/0e9256915e84919b6d73b6e3db57b730e91c9403"/>
+    <title>
+        docs
+    </title>
+    <updated>2013-12-24T09:29:23-08:00</updated>
+    <media:thumbnail height="30" width="30" url="https://0.gravatar.com/avatar/88ce49f7443a9ef45abb3574d25c55f4?d=https%3A%2F%2Fidenticons.github.com%2Fb9d7714f958c6b3092c752e99e6e4b5d.png&amp;r=x&amp;s=30"/>
+    <author>
+      <name>gawel</name>
+      <uri>https://github.com/gawel</uri>
+    </author>
+    <content type="html">
+      &lt;pre style='white-space:pre-wrap;width:81ex'>docs&lt;/pre>
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/8434a21cf523d3a20bdead83eaf5b6575b57dec6</id>
+    <link type="text/html" rel="alternate" href="https://github.com/gawel/irc3/commit/8434a21cf523d3a20bdead83eaf5b6575b57dec6"/>
+    <title>
+        moar coverage
+    </title>
+    <updated>2013-12-24T09:22:59-08:00</updated>
+    <media:thumbnail height="30" width="30" url="https://0.gravatar.com/avatar/88ce49f7443a9ef45abb3574d25c55f4?d=https%3A%2F%2Fidenticons.github.com%2Fb9d7714f958c6b3092c752e99e6e4b5d.png&amp;r=x&amp;s=30"/>
+    <author>
+      <name>gawel</name>
+      <uri>https://github.com/gawel</uri>
+    </author>
+    <content type="html">
+      &lt;pre style='white-space:pre-wrap;width:81ex'>moar coverage&lt;/pre>
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/d7baddca466909d47d3a295a13ebbd5bd415b26d</id>
+    <link type="text/html" rel="alternate" href="https://github.com/gawel/irc3/commit/d7baddca466909d47d3a295a13ebbd5bd415b26d"/>
+    <title>
+        typo
+    </title>
+    <updated>2013-12-22T15:06:44-08:00</updated>
+    <media:thumbnail height="30" width="30" url="https://0.gravatar.com/avatar/88ce49f7443a9ef45abb3574d25c55f4?d=https%3A%2F%2Fidenticons.github.com%2Fb9d7714f958c6b3092c752e99e6e4b5d.png&amp;r=x&amp;s=30"/>
+    <author>
+      <name>gawel</name>
+      <uri>https://github.com/gawel</uri>
+    </author>
+    <content type="html">
+      &lt;pre style='white-space:pre-wrap;width:81ex'>typo&lt;/pre>
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/a5d40375a47ea6daf0c6800c6d5b872ac3b2d46f</id>
+    <link type="text/html" rel="alternate" href="https://github.com/gawel/irc3/commit/a5d40375a47ea6daf0c6800c6d5b872ac3b2d46f"/>
+    <title>
+        web client
+    </title>
+    <updated>2013-12-22T15:06:07-08:00</updated>
+    <media:thumbnail height="30" width="30" url="https://0.gravatar.com/avatar/88ce49f7443a9ef45abb3574d25c55f4?d=https%3A%2F%2Fidenticons.github.com%2Fb9d7714f958c6b3092c752e99e6e4b5d.png&amp;r=x&amp;s=30"/>
+    <author>
+      <name>gawel</name>
+      <uri>https://github.com/gawel</uri>
+    </author>
+    <content type="html">
+      &lt;pre style='white-space:pre-wrap;width:81ex'>web client&lt;/pre>
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/d34286bda2da58419d1d9d9bb3c64a0aeb0fb099</id>
+    <link type="text/html" rel="alternate" href="https://github.com/gawel/irc3/commit/d34286bda2da58419d1d9d9bb3c64a0aeb0fb099"/>
+    <title>
+        do not support 2.7
+    </title>
+    <updated>2013-12-22T15:02:26-08:00</updated>
+    <media:thumbnail height="30" width="30" url="https://0.gravatar.com/avatar/88ce49f7443a9ef45abb3574d25c55f4?d=https%3A%2F%2Fidenticons.github.com%2Fb9d7714f958c6b3092c752e99e6e4b5d.png&amp;r=x&amp;s=30"/>
+    <author>
+      <name>gawel</name>
+      <uri>https://github.com/gawel</uri>
+    </author>
+    <content type="html">
+      &lt;pre style='white-space:pre-wrap;width:81ex'>do not support 2.7&lt;/pre>
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/034595c614897350098331570f748e4542c55e2b</id>
+    <link type="text/html" rel="alternate" href="https://github.com/gawel/irc3/commit/034595c614897350098331570f748e4542c55e2b"/>
+    <title>
+        Back to development: 0.3
+    </title>
+    <updated>2013-12-22T15:01:01-08:00</updated>
+    <media:thumbnail height="30" width="30" url="https://0.gravatar.com/avatar/88ce49f7443a9ef45abb3574d25c55f4?d=https%3A%2F%2Fidenticons.github.com%2Fb9d7714f958c6b3092c752e99e6e4b5d.png&amp;r=x&amp;s=30"/>
+    <author>
+      <name>gawel</name>
+      <uri>https://github.com/gawel</uri>
+    </author>
+    <content type="html">
+      &lt;pre style='white-space:pre-wrap;width:81ex'>Back to development: 0.3&lt;/pre>
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/6a845dd9b901c95bf37cad705a816104f2e8a6b8</id>
+    <link type="text/html" rel="alternate" href="https://github.com/gawel/irc3/commit/6a845dd9b901c95bf37cad705a816104f2e8a6b8"/>
+    <title>
+        Preparing release 0.2
+    </title>
+    <updated>2013-12-22T15:00:39-08:00</updated>
+    <media:thumbnail height="30" width="30" url="https://0.gravatar.com/avatar/88ce49f7443a9ef45abb3574d25c55f4?d=https%3A%2F%2Fidenticons.github.com%2Fb9d7714f958c6b3092c752e99e6e4b5d.png&amp;r=x&amp;s=30"/>
+    <author>
+      <name>gawel</name>
+      <uri>https://github.com/gawel</uri>
+    </author>
+    <content type="html">
+      &lt;pre style='white-space:pre-wrap;width:81ex'>Preparing release 0.2&lt;/pre>
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/ebd462deb70b64f394676ffbfa7cdf887dd2bd0a</id>
+    <link type="text/html" rel="alternate" href="https://github.com/gawel/irc3/commit/ebd462deb70b64f394676ffbfa7cdf887dd2bd0a"/>
+    <title>
+        changes
+    </title>
+    <updated>2013-12-22T15:00:22-08:00</updated>
+    <media:thumbnail height="30" width="30" url="https://0.gravatar.com/avatar/88ce49f7443a9ef45abb3574d25c55f4?d=https%3A%2F%2Fidenticons.github.com%2Fb9d7714f958c6b3092c752e99e6e4b5d.png&amp;r=x&amp;s=30"/>
+    <author>
+      <name>gawel</name>
+      <uri>https://github.com/gawel</uri>
+    </author>
+    <content type="html">
+      &lt;pre style='white-space:pre-wrap;width:81ex'>changes&lt;/pre>
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/c846584214d054b65dd7199c932669d098440764</id>
+    <link type="text/html" rel="alternate" href="https://github.com/gawel/irc3/commit/c846584214d054b65dd7199c932669d098440764"/>
+    <title>
+        crate.io is dead
+    </title>
+    <updated>2013-12-22T14:59:12-08:00</updated>
+    <media:thumbnail height="30" width="30" url="https://0.gravatar.com/avatar/88ce49f7443a9ef45abb3574d25c55f4?d=https%3A%2F%2Fidenticons.github.com%2Fb9d7714f958c6b3092c752e99e6e4b5d.png&amp;r=x&amp;s=30"/>
+    <author>
+      <name>gawel</name>
+      <uri>https://github.com/gawel</uri>
+    </author>
+    <content type="html">
+      &lt;pre style='white-space:pre-wrap;width:81ex'>crate.io is dead&lt;/pre>
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/16fa9067759bd3b4b4446d0dc9e27e3539ba5c8c</id>
+    <link type="text/html" rel="alternate" href="https://github.com/gawel/irc3/commit/16fa9067759bd3b4b4446d0dc9e27e3539ba5c8c"/>
+    <title>
+        must log to stderr
+    </title>
+    <updated>2013-12-22T14:57:37-08:00</updated>
+    <media:thumbnail height="30" width="30" url="https://0.gravatar.com/avatar/88ce49f7443a9ef45abb3574d25c55f4?d=https%3A%2F%2Fidenticons.github.com%2Fb9d7714f958c6b3092c752e99e6e4b5d.png&amp;r=x&amp;s=30"/>
+    <author>
+      <name>gawel</name>
+      <uri>https://github.com/gawel</uri>
+    </author>
+    <content type="html">
+      &lt;pre style='white-space:pre-wrap;width:81ex'>must log to stderr&lt;/pre>
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/bb925b7e655e51f4ded9fcee4cf1bc7490b43420</id>
+    <link type="text/html" rel="alternate" href="https://github.com/gawel/irc3/commit/bb925b7e655e51f4ded9fcee4cf1bc7490b43420"/>
+    <title>
+        improve configuration / logging
+    </title>
+    <updated>2013-12-22T14:52:12-08:00</updated>
+    <media:thumbnail height="30" width="30" url="https://0.gravatar.com/avatar/88ce49f7443a9ef45abb3574d25c55f4?d=https%3A%2F%2Fidenticons.github.com%2Fb9d7714f958c6b3092c752e99e6e4b5d.png&amp;r=x&amp;s=30"/>
+    <author>
+      <name>gawel</name>
+      <uri>https://github.com/gawel</uri>
+    </author>
+    <content type="html">
+      &lt;pre style='white-space:pre-wrap;width:81ex'>improve configuration / logging&lt;/pre>
+    </content>
+  </entry>
+</feed>

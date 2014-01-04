@@ -247,8 +247,9 @@ class IrcBot:
             pass
 
     def SIGINT(self):  # pragma: no cover
-        self.quit('INT')
-        time.sleep(1)
+        if self.protocol:
+            self.quit('INT')
+            time.sleep(1)
         self.loop.stop()
 
     def run(self):  # pragma: no cover
