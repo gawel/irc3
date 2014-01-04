@@ -1,3 +1,5 @@
+#!/bin/bash
+
 if [ "$(hostname -s)" == "amandine" ]; then
     git reset --hard HEAD
     pkill -f irc3
