@@ -17,7 +17,7 @@ class TestUptime(BotTestCase):
         bot.uptimes.uptime -= 3600 * 54
         bot.uptimes.connection_uptime -= 3600 * 13
 
-        bot.dispatch(':gawel!u@h PRIVMSG #chan :!uptime')
+        bot.dispatch(':gawel!u@h PRIVMSG foo :!uptime')
         self.assertSent(
-            [('PRIVMSG #chan :Up since 2 days 6 hours. '
+            [('PRIVMSG foo :Up since 2 days 6 hours. '
               'Connected since 0 days 13 hours')])
