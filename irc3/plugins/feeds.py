@@ -58,6 +58,7 @@ class Feeds:
             os.makedirs(self.directory)
         self.headers = {}
         self.feeds = {}
+        fmt = '[{name}] {title} {link}'
         for name, feed in config.items():
             if feed.startswith('http'):
                 splited = feed.split('#')
@@ -68,12 +69,12 @@ class Feeds:
                     filename=os.path.join(self.directory,
                                           name.replace('/', '_')),
                     headers=self.headers,
+                    fmt=config.get(name + '.fmt', fmt),
                     time=0)
                 self.feeds[name] = feed
 
         self.max_workers = int(config.get('max_workers', 5))
         self.delay = int(config.get('delay', 2)) * 60
-        self.fmt = '[{name}] {title} {link}'
         self.imports()
 
     def connection_made(self):  # pragma: no cover
@@ -97,9 +98,12 @@ class Feeds:
             entries = []
         for feed in self.feeds.values():
             entries.extend(parse(self.feedparser, feed))
-        for updated, e in sorted(entries, reverse=True):
+        for updated, e in sorted(entries):
             for channel in e['channels']:
-                self.bot.privmsg(channel, self.fmt.format(**e))
+                try:
+                    self.bot.privmsg(channel, e['fmt'].format(**e))
+                except Exception as e:  # pragma: no cover
+                    self.bot.log.exception(e)
 
     def fetch(self):  # pragma: no cover
         delay = time.time() - self.delay

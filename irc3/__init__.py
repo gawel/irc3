@@ -267,22 +267,27 @@ def run(argv=None):
 
     Options:
 
-    -v,--verbose    Increase verbosity
-    -r,--raw        Show raw irc log on the console
-    -d,--debug      Add some debug commands/utils
+    --logdir DIRECTORY  Log directory to use instead of stderr
+    -v,--verbose        Increase verbosity
+    -r,--raw            Show raw irc log on the console
+    -d,--debug          Add some debug commands/utils
     """
+    import os
     import sys
     import docopt
     import textwrap
     args = argv or sys.argv[1:]
     args = docopt.docopt(textwrap.dedent(run.__doc__), args)
-    config = utils.parse_config(args['<config>'])
-    config.update(
+    cfg = utils.parse_config(args['<config>'])
+    cfg.update(
         verbose=args['--verbose'],
     )
+    if args['--logdir'] or 'logdir' in cfg:
+        logdir = os.path.expanduser(args['--logdir'] or cfg.get('logdir'))
+        IrcBot.logging_config = config.get_file_config(logdir)
     if args['--debug']:
         IrcBot.venusian_categories.append('irc3.debug')
-    bot = IrcBot(**config)
+    bot = IrcBot(**cfg)
     if args['--raw']:
         bot.include('irc3.plugins.log', venusian_categories=['irc3.debug'])
     if argv:

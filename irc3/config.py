@@ -41,3 +41,27 @@ LOGGING = {
         },
     }
 }
+
+
+def get_file_config(logdir='~/.irc3/logs'):
+    import os
+    if not os.path.isdir(logdir):
+        os.makedirs(logdir)
+    config = LOGGING.copy()
+    config['handlers'] = {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(logdir, 'irc3.log'),
+            'backupCount': 5,
+            'maxBytes': 1024 * 5,
+        },
+        'logs': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(logdir, 'logs.log'),
+            'backupCount': 5,
+            'maxBytes': 1024 * 5,
+        }
+    }
+    return config
