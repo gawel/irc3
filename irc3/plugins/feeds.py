@@ -37,6 +37,8 @@ def parse(feedparser, args):
             e.updated,
             dict(args,
                  title=e.title, link=e.link,
+                 updated=getattr(e, 'updated', ''),
+                 published=getattr(e, 'published', ''),
                  author=getattr(e, 'author', '') or '')))
     if entries:
         entries = sorted(entries)
