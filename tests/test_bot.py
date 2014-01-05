@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from irc3.testing import BotTestCase
+from unittest.mock import patch
 
 
 class TestBot(BotTestCase):
@@ -81,6 +82,20 @@ class TestBot(BotTestCase):
         self.assertSent(['QUIT :bye'])
         bot.quit('foo')
         self.assertSent(['QUIT :foo'])
+
+    @patch('time.sleep')
+    def test_SIGINT(self, sleep):
+        bot = self.callFTU()
+        bot.SIGINT()
+        self.assertTrue(sleep.called)
+        self.assertTrue(bot.loop.stop.called)
+
+    @patch('time.sleep')
+    def test_SIGHUP(self, sleep):
+        bot = self.callFTU()
+        bot.SIGHUP()
+        self.assertTrue(sleep.called)
+        self.assertTrue(bot.protocol.transport.close.called)
 
     def test_autojoin(self):
         bot = self.callFTU(autojoins=['#foo'])

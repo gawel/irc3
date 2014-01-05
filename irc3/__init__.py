@@ -264,7 +264,7 @@ class IrcBot:
         t.add_done_callback(self.connection_made)
         return self.loop
 
-    def SIGHUP(self):  # pragma: no cover
+    def SIGHUP(self):
         self.quit('HUP')
         time.sleep(1)
         try:
@@ -272,7 +272,7 @@ class IrcBot:
         finally:
             pass
 
-    def SIGINT(self):  # pragma: no cover
+    def SIGINT(self):
         if getattr(self, 'protocol', None):
             self.quit('INT')
             time.sleep(1)
