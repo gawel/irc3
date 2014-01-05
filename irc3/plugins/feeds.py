@@ -172,6 +172,7 @@ class Feeds:
                 feed['delay'] = feed['delay'] * 60
                 channels = irc3.utils.as_list(feed['channels'])
                 feed['channels'] = [irc3.utils.as_channel(c) for c in channels]
+                self.bot.log.debug(feed)
                 self.feeds[name] = feed
 
         self.imports()
@@ -206,7 +207,8 @@ class Feeds:
         def messages():
             for entry in self.hook([e for u, e in sorted(entries)]):
                 if entry:
-                    message = feed['fmt'].format(feed=entry.feed, entry=entry)
+                    feed = entry.feed
+                    message = feed['fmt'].format(feed=feed, entry=entry)
                     for c in feed['channels']:
                         yield c, message
 
