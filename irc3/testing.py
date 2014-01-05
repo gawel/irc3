@@ -4,6 +4,18 @@ from unittest.mock import MagicMock
 from unittest.mock import patch
 from unittest.mock import call
 import irc3
+import os
+
+passwd_ini = """
+[irc.freenode.net]
+irc3=password
+
+[twitter]
+key=key
+secret=secret
+token=token
+token_secret=token_secret
+"""
 
 
 def call_later(i, func, *args):
@@ -18,6 +30,7 @@ def call_soon(func, *args):
 class IrcBot(irc3.IrcBot):
 
     def __init__(self, **config):
+        self.check_required()
         config.update(testing=True, async=False, level=1000)
         super(IrcBot, self).__init__(**config)
         self.protocol = irc3.IrcConnection()
@@ -27,6 +40,15 @@ class IrcBot(irc3.IrcBot):
         self.loop = MagicMock()
         self.loop.call_later = call_later
         self.loop.call_soon = call_soon
+
+    def check_required(self):
+        dirname = os.path.expanduser('~/.irc3')
+        if not os.path.isdir(dirname):
+            os.makedirs(dirname)
+        filename = os.path.expanduser('~/.irc3/passwd.ini')
+        if not os.path.isfile(filename):
+            with open(filename, 'w') as fd:
+                fd.write(passwd_ini)
 
     def test(self, data, show=True):
         self.dispatch(data)
