@@ -86,6 +86,22 @@ class IrcString(str):
         return not (self.is_server or self.is_channel)
 
 
+def split_message(message, max_length):
+    """Split long messages"""
+    if len(message) >= max_length:
+        messages = message.split(' ')
+        message = ''
+        while messages:
+            buf = messages.pop(0)
+            if len(message) + len(buf) > max_length:
+                if message.strip():
+                    yield message.strip()
+                message = ''
+            message += ' ' + buf
+    if message.strip():
+        yield message.strip()
+
+
 class Config(dict):
     """Simple dict wrapper:
 

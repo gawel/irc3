@@ -94,6 +94,7 @@ class IrcBot:
         testing=False,
         async=True,
         loop=None,
+        max_length=512,
         version=version,
         url='https://irc3.readthedocs.org/',
         ctcp=dict(
@@ -212,12 +213,16 @@ class IrcBot:
     def privmsg(self, target, message):
         """send a privmsg to target"""
         if target and message:
-            self.send('PRIVMSG %s :%s' % (target, message))
+            messages = utils.split_message(message, self.config.max_length)
+            for message in messages:
+                self.send('PRIVMSG %s :%s' % (target, message))
 
     def notice(self, target, message):
         """send a notice to target"""
         if target and message:
-            self.send('NOTICE %s :%s' % (target, message))
+            messages = utils.split_message(message, self.config.max_length)
+            for message in messages:
+                self.send('NOTICE %s :%s' % (target, message))
 
     def ctcp(self, target, message):
         """send a ctcp to target"""

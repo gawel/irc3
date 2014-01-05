@@ -29,6 +29,15 @@ class TestBot(BotTestCase):
         bot.notice('gawel', 'Youhou!')
         self.assertSent(['NOTICE gawel :Youhou!'])
 
+    def test_long_message(self):
+        bot = self.callFTU(max_length=7)
+        message = 'How you doing?'
+        bot.privmsg('gawel', message)
+        self.assertSent([
+            'PRIVMSG gawel :How you',
+            'PRIVMSG gawel :doing?'
+        ])
+
     def test_event(self):
         bot = self.callFTU()
         bot.include('irc3.plugins.core')
