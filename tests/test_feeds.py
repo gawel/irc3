@@ -30,7 +30,7 @@ class TestFeeds(BotTestCase):
         self.wd = os.path.join(wd, 'feeds')
         dt = datetime.datetime.now().strftime('%Y-%m-%dT%M:%M:OO-08:00')
         self.patch_requests(
-            'tests/feed.atom',
+            filename='tests/feed.atom',
             DATE=dt,
         )
 

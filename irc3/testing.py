@@ -92,16 +92,22 @@ class BotTestCase(TestCase):
         self.bot.protocol.write.reset_mock()
         self.bot.loop.reset_mock()
 
-    def patch_requests(self, filename, **kwargs):
+    def patch_requests(self, **kwargs):
         self.patcher = patch('requests.Session.request')
         self.addCleanup(self.patcher.stop)
         request = self.patcher.start()
 
-        with open(filename, 'rb') as feed:
-            content = feed.read()
+        filename = kwargs.pop('filename', None)
+        if filename:
+            with open(filename, 'rb') as feed:
+                content = feed.read()
+            for k, v in kwargs.items():
+                content = content.replace(bytes(k, 'ascii'), bytes(v, 'ascii'))
+            kwargs['content'] = content
+        resp = MagicMock(**kwargs)
         for k, v in kwargs.items():
-            content = content.replace(bytes(k, 'ascii'), bytes(v, 'ascii'))
-        resp = MagicMock(content=content)
+            if k in ('json',):
+                setattr(resp, k, MagicMock(return_value=v))
         request.return_value = resp
 
     def patch_asyncio(self):
