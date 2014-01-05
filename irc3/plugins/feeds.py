@@ -15,15 +15,20 @@ Your config must looks like this:
         irc3.plugins.feeds
 
     [irc3.plugins.feeds]
+    channels = #irc3                             # global channel to notify
     delay = 5                                    # delay to check feeds
     directory = ~/.irc3/feeds                    # directory to store feeds
     hook = irc3.plugins.feeds.default_hook       # dotted name to a callable
     fmt = [{name}] {entry.title} - {entry.link}  # formater
 
-    # some feeds: name = http://url#channel,#channel2
+    # some feeds
     github/irc3 = https://github.com/gawel/irc3/commits/master.atom#irc3
     # custom formater for the feed
     github/irc3.fmt = [{feed.name}] New commit: {entry.title} - {entry.link}
+    # custom channels
+    github/irc3.channels = #irc3dev #irc3
+    # custom delay
+    github/irc3.delay = 10
 
 Hook is a dotted name refering to a callable (function or class) wich take a
 list of entries as argument. It should yield the entries you want really show:
