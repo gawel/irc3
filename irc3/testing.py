@@ -1,6 +1,44 @@
 # -*- coding: utf-8 -*-
 from unittest import TestCase
+from unittest.mock import MagicMock
+from unittest.mock import patch
+from unittest.mock import call
 import irc3
+
+
+def call_later(i, func, *args):
+    if func.__name__ in dir(IrcBot):
+        return func(*args)
+
+
+def call_soon(func, *args):
+    return func(*args)
+
+
+class IrcBot(irc3.IrcBot):
+
+    def __init__(self, **config):
+        config.update(testing=True, async=False, level=1000)
+        super(IrcBot, self).__init__(**config)
+        self.protocol = irc3.IrcConnection()
+        self.protocol.factory = self
+        self.protocol.transport = MagicMock()
+        self.protocol.write = MagicMock()
+        self.loop = MagicMock()
+        self.loop.call_later = call_later
+        self.loop.call_soon = call_soon
+
+    def test(self, data, show=True):
+        self.dispatch(data)
+        if show:
+            for line in self.sent:
+                print(line)
+
+    @property
+    def sent(self):
+        values = [tuple(c)[0][0] for c in self.protocol.write.call_args_list]
+        self.protocol.write.reset_mock()
+        return values
 
 
 class BotTestCase(TestCase):
@@ -9,18 +47,45 @@ class BotTestCase(TestCase):
 
     def callFTU(self, **config):
         config = dict(self.config, **config)
-        config['async'] = False
-        self.lines = []
-        klass = type('IrcBot', (irc3.IrcBot,), dict(send=self.send))
-        return klass(**config)
-
-    def send(self, data):
-        self.lines.append(data.strip('\r\n'))
+        bot = IrcBot(**config)
+        self.bot = bot
+        return bot
 
     def assertSent(self, lines):
-        self.assertEqual(self.lines, lines)
-        self.lines = []
+        if not lines:
+            self.assertNothingSent()
+            return
+        if not self.bot.loop.called:
+            self.bot.protocol.write.assert_has_calls([call(l) for l in lines])
+        else:
+            self.bot.loop.call_later.assert_has_calls([call(l) for l in lines])
+        self.reset_mock()
 
-    def assertInSent(self, lines):
-        for line in lines:
-            self.assertIn(line, self.lines)
+    def assertNothingSent(self):
+        self.assertFalse(self.bot.protocol.write.called)
+        self.assertFalse(self.bot.loop.called)
+        self.reset_mock()
+
+    def reset_mock(self):
+        self.bot.protocol.write.reset_mock()
+        self.bot.loop.reset_mock()
+
+    def patch_requests(self, filename, **kwargs):
+        self.patcher = patch('requests.Session.request')
+        self.addCleanup(self.patcher.stop)
+        request = self.patcher.start()
+
+        with open(filename, 'rb') as feed:
+            content = feed.read()
+        for k, v in kwargs.items():
+            content = content.replace(bytes(k, 'ascii'), bytes(v, 'ascii'))
+        resp = MagicMock(content=content)
+        request.return_value = resp
+
+    def patch_asyncio(self):
+        patcher = patch('asyncio.Task')
+        self.Task = patcher.start()
+        self.addCleanup(patcher.stop)
+        patcher = patch('asyncio.get_event_loop')
+        patcher.start()
+        self.addCleanup(patcher.stop)

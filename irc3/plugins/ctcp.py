@@ -5,18 +5,16 @@ __doc__ = '''
 ==============================================
 
 ..
-    >>> from irc3 import IrcBot
-    >>> IrcBot.defaults.update(async=False, testing=True)
+    >>> from testing import IrcBot
 
 Usage::
 
-    >>> from irc3 import IrcBot
     >>> bot = IrcBot(ctcp=dict(foo='bar'))
     >>> bot.include('irc3.plugins.ctcp')
 
 Try to send a ``CTCP FOO``::
 
-    >>> bot.test(':gawel!user@host PRIVMSG irc3 :\x01FOO\x01')
+    >>> bot.test(':gawel!user@host PRIVMSG irc3 :\x01FOO\x01', show=False)
     >>> bot.sent[0].replace('\x01', '01')  # remove escape char for testing..
     'NOTICE gawel :01FOO bar01'
 '''

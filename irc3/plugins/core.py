@@ -15,9 +15,11 @@ Core events
 
 .. autofunction:: autojoin
 
+..
+    >>> from testing import IrcBot
+
 Usage::
 
-    >>> from irc3 import IrcBot
     >>> bot = IrcBot()
     >>> bot.include('irc3.plugins.core')
 '''

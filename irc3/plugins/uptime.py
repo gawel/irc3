@@ -18,6 +18,10 @@ import irc3
 @irc3.plugin
 class Uptime:
 
+    requires = [
+        __name__.replace('uptime', 'command'),
+    ]
+
     def __init__(self, bot):
         self.bot = bot
         bot.uptimes = self

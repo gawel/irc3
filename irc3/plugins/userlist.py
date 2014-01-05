@@ -6,10 +6,12 @@ __doc__ = '''
 
 This plugin maintain a know user list and a channel list.
 
+..
+    >>> from testing import IrcBot
+
 Usage::
 
-    >>> from irc3 import IrcBot
-    >>> bot = IrcBot(async=False)
+    >>> bot = IrcBot()
     >>> bot.include('irc3.plugins.userlist')
     >>> bot.test(':gawel!user@host JOIN #chan')
 

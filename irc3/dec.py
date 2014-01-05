@@ -8,6 +8,9 @@ def plugin(wrapped):
     """register a class as plugin"""
     def callback(context, name, ob):
         bot = context.bot
+        for dotted in getattr(ob, 'requires', []):
+            if dotted not in bot.includes:
+                bot.include(dotted)
         bot.get_plugin(ob)
     assert isinstance(wrapped, type)
     venusian.attach(wrapped, callback, category='irc3.plugin')

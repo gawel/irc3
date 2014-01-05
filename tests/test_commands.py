@@ -5,9 +5,7 @@ from irc3.plugins import command
 
 class TestCommands(BotTestCase):
 
-    config = dict(
-        includes=('irc3.plugins.core',
-                  'irc3.plugins.command'))
+    config = dict(includes=['irc3.plugins.command'])
 
     def test_help(self):
         bot = self.callFTU(nick='foo', **{'help.item_per_line': '6'})

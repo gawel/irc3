@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from irc3.testing import BotTestCase
+from unittest.mock import MagicMock
 import datetime
 import tempfile
 import shutil
@@ -27,21 +28,32 @@ class TestFeeds(BotTestCase):
         wd = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, wd)
         self.wd = os.path.join(wd, 'feeds')
-
-    def copyfile(self):
         dt = datetime.datetime.now().strftime('%Y-%m-%dT%M:%M:OO-08:00')
-        with open(self.feed, 'w') as fd:
-            with open('tests/feed.atom', 'r') as feed:
-                fd.write(feed.read().replace('DATE', dt))
+        self.patch_requests(
+            'tests/feed.atom',
+            DATE=dt,
+        )
+
+    def callFTU(self, **kwargs):
+        config = dict(
+            directory=self.wd,
+            irc3='http://xxx',
+            channels='#irc3', **kwargs
+        )
+        config = {
+            'includes': [self.name],
+            self.name: config
+        }
+        return super(TestFeeds, self).callFTU(**config)
+
+    def test_connection_made(self):
+        bot = self.callFTU()
+        bot.loop.call_later = MagicMock()
+        bot.notify('connection_made')
+        self.assertTrue(bot.loop.call_later.called)
 
     def test_feed(self):
-        config = dict(directory=self.wd,
-                      irc3='http://xxx',
-                      channels='irc3')
-        bot = self.callFTU(includes=[self.name], **{
-            self.name: config})
-        self.feed = bot.feeds.feeds['irc3']['filenames'][0]
-        self.copyfile()
+        bot = self.callFTU()
         bot.feeds.update()
         self.assertSent([
             'PRIVMSG #irc3 :[irc3] coverage '
@@ -51,23 +63,16 @@ class TestFeeds(BotTestCase):
         self.assertSent([])
 
     def test_hooked_feed(self):
-        config = dict(directory=self.wd,
-                      irc3='http://xxx#irc3',
-                      hook='tests.test_feeds.hook')
-        bot = self.callFTU(includes=[self.name], **{
-            self.name: config})
-        self.feed = bot.feeds.feeds['irc3']['filenames'][0]
-        self.copyfile()
+        bot = self.callFTU(hook='tests.test_feeds.hook')
         bot.feeds.update()
         self.assertSent([])
 
     def test_hooked_feed_with_class(self):
-        config = dict(directory=self.wd,
-                      irc3='http://xxx#irc3',
-                      hook='tests.test_feeds.Hook')
-        bot = self.callFTU(includes=[self.name], **{
-            self.name: config})
-        self.feed = bot.feeds.feeds['irc3']['filenames'][0]
-        self.copyfile()
+        bot = self.callFTU(hook='tests.test_feeds.Hook')
         bot.feeds.update()
         self.assertSent([])
+
+    def test_exception(self):
+        bot = self.callFTU()
+        bot.feeds.fetch = bot.feeds.parse = MagicMock(side_effect=KeyError())
+        bot.feeds.update()

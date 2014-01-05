@@ -6,9 +6,7 @@ from irc3.testing import BotTestCase
 class TestUptime(BotTestCase):
 
     def test_uptime(self):
-        bot = self.callFTU(includes=[
-            'irc3.plugins.command',
-            'irc3.plugins.uptime'])
+        bot = self.callFTU(includes=['irc3.plugins.uptime'])
         bot.notify('connection_made')
         bot.dispatch(':gawel!u@h PRIVMSG #chan :!uptime')
         self.assertSent(

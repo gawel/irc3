@@ -17,12 +17,10 @@ Create a python module with some commands:
 ..
     >>> import sys
     >>> sys.path.append('examples')
-    >>> from irc3 import IrcBot
-    >>> IrcBot.defaults.update(async=False, testing=True)
+    >>> from testing import IrcBot
 
 And register it::
 
-    >>> from irc3 import IrcBot
     >>> bot = IrcBot()
     >>> bot.include('irc3.plugins.command')  # register the plugin
     >>> bot.include('mycommands')            # register your commands
@@ -31,8 +29,7 @@ And register it::
 Check the result::
 
     >>> bot.test(':gawel!user@host PRIVMSG #chan :!echo foo')
-    >>> bot.sent
-    ['PRIVMSG gawel :foo']
+    PRIVMSG gawel :foo
 
 In the docstring, ``%%`` is replaced by the command character. ``!`` by
 default. You can override it by passing a ``cmd`` parameter to bot's config.
@@ -40,8 +37,7 @@ default. You can override it by passing a ``cmd`` parameter to bot's config.
 When a command is not public, you can't use it on a channel::
 
     >>> bot.test(':gawel!user@host PRIVMSG #chan :!adduser foo pass')
-    >>> bot.sent
-    ["PRIVMSG #chan :You can only use the 'adduser' command in private"]
+    PRIVMSG #chan :You can only use the 'adduser' command in private
 
 You can use a guard to prevent untrusted users to run some commands. The
 :class:`free_policy` is used by default.
@@ -62,11 +58,9 @@ Guard usage::
     >>> bot.include('irc3.plugins.command')  # register the plugin
     >>> bot.include('mycommands')            # register your commands
     >>> bot.test(':foo!u@h PRIVMSG #chan :!echo bar')
-    >>> bot.sent
-    ["PRIVMSG foo :You are not allowed to use the 'echo' command"]
+    PRIVMSG foo :You are not allowed to use the 'echo' command
     >>> bot.test(':gawel!u@h PRIVMSG #chan :!echo bar')
-    >>> bot.sent
-    ['PRIVMSG gawel :bar']
+    PRIVMSG gawel :bar
 
 Mask based guard using permissions::
 
@@ -79,11 +73,9 @@ Mask based guard using permissions::
     >>> bot = IrcBot(**config)
     >>> bot.include('irc3.plugins.command')  # register the plugin
     >>> bot.test(':foo!u@h PRIVMSG #chan :!ping')
-    >>> bot.sent
-    ["PRIVMSG foo :You are not allowed to use the 'ping' command"]
+    PRIVMSG foo :You are not allowed to use the 'ping' command
     >>> bot.test(':gawel!u@h PRIVMSG #chan :!ping')
-    >>> bot.sent
-    ['NOTICE gawel :PONG gawel!']
+    NOTICE gawel :PONG gawel!
 
 '''
 from irc3 import utils
@@ -169,6 +161,10 @@ class command:
 @irc3.plugin
 class Commands(dict):
 
+    requires = [
+        __name__.replace('command', 'core'),
+    ]
+
     def __init__(self, bot):
         self.bot = bot
         config = bot.config.get(__name__, {})
@@ -180,7 +176,7 @@ class Commands(dict):
         self.guard = guard(bot)
 
     @irc3.event((r':(?P<mask>\S+) PRIVMSG (?P<target>\S+) '
-                 r':{cmd}(?P<cmd>\w+)(\s(?P<data>\w+.*)|$)'))
+                 r':{cmd}(?P<cmd>\w+)(\s(?P<data>[-|\w]+.*)|$)'))
     def on_command(self, cmd, mask=None, target=None, data=None, **kw):
         predicates, meth = self.get(cmd, (None, None))
         if meth is not None:

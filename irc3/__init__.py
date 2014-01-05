@@ -22,7 +22,7 @@ else:
     version = pkg_resources.get_distribution('irc3').version
 
 
-class IrcConnection(asyncio.Protocol):  # pragma: no cover
+class IrcConnection(asyncio.Protocol):
     """asyncio protocol to handle an irc connection"""
 
     def connection_made(self, transport):
@@ -34,11 +34,8 @@ class IrcConnection(asyncio.Protocol):  # pragma: no cover
         encoding = getattr(self, 'encoding', 'ascii')
         data = self.buf + data.decode(encoding, 'ignore')
         lines = data.split('\r\n')
-        if data.endswith('\r\n'):
-            self.buf = lines.pop(-1)
-        else:
-            self.buf = ''
-        for line in data.split('\r\n'):
+        self.buf = lines.pop(-1)
+        for line in lines:
             self.factory.dispatch(line)
 
     def write(self, data):
@@ -49,7 +46,7 @@ class IrcConnection(asyncio.Protocol):  # pragma: no cover
                 data = data + b'\r\n'
             self.transport.write(data)
 
-    def connection_lost(self, exc):
+    def connection_lost(self, exc):  # pragma: no cover
         self.factory.log.critical('connection lost (%s): %r',
                                   id(self.transport),
                                   exc)
@@ -61,7 +58,7 @@ class IrcConnection(asyncio.Protocol):  # pragma: no cover
             # reconnect
             self.factory.create_connection(protocol=self.__class__)
 
-    def close(self):
+    def close(self):  # pragma: no cover
         if not self.closed:
             self.factory.log.critical('closing old transport (%r)',
                                       id(self.transport))
@@ -111,6 +108,11 @@ class IrcBot:
         self.log = logging.getLogger('irc3.' + self.nick)
         if config.get('verbose'):
             logging.getLogger('irc3').setLevel(logging.DEBUG)
+        else:
+            level = config.get('level')
+            if level is not None:
+                level = getattr(logging, str(level), level)
+                self.log.setLevel(level)
         self.encoding = self.config['encoding']
         self.loop = self.config.loop
         self.events_re = []
@@ -154,12 +156,13 @@ class IrcBot:
     def include(self, *modules, **kwargs):
         categories = kwargs.get('venusian_categories',
                                 self.venusian_categories)
+        scanner = self.venusian.Scanner(bot=self)
         for module in modules:
             if module in self.includes:
                 self.log.warn('%s included twice', module)
-            self.includes.add(module)
-            scanner = self.venusian.Scanner(bot=self)
-            scanner.scan(utils.maybedotted(module), categories=categories)
+            else:
+                self.includes.add(module)
+                scanner.scan(utils.maybedotted(module), categories=categories)
 
     def connection_made(self, f):  # pragma: no cover
         if getattr(self, 'protocol', None):
@@ -190,30 +193,21 @@ class IrcBot:
                     if value is not None:
                         match[key] = IrcString(value)
                 for e in self.events[regexp]:
-                    if self.config.async:  # pragma: no cover
-                        self.loop.call_soon(e.async_callback, match)
-                    else:
-                        e.callback(**match)
+                    self.loop.call_soon(e.async_callback, match)
                     events.append((e, match))
         return events
 
     def send(self, data):
         """send data to the server"""
-        if not self.config.testing:  # pragma: no cover
-            self.log.debug('> %s', data.strip())
-            self.protocol.write(data)
-        else:
-            self._sent.append(data)
+        self.log.debug('> %s', data.strip())
+        self.protocol.write(data)
 
     def call_many(self, callback, args):
         """callback is run with each arg but run a call per second"""
         if isinstance(callback, str):
             callback = getattr(self, callback)
         for i, arg in enumerate(args):
-            if self.loop:  # pragma: no cover
-                self.loop.call_later(i, callback, *arg)
-            else:
-                callback(*arg)
+            self.loop.call_later(i, callback, *arg)
 
     def privmsg(self, target, message):
         """send a privmsg to target"""
@@ -259,16 +253,7 @@ class IrcBot:
 
     nick = property(get_nick, set_nick, doc='nickname get/set')
 
-    def test(self, data):
-        self.dispatch(data)
-
-    @property
-    def sent(self):
-        sent = self._sent
-        self._sent = []
-        return sent
-
-    def create_connection(self, protocol=IrcConnection):  # pragma: no cover
+    def create_connection(self, protocol=IrcConnection):
         if self.loop is None:
             self.loop = asyncio.get_event_loop()
         t = asyncio.Task(
@@ -288,12 +273,12 @@ class IrcBot:
             pass
 
     def SIGINT(self):  # pragma: no cover
-        if self.protocol:
+        if getattr(self, 'protocol', None):
             self.quit('INT')
             time.sleep(1)
         self.loop.stop()
 
-    def run(self):  # pragma: no cover
+    def run(self):
         """start the bot"""
         loop = self.create_connection()
         loop.add_signal_handler(signal.SIGHUP, self.SIGHUP)
@@ -332,6 +317,6 @@ def run(argv=None):
     bot = IrcBot(**cfg)
     if args['--raw']:
         bot.include('irc3.plugins.log', venusian_categories=['irc3.debug'])
+    bot.run()
     if argv:
         return bot
-    bot.run()  # pragma: no cover

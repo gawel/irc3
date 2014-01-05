@@ -8,31 +8,25 @@ Store public message addressed to the bot in a file and reply a random message
 extracted from this file.
 
 ..
-    >>> from irc3 import IrcBot
-    >>> IrcBot.defaults.update(async=False, testing=True, nick='nono')
+    >>> from testing import IrcBot
     >>> with open('/tmp/human.db', 'wb') as fd:
     ...     s = fd.write(b'Yo!\\nYo!\\nYo!\\nYo!\\n')
 
 Register the plugin::
 
-    >>> from irc3 import IrcBot
     >>> bot = IrcBot(human='/tmp/human.db', nick='nono')
     >>> bot.include('irc3.plugins.human')
 
 And it should work::
 
     >>> bot.test(':foo!m@h PRIVMSG nono :nono: Yo!')
-    >>> bot.sent
-    ['PRIVMSG foo :Yo!']
+    PRIVMSG foo :Yo!
 
     >>> bot.test(':foo!m@h PRIVMSG #chan :nono: Yo!')
-    >>> bot.sent
-    ['PRIVMSG #chan :foo: Yo!']
+    PRIVMSG #chan :foo: Yo!
 
 ..
     >>> bot.test(':foo!m@h PRIVMSG #chan :!ping')
-    >>> bot.sent
-    []
 
 '''
 import os
@@ -45,6 +39,10 @@ import subprocess
 
 @irc3.plugin
 class Human:
+
+    requires = [
+        __name__.replace('human', 'core'),
+    ]
 
     def __init__(self, bot):
         self.bot = bot
@@ -90,8 +88,5 @@ class Human:
 
     @irc3.extend
     def call_with_human_delay(self, func, *args, **kwargs):
-        if self.bot.config.async:  # pragma: no cover
-            delay = random.randint(*self.delay)
-            self.bot.loop.call_later(delay, func, *args, **kwargs)
-        else:
-            func(*args, **kwargs)
+        delay = random.randint(*self.delay)
+        self.bot.loop.call_later(delay, func, *args, **kwargs)

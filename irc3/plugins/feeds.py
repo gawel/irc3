@@ -21,7 +21,7 @@ Your config must looks like this:
     hook = irc3.plugins.feeds.default_hook       # dotted name to a callable
     fmt = [{name}] {entry.title} - {entry.link}  # formater
 
-    # some feeds
+    # some feeds: name = url
     github/irc3 = https://github.com/gawel/irc3/commits/master.atom#irc3
     # custom formater for the feed
     github/irc3.fmt = [{feed.name}] New commit: {entry.title} - {entry.link}
@@ -67,16 +67,15 @@ def default_hook(entries):
     return entries
 
 
-def fetch(args):  # pragma: no cover
+def fetch(args):
     """fetch a feed"""
-    import requests
+    session = args['session']
     for feed, filename in zip(args['feeds'], args['filenames']):
         try:
-            resp = requests.get(feed, headers=args['headers'])
+            resp = session.get(feed)
             with open(filename, 'wb') as fd:
                 fd.write(resp.content)
-        except:
-            raise
+        except:  # pragma: no cover
             pass
     return args['name']
 
@@ -115,6 +114,8 @@ def parse(feedparser, args):
 @irc3.plugin
 class Feeds:
     """Feeds plugin"""
+
+    PoolExecutor = ThreadPoolExecutor
 
     headers = {
         'User-Agent': 'python-requests/irc3/feeds',
@@ -175,10 +176,9 @@ class Feeds:
 
         self.imports()
 
-    def connection_made(self):  # pragma: no cover
+    def connection_made(self):
         """Initialize checkings"""
-        if not self.bot.config.testing:
-            self.bot.loop.call_later(10, self.update)
+        self.bot.loop.call_later(10, self.update)
 
     def imports(self):
         """show some warnings if needed"""
@@ -189,9 +189,13 @@ class Feeds:
             self.bot.log.critical('feedparser is not installed')
             self.feedparser = None
         try:
-            import requests  # NOQA
+            import requests
         except ImportError:  # pragma: no cover
             self.bot.log.critical('requests is not installed')
+            self.session = None
+        else:
+            self.session = requests.Session()
+            self.session.headers.update(self.headers)
 
     def parse(self):
         """parse pre-fetched feeds and notify new entries"""
@@ -211,27 +215,26 @@ class Feeds:
     def fetch(self):
         """prefetch feeds"""
         now = time.time()
-        feeds = [f for f in self.feeds.values()
+        session = self.session
+        feeds = [dict(f, session=session) for f in self.feeds.values()
                  if f['time'] < now - f['delay']]
-        if not self.bot.config.testing:  # pragma: no cover
-            if not feeds:
-                return
-            self.bot.log.info('Fetching feeds %s',
-                              ', '.join([f['name'] for f in feeds]))
-            with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-                for name in executor.map(fetch, feeds):
-                    feed = self.feeds[name]
-                    feed['time'] = time.time()
+        if not feeds:
+            return
+        self.bot.log.info('Fetching feeds %s',
+                          ', '.join([f['name'] for f in feeds]))
+        with self.PoolExecutor(max_workers=self.max_workers) as executor:
+            for name in executor.map(fetch, feeds):
+                feed = self.feeds[name]
+                feed['time'] = time.time()
 
     def update(self):
         """fault tolerent fetch and notify"""
         try:
             self.fetch()
-        except Exception as e:  # pragma: no cover
+        except Exception as e:
             self.bot.log.exception(e)
         try:
             self.parse()
-        except Exception as e:  # pragma: no cover
+        except Exception as e:
             self.bot.log.exception(e)
-        if self.bot.loop:  # pragma: no cover
-            self.bot.loop.call_later(self.delay, self.update)
+        self.bot.loop.call_later(self.delay, self.update)

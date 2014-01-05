@@ -34,7 +34,7 @@ class TestBot(BotTestCase):
         self.assertIn('<event ', repr(list(bot.events.values())[0]))
 
     def test_log(self):
-        bot = self.callFTU()
+        bot = self.callFTU(level='ERROR')
         bot.include('irc3.plugins.log', venusian_categories=['irc3.debug'])
         bot.dispatch('PING :youhou')
         bot.dispatch(':gawel!user@host PRIVMSG #chan :youhou')
