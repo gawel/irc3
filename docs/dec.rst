@@ -1,5 +1,5 @@
 ============================
-:mod:`irc3.dec` Decorators
+:mod:`irc3.dec` decorators
 ============================
 
 .. automodule:: irc3.dec

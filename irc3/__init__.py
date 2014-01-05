@@ -14,8 +14,16 @@ import asyncio
 import signal
 import time
 
+try:
+    import pkg_resources
+except ImportError:  # pragma: no cover
+    version = ''
+else:
+    version = pkg_resources.get_distribution('irc3').version
+
 
 class IrcConnection(asyncio.Protocol):  # pragma: no cover
+    """asyncio protocol to handle an irc connection"""
 
     def connection_made(self, transport):
         self.transport = transport
@@ -64,6 +72,7 @@ class IrcConnection(asyncio.Protocol):  # pragma: no cover
 
 
 class IrcBot:
+    """The main class"""
 
     _pep8 = [event, extend, plugin, rfc, config]
     venusian = venusian
@@ -79,7 +88,7 @@ class IrcBot:
     defaults = dict(
         nick='irc3',
         realname='irc3',
-        info='Irc bot based on irc3',
+        userinfo='Irc bot based on irc3 http://irc3.readthedocs.org',
         host='irc.freenode.net',
         port=6667,
         ssl=False,
@@ -88,6 +97,12 @@ class IrcBot:
         testing=False,
         async=True,
         loop=None,
+        version=version,
+        url='https://irc3.readthedocs.org/',
+        ctcp=dict(
+            version='irc3 {version} - {url}',
+            userinfo='{userinfo}',
+        )
     )
 
     def __init__(self, **config):
@@ -155,8 +170,8 @@ class IrcBot:
         self.protocol.factory = self
         self.protocol.encoding = self.encoding
         self.send((
-            'USER %(nick)s %(realname)s %(host)s :%(info)s\r\n'
-            'NICK %(nick)s\r\n') % self.config)
+            'USER {nick} {realname} {host} :{userinfo}\r\n'
+            'NICK {nick}\r\n').format(**self.config))
         self.notify('connection_made')
 
     def notify(self, event, exc=None):
@@ -210,6 +225,16 @@ class IrcBot:
         if target and message:
             self.send('NOTICE %s :%s' % (target, message))
 
+    def ctcp(self, target, message):
+        """send a ctcp to target"""
+        if target and message:
+            self.send('PRIVMSG %s :\x01%s\x01' % (target, message))
+
+    def ctcp_reply(self, target, message):
+        """send a ctcp reply to target"""
+        if target and message:
+            self.send('NOTICE %s :\x01%s\x01' % (target, message))
+
     def join(self, target):
         """join a channel"""
         self.send('JOIN %s' % target)
@@ -227,13 +252,12 @@ class IrcBot:
         self.send('QUIT :%s' % reason)
 
     def get_nick(self):
-        """nickname"""
         return self.config.nick
 
     def set_nick(self, nick):
         self.send('NICK ' + nick)
 
-    nick = property(get_nick, set_nick)
+    nick = property(get_nick, set_nick, doc='nickname get/set')
 
     def test(self, data):
         self.dispatch(data)

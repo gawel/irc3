@@ -29,13 +29,18 @@ JOIN_PART_QUIT = raw.new(
 MY_PRIVMSG = raw.new(
     'MY_PRIVMSG',
     (r':(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) '
-        r'(?P<target>(#\S+|%(nick)s)) :%(nick)s[:,\s]\s*'
+        r'(?P<target>(#\S+|{nick})) :{nick}[:,\s]\s*'
         r'(?P<data>\S+.*)$'))
 
 PRIVMSG = raw.new(
     'PRIVMSG',
     (r':(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) '
-        r'((?P<target>\S+) :\s*(?P<data>\S+.*)$'))
+     r'(?P<target>\S+) :\s*(?P<data>\S+.*)$'))
+
+CTCP = raw.new(
+    'CTCP',
+    (':(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) '
+     '{nick} :\x01(?P<ctcp>\S+.*)\x01$'))
 
 ERR_NICK = raw.new(
     'ERR_NICK',

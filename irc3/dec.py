@@ -38,7 +38,7 @@ class event(object):
     def compile(self, config):
         regexp = getattr(self.regexp, 're', self.regexp)
         if config:
-            regexp = regexp % config
+            regexp = regexp.format(**config)
         self.cregexp = re.compile(regexp)
 
     def __call__(self, wrapped):

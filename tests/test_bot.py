@@ -48,6 +48,11 @@ class TestBot(BotTestCase):
         bot.dispatch(':gawel!user@host PRIVMSG nono :!quote who gawel')
         self.assertSent(['who gawel'])
 
+    def test_ctcp(self):
+        bot = self.callFTU()
+        bot.ctcp('gawel', 'VERSION')
+        self.assertSent(['PRIVMSG gawel :\x01VERSION\x01'])
+
     def test_ping(self):
         bot = self.callFTU()
         bot.include('irc3.plugins.core')

@@ -201,11 +201,10 @@ class Feeds:
 
         def messages():
             for entry in self.hook([e for u, e in sorted(entries)]):
-                if not entry:
-                    continue
-                message = feed['fmt'].format(feed=entry.feed, entry=entry)
-                for c in feed['channels']:
-                    yield c, message
+                if entry:
+                    message = feed['fmt'].format(feed=entry.feed, entry=entry)
+                    for c in feed['channels']:
+                        yield c, message
 
         self.bot.call_many('privmsg', messages())
 

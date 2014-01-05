@@ -49,7 +49,4 @@ class Uptime:
         now = time.time()
         uptime = self.delta(now - self.uptime)
         connection_uptime = self.delta(now - (self.connection_uptime or now))
-        if not target.is_channel:
-            target = target.nick
-        self.bot.privmsg(target,
-                         self.privmsg.format(uptime, connection_uptime))
+        return self.privmsg.format(uptime, connection_uptime)

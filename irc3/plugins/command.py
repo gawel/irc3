@@ -180,7 +180,7 @@ class Commands(dict):
         self.guard = guard(bot)
 
     @irc3.event((r':(?P<mask>\S+) PRIVMSG (?P<target>\S+) '
-                 r':%(cmd)s(?P<cmd>\w+)(\s(?P<data>\w+.*)|$)'))
+                 r':{cmd}(?P<cmd>\w+)(\s(?P<data>\w+.*)|$)'))
     def on_command(self, cmd, mask=None, target=None, data=None, **kw):
         predicates, meth = self.get(cmd, (None, None))
         if meth is not None:
@@ -206,7 +206,8 @@ class Commands(dict):
             self.bot.privmsg(to, 'Invalid arguments')
         else:
             msg = self.guard(predicates, meth, mask, target, args)
-            self.bot.privmsg(to, msg)
+            if msg:
+                self.bot.privmsg(to, msg)
 
     @command(permission='help')
     def help(self, mask, target, args):

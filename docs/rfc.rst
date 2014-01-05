@@ -1532,6 +1532,19 @@ Example:
 Misc
 ====
 
+CTCP
+----
+
+Match ``:(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) {nick} :(?P<ctcp>\S+.*)$``
+
+Example:
+
+.. code-block:: python
+
+    @irc3.event(rfc.CTCP)
+    def myevent(bot):
+        # do something
+
 JOIN
 ----
 
@@ -1561,7 +1574,7 @@ Example:
 MY_PRIVMSG
 ----------
 
-Match ``:(?P<mask>\S+) (?P<event>(PRIVMSG|NOTICE)) ((?P<target>(#\S+|%(nick)s)) :\s*|(?P=target) :%(nick)s[:,\s]\s+)(?P<data>\S+.*)$``
+Match ``:(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) (?P<target>(#\S+|{nick})) :{nick}[:,\s]\s*(?P<data>\S+.*)$``
 
 Example:
 
@@ -1613,7 +1626,7 @@ Example:
 PRIVMSG
 -------
 
-Match ``:(?P<mask>\S+) (?P<event>(PRIVMSG|NOTICE)) ((?P<target>\S+) :\s*(?P<data>\S+.*)$``
+Match ``:(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) (?P<target>\S+) :\s*(?P<data>\S+.*)$``
 
 Example:
 
