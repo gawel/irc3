@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
-import configparser
 import os
+try:
+    import configparser
+except ImportError:  # pragma: no cover
+    import ConfigParser as configparser
 
 
 class IrcString(str):
@@ -196,17 +199,17 @@ def as_channel(value):
 def maybedotted(name):
     """Resolve dotted names::
 
-        >>> maybedotted('http.server')
-        <module 'http.server' from '...'>
-        >>> maybedotted('http.server.HTTPServer')
-        <class 'http.server.HTTPServer'>
+        >>> maybedotted('irc3.config')
+        <module 'irc3.config' from '...'>
+        >>> maybedotted('irc3.utils.IrcString')
+        <class 'irc3.utils.IrcString'>
 
     ..
     """
     if not name:
         raise LookupError(
             'Not able to resolve %s' % name)
-    if isinstance(name, str):
+    if not hasattr(name, '__name__'):
         try:
             mod = __import__(name, globals(), locals(), [''])
         except ImportError:

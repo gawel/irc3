@@ -7,8 +7,19 @@ from setuptools import find_packages
 version = '0.4.2.dev0'
 
 install_requires = ['venusian>=1.0a8', 'docopt']
+test_requires = [
+    'nose', 'coverage',
+    'feedparser', 'requests',
+    'twitter',
+]
 
-if sys.version_info[:2] < (3, 4):
+if sys.version_info[:2] < (3, 0):
+    install_requires.extend([
+        'trollius',
+        'futures',
+    ])
+    test_requires.append('mock')
+elif sys.version_info[:2] < (3, 4):
     install_requires.append('asyncio')
 
 
@@ -23,6 +34,7 @@ setup(
     long_description=read('README.rst'),
     classifiers=[
         'Intended Audience :: Developers',
+        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'License :: OSI Approved :: MIT License',
@@ -37,11 +49,7 @@ setup(
     zip_safe=False,
     install_requires=install_requires,
     extras_require={
-        'test': [
-            'nose', 'coverage',
-            'feedparser', 'requests',
-            'twitter',
-        ],
+        'test': test_requires,
     },
     entry_points='''
     [console_scripts]

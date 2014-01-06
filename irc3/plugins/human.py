@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 __doc__ = '''
 ==========================================
 :mod:`irc3.plugin.human` Human plugin
@@ -38,7 +39,7 @@ import subprocess
 
 
 @irc3.plugin
-class Human:
+class Human(object):
 
     requires = [
         __name__.replace('human', 'core'),

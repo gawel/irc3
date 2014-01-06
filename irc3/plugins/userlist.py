@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 __doc__ = '''
 ==============================================
 :mod:`irc3.plugin.userlist` User list plugin
@@ -15,8 +16,8 @@ Usage::
     >>> bot.include('irc3.plugins.userlist')
     >>> bot.test(':gawel!user@host JOIN #chan')
 
-    >>> bot.channels.items()
-    dict_items([('#chan', {'gawel'})])
+    >>> list(bot.channels['#chan'])
+    ['gawel']
     >>> bot.nicks
     {'gawel': 'gawel!user@host'}
 
@@ -29,7 +30,7 @@ from collections import defaultdict
 
 
 @plugin
-class Userlist:
+class Userlist(object):
 
     def __init__(self, bot):
         self.bot = bot

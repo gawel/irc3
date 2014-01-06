@@ -2,7 +2,7 @@
 import os
 
 
-class FeedsHook:
+class FeedsHook(object):
     """Custom hook for irc3.plugins.feeds"""
 
     def __init__(self, bot):

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 __doc__ = '''
 ==========================================
 :mod:`irc3.plugin.log` Log plugin
@@ -19,7 +20,7 @@ import irc3
 
 
 @irc3.plugin
-class RawLog:
+class RawLog(object):
 
     def __init__(self, bot):
         self.bot = bot

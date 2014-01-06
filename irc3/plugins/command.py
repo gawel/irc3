@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 __doc__ = '''
 ==========================================
 :mod:`irc3.plugin.command` Command plugin
@@ -87,7 +88,7 @@ import docopt
 import irc3
 
 
-class free_policy:
+class free_policy(object):
     """Default policy"""
     def __init__(self, bot):
         self.bot = bot
@@ -96,7 +97,7 @@ class free_policy:
         return meth(mask, target, args)
 
 
-class mask_based_policy:
+class mask_based_policy(object):
     """Allow only valid masks. Able to take care or permissions"""
     def __init__(self, bot):
         self.bot = bot
@@ -123,7 +124,7 @@ class mask_based_policy:
         )
 
 
-class command:
+class command(object):
 
     venusian = venusian
     defaults = {'permission': None}

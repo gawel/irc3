@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from irc3.plugins.command import command
 import irc3
 
 
 @irc3.plugin
-class Search:
+class Search(object):
 
     requires = [
         __name__.replace('search', 'command'),

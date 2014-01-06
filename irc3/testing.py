@@ -1,10 +1,18 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from unittest import TestCase
-from unittest.mock import MagicMock
-from unittest.mock import patch
-from unittest.mock import call
 import irc3
+from irc3.compat import PY3
 import os
+
+try:
+    from unittest import mock
+except ImportError:
+    import mock
+
+MagicMock = mock.MagicMock
+patch = mock.patch
+call = mock.call
 
 passwd_ini = """
 [irc.freenode.net]
@@ -54,12 +62,17 @@ class IrcBot(irc3.IrcBot):
         self.dispatch(data)
         if show:
             for line in self.sent:
-                print(line)
+                if PY3:
+                    print(line)
+                else:
+                    print(line.encode('utf8'))
 
     @property
     def sent(self):
         values = [tuple(c)[0][0] for c in self.protocol.write.call_args_list]
         self.protocol.write.reset_mock()
+        if not PY3:
+            return [v.encode('utf8') for v in values]
         return values
 
 
@@ -78,9 +91,11 @@ class BotTestCase(TestCase):
             self.assertNothingSent()
             return
         if not self.bot.loop.called:
-            self.bot.protocol.write.assert_has_calls([call(l) for l in lines])
+            self.bot.protocol.write.assert_has_calls(
+                [call(l) for l in lines])
         else:
-            self.bot.loop.call_later.assert_has_calls([call(l) for l in lines])
+            self.bot.loop.call_later.assert_has_calls(
+                [call(l) for l in lines])
         self.reset_mock()
 
     def assertNothingSent(self):
@@ -102,7 +117,7 @@ class BotTestCase(TestCase):
             with open(filename, 'rb') as feed:
                 content = feed.read()
             for k, v in kwargs.items():
-                content = content.replace(bytes(k, 'ascii'), bytes(v, 'ascii'))
+                content = content.replace(k.encode('ascii'), v.encode('ascii'))
             kwargs['content'] = content
         resp = MagicMock(**kwargs)
         for k, v in kwargs.items():

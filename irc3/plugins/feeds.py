@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 __doc__ = '''
 ==========================================
 :mod:`irc3.plugin.feeds` Feeds plugin
@@ -73,10 +74,13 @@ def fetch(args):
     for feed, filename in zip(args['feeds'], args['filenames']):
         try:
             resp = session.get(feed)
-            with open(filename, 'wb') as fd:
-                fd.write(resp.content)
+            content = resp.content
         except:  # pragma: no cover
+            raise
             pass
+        else:
+            with open(filename, 'wb') as fd:
+                fd.write(content)
     return args['name']
 
 
@@ -90,7 +94,7 @@ def parse(feedparser, args):
         try:
             with open(filename + '.updated') as fd:
                 updated = fd.read().strip()
-        except OSError:
+        except (OSError, IOError):
             updated = '0'
 
         feed = feedparser.parse(filename)
@@ -112,7 +116,7 @@ def parse(feedparser, args):
 
 
 @irc3.plugin
-class Feeds:
+class Feeds(object):
     """Feeds plugin"""
 
     PoolExecutor = ThreadPoolExecutor

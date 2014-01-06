@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from irc3.testing import BotTestCase
-from unittest.mock import MagicMock
+from irc3.testing import MagicMock
 import datetime
 import tempfile
 import shutil

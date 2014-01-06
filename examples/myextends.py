@@ -8,7 +8,7 @@ def my_usefull_function(bot, *args):
 
 
 @irc3.plugin
-class MyPlugin:
+class MyPlugin(object):
 
     def __init__(self, bot):
         self.bot = bot

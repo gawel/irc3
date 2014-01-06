@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import unittest
-from unittest.mock import MagicMock
+from irc3.testing import MagicMock
 import irc3
 
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from irc3.testing import BotTestCase
-from unittest.mock import patch
+from irc3.testing import patch
 
 
 class TestBot(BotTestCase):

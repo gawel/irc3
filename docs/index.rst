@@ -6,9 +6,17 @@
 Welcome to irc3's documentation!
 ================================
 
-irc client based on `asyncio <http://docs.python.org/3.4/library/asyncio.html>`_.
+plugable irc client based on python's `asyncio
+<http://docs.python.org/3.4/library/asyncio.html>`_.
 
-Require python 3.3+
+Require python 2.7, 3.3+
+
+Source: https://github.com/gawel/irc3/
+
+Docs: https://irc3.readthedocs.org/
+
+Irc: irc://irc.freenode.net/irc3 (`www
+<https://kiwiirc.com/client/irc.freenode.net/?nick=irc3|?&theme=basic#irc3>`_)
 
 Installation
 ==============

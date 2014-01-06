@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 __doc__ = '''
 ==============================================
 :mod:`irc3.plugin.uptime` Uptime plugin
@@ -16,7 +17,7 @@ import irc3
 
 
 @irc3.plugin
-class Uptime:
+class Uptime(object):
 
     requires = [
         __name__.replace('uptime', 'command'),

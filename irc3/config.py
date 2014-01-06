@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 
 LOGGING = {
@@ -29,6 +30,11 @@ LOGGING = {
         }
     },
     'loggers': {
+        'asyncio': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
         'irc3': {
             'handlers': ['console'],
             'level': 'INFO',

@@ -4,7 +4,7 @@ import irc3
 import json
 
 
-class TwitterAdapter:
+class TwitterAdapter(object):
 
     def __init__(self, bot, conn):
         self.bot = bot
@@ -50,7 +50,7 @@ class TwitterAdapter:
 
 
 @irc3.plugin
-class Social:
+class Social(object):
 
     requires = [
         'irc3.plugins.command',

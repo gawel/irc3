@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import functools
 import venusian
 import re
@@ -87,10 +88,10 @@ def extend(func):
 
         >>> bot = IrcBot()
         >>> bot.include('myextends')
-        >>> bot.my_usefull_function('foo')
-        "my_usefull_function(*('foo',))"
-        >>> bot.my_usefull_method('bar')
-        "my_usefull_method(*('bar',))"
+        >>> print(bot.my_usefull_function(1))
+        my_usefull_function(*(1,))
+        >>> print(bot.my_usefull_method(2))
+        my_usefull_method(*(2,))
 
     """
     def callback(context, name, ob):

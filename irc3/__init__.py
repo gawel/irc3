@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 from collections import defaultdict
 from .dec import event
 from .dec import extend
@@ -7,12 +8,15 @@ from .utils import IrcString
 from . import config
 from . import utils
 from . import rfc
+from .compat import string_types
+from .compat import text_type
 import logging.config
 import logging
 import venusian
 import asyncio
 import signal
 import time
+import sys
 
 try:
     import pkg_resources
@@ -40,7 +44,7 @@ class IrcConnection(asyncio.Protocol):
 
     def write(self, data):
         if data is not None:
-            if isinstance(data, str):
+            if isinstance(data, text_type):
                 data = data.encode(self.encoding)
             if not data.endswith(b'\r\n'):
                 data = data + b'\r\n'
@@ -68,7 +72,7 @@ class IrcConnection(asyncio.Protocol):
                 self.closed = True
 
 
-class IrcBot:
+class IrcBot(object):
     """The main class"""
 
     _pep8 = [event, extend, plugin, rfc, config]
@@ -205,7 +209,7 @@ class IrcBot:
 
     def call_many(self, callback, args):
         """callback is run with each arg but run a call per second"""
-        if isinstance(callback, str):
+        if isinstance(callback, string_types):
             callback = getattr(self, callback)
         for i, arg in enumerate(args):
             self.loop.call_later(i, callback, *arg)
@@ -305,7 +309,6 @@ def run(argv=None):
     -d,--debug          Add some debug commands/utils
     """
     import os
-    import sys
     import docopt
     import textwrap
     args = argv or sys.argv[1:]

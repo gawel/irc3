@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 __doc__ = '''
 ==============================================
 :mod:`irc3.plugin.ctcp` CTCP replies
@@ -15,8 +16,9 @@ Usage::
 Try to send a ``CTCP FOO``::
 
     >>> bot.test(':gawel!user@host PRIVMSG irc3 :\x01FOO\x01', show=False)
-    >>> bot.sent[0].replace('\x01', '01')  # remove escape char for testing..
-    'NOTICE gawel :01FOO bar01'
+    >>> # remove escape char for testing..
+    >>> print(bot.sent[0].replace('\x01', '01'))
+    NOTICE gawel :01FOO bar01
 '''
 from irc3 import event
 from irc3 import rfc
