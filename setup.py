@@ -18,7 +18,7 @@ if sys.version_info[:2] < (3, 0):
         'trollius',
         'futures',
     ])
-    test_requires.append('mock')
+    test_requires.extend(['mock', 'pyst'])
 elif sys.version_info[:2] < (3, 4):
     install_requires.append('asyncio')
 
