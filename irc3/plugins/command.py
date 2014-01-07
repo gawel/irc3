@@ -79,6 +79,7 @@ Mask based guard using permissions::
     NOTICE gawel :PONG gawel!
 
 '''
+from irc3.compat import string_types
 from irc3 import utils
 import functools
 import venusian
@@ -113,7 +114,7 @@ class mask_based_policy(object):
                 perms = self.masks[pattern]
                 if permission in perms or 'all_permissions' in perms:
                     return True
-                return False
+        return False
 
     def __call__(self, predicates, meth, mask, target, args):
         if self.has_permission(mask, predicates.get('permission')):
@@ -177,7 +178,7 @@ class Commands(dict):
         self.guard = guard(bot)
 
     @irc3.event((r':(?P<mask>\S+) PRIVMSG (?P<target>\S+) '
-                 r':{cmd}(?P<cmd>\w+)(\s(?P<data>[-|\w]+.*)|$)'))
+                 r':{cmd}(?P<cmd>\w+)(\s(?P<data>[-0-9A-z]+.*)|$)'))
     def on_command(self, cmd, mask=None, target=None, data=None, **kw):
         predicates, meth = self.get(cmd, (None, None))
         if meth is not None:
@@ -202,9 +203,14 @@ class Commands(dict):
         except docopt.DocoptExit:
             self.bot.privmsg(to, 'Invalid arguments')
         else:
-            msg = self.guard(predicates, meth, mask, target, args)
-            if msg:
-                self.bot.privmsg(to, msg)
+            msgs = self.guard(predicates, meth, mask, target, args)
+            if msgs is not None:
+                def iterator(msgs):
+                    for msg in msgs:
+                        yield to, msg
+                if isinstance(msgs, string_types):
+                    msgs = [msgs]
+                self.bot.call_many('privmsg', iterator(msgs))
 
     @command(permission='help')
     def help(self, mask, target, args):
@@ -212,28 +218,27 @@ class Commands(dict):
 
             %%help [<cmd>]
         """
-        to = target == self.bot.nick and mask.nick or target
         if args['<cmd>']:
             predicates, meth = self.get(args['<cmd>'], (None, None))
-
-            def messages():
-                if meth is not None:
-                    doc = meth.__doc__ or ''
-                    doc = [l.strip() for l in doc.split('\n') if l.strip()]
-                    for line in doc:
+            if meth is not None:
+                doc = meth.__doc__ or ''
+                doc = [l.strip() for l in doc.split('\n') if l.strip()]
+                buf = ''
+                for line in doc:
+                    if '%%' not in line and buf is not None:
+                        buf += line + ' '
+                    else:
+                        if buf is not None:
+                            for b in utils.split_message(buf, 160):
+                                yield b
+                            buf = None
                         line = line.replace('%%', self.bot.config.cmd)
-                        yield to, line
+                        yield line
         else:
-            nb = int(self.bot.config.get('help.item_per_line', 8))
-            cmds = sorted([self.cmd + k for k in self.keys()])
-
-            def messages():
-                msg = ', '.join(cmds[0:nb - 3])
-                yield to, 'Available commands: ' + msg
-                for x in range(nb - 3, len(cmds), nb):
-                    msg = ', '.join(cmds[x:x+nb])
-                    yield to, msg
-        self.bot.call_many('privmsg', messages())
+            cmds = ', '.join([self.cmd + k for k in sorted(self.keys())])
+            lines = utils.split_message('Available commands: ' + cmds, 160)
+            for line in lines:
+                yield line
 
     def __repr__(self):
         return '<Commands %s>' % sorted([self.cmd + k for k in self.keys()])
