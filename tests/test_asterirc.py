@@ -4,6 +4,7 @@ from irc3.testing import MagicMock
 from irc3.testing import patch
 from irc3.testing import PY3
 from unittest import skipIf
+from collections import defaultdict
 
 
 class Event(object):
@@ -97,13 +98,27 @@ class TestAsterirc(BotTestCase):
         plugin.update_meetme()
         self.assertEqual(len(plugin.rooms), 0)
 
+        content = '''
+Conf Num       Parties        Marked     Activity  Creation  Locked
+4290           0001	      N/A        00:20:33  Static    No
+User #: 01  gawel Gael Pasgrimaud      Channel: SIP/gawel
+
+--END COMMAND--
+'''
+        self.response.get_header.return_value = 'Follows'
+        self.response.headers = {'response': 'Follows'}
+        self.response.data = content.strip()
+        plugin.rooms = defaultdict(dict)
+        plugin.update_meetme()
+        self.assertEqual(len(plugin.rooms), 1, plugin.rooms)
+
     def test_update_meetme_fail(self):
         bot, plugin = self.callFTU()
         self.response.get_header.return_value = 'Error'
         self.response.headers = {'response': 'Follows'}
-        plugin.rooms['room'] = {}
+        plugin.rooms = defaultdict(dict)
         plugin.update_meetme()
-        self.assertEqual(len(plugin.rooms), 1)
+        self.assertEqual(len(plugin.rooms), 0)
 
     def test_connect_error(self):
         bot, plugin = self.callFTU()
@@ -193,13 +208,13 @@ class TestAsterirc(BotTestCase):
         bot, plugin = self.callFTU(level=1000)
         self.response.headers = {'SIP-Useragent': 'MyTel',
                                  'Address-IP': 'localhost'}
-        bot.dispatch(':gawel!user@host PRIVMSG nono :!voip status')
+        bot.dispatch(':gawel!user@host PRIVMSG nono :!asterisk status')
         self.assertSent([(
             'PRIVMSG gawel :gawel: Your VoIP phone is registered. '
             '(User Agent: MyTel on localhost)'
         )])
 
-        bot.dispatch(':gawel!user@host PRIVMSG nono :!voip status xx')
+        bot.dispatch(':gawel!user@host PRIVMSG nono :!asterisk status xx')
         self.assertSent(['PRIVMSG gawel :gawel: Your id is invalid.'])
 
     def test_meetme(self):

@@ -55,7 +55,8 @@ class Asterisk(object):
             host='127.0.0.1',
             port=5038,
             http_port='8088',
-            protocol='http'
+            protocol='http',
+            #debug=True,
         )
         config.update(bot.config.get('asterisk', {}))
         self.log = logging.getLogger('irc3.ast')
@@ -103,10 +104,24 @@ class Asterisk(object):
         self.update_meetme()
 
     def update_meetme(self):
-        success, resp = self.send_command('meetme list')
+        success, resp = self.send_command('meetme list', debug=True)
         if success:
             if 'No active MeetMe conferences.' in resp.lines:
                 self.rooms = defaultdict(dict)
+            for line in resp.lines[1:-2]:
+                room = line.split(' ', 1)[0]
+                if not room or not room.isdigit():
+                    continue
+                success, resp = self.send_command('meetme list ' + room)
+                if success and resp.lines:
+                    room = self.rooms[room]
+                    for line in resp.lines:
+                        if not line.lower().startswith('user'):
+                            continue
+                        line = line.split('Channel:')[0]
+                        splited = [s for s in line.split() if s][2:]
+                        uid = splited.pop(0)
+                        room[' '.join(splited[1:])] = uid
         else:
             self.bot.loop.call_later(2, self.post_connect)
 
@@ -120,7 +135,8 @@ class Asterisk(object):
             manager.connect(config['host'], config['port'])
             manager.login(config['username'], config['secret'])
             manager.register_event('Shutdown', self.handle_shutdown)
-            manager.register_event('Meetme*', self.handle_meetme)
+            for event in ('MeetmeEnd', 'MeetmeJoin', 'MeetmeLeave'):
+                manager.register_event(event, self.handle_meetme)
             if config.get('debug'):
                 manager.register_event('*', self.handle_event)
             resp = manager.send_action({'Action': 'Status', 'Channel': ''})
@@ -140,7 +156,7 @@ class Asterisk(object):
         self.bot.loop.call_later(2, self.connect)
 
     def handle_event(self, event, manager):
-        self.log.debug('handle_event %s %s', event, event.headers)
+        self.log.debug('handle_event %s %s', event, '')  # , event.headers)
 
     def handle_meetme(self, event, manager):
         self.log.debug('handle_meetme %s %s', event, event.headers)
@@ -241,7 +257,6 @@ class Asterisk(object):
         if 'nick' not in args:
             args['nick'] = mask.nick
 
-        self.log.info('call %s %s %s', mask, target, args)
         callee = self.resolver(mask, args['<destination>'])
         if args['<from>']:
             caller = self.resolver(mask, args['<from>'])
@@ -276,20 +291,20 @@ class Asterisk(object):
             %%room (list|invite|kick) [<room>] [<destination>...]
 
         """
-        self.log.info('room %s %s %s', mask, target, args)
         args['nick'] = mask.nick
         room = args['<room>']
-        print(args)
         if args['invite']:
 
             callees = args['<destination>']
             message = '{nick}: {<from>} has been invited to room {<room>}.'
             if not callees:
+                # self invite
                 callees = [mask.nick]
                 message = '{nick}: You have been invited to room {<room>}.'
 
             resolved = [self.resolver(mask, c) for c in callees]
             if None in resolved:
+                # show invalid arguments and quit
                 callees = zip(resolved, callees)
                 invalid = [c for r, c in callees if r is None]
                 yield (
@@ -298,6 +313,7 @@ class Asterisk(object):
                 raise StopIteration()
 
             for callee in callees:
+                # call each
                 args['<destination>'] = args['<room>']
                 args['<from>'] = callee
                 msg = self.call(mask, target, args)
@@ -349,10 +365,10 @@ class Asterisk(object):
                     yield 'Failed to kick {0} from {1}.'.format(user, room)
 
     @command(permission='voip')
-    def voip(self, mask, target, args):
+    def asterisk(self, mask, target, args):
         """Show voip status
 
-            %%voip status [<id>]
+            %%asterisk status [<id>]
         """
         self.log.info('voip %s %s %s', mask, target, args)
         args['nick'] = mask.nick
@@ -370,10 +386,10 @@ class Asterisk(object):
                     ).format(nick=mask.nick, **resp.headers)
 
     @command(permission='admin', venusian_category='irc3.debug')
-    def asterisk(self, mask, target, args):  # pragma: no cover
+    def asterisk_command(self, mask, target, args):  # pragma: no cover
         """Send a raw command to asterisk. Use "help" to list core commands.
 
-            %%asterisk <command>...
+            %%asterisk_command <command>...
         """
         cmd = ' '.join(args['<command>'])
         cmd = dict(
