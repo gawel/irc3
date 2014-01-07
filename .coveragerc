@@ -1,7 +1,14 @@
 [run]
+include =
+    */irc3/*
 omit =
     */tests*
-    */examples*
+    */docs/conf.py
+    */examples/social*
+    */examples/mycommands*
+    */examples/myextends*
+    */examples/nickserv*
+    */examples/freenode*
     */lib/python*
 
 [report]

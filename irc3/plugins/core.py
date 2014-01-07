@@ -54,7 +54,8 @@ def autojoin(bot, **kw):
     """autojoin at the end of MOTD"""
     bot.config['nick'] = kw['me']
     bot.recompile()
-    for channel in bot.config.get('autojoins', []):
+    channels = utils.as_list(bot.config.get('autojoins', []))
+    for channel in channels:
         channel = utils.as_channel(channel)
         bot.log.info('Trying to join %s', channel)
         bot.join(channel)

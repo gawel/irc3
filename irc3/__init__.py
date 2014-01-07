@@ -177,6 +177,8 @@ class IrcBot(object):
         self.protocol = protocol
         self.protocol.factory = self
         self.protocol.encoding = self.encoding
+        if self.config.password:
+            self.send('PASS {password}'.format(**self.config))
         self.send((
             'USER {nick} {realname} {host} :{userinfo}\r\n'
             'NICK {nick}\r\n').format(**self.config))
@@ -282,6 +284,7 @@ class IrcBot(object):
             pass
 
     def SIGINT(self):
+        self.notify('SIGINT')
         if getattr(self, 'protocol', None):
             self.quit('INT')
             time.sleep(1)
@@ -299,7 +302,7 @@ def run(argv=None):
     """
     Run an irc bot from a config file
 
-    Usage: irc3 [options] <config>
+    Usage: irc3 [options] <config>...
 
     Options:
 
@@ -313,10 +316,15 @@ def run(argv=None):
     import textwrap
     args = argv or sys.argv[1:]
     args = docopt.docopt(textwrap.dedent(run.__doc__), args)
-    cfg = utils.parse_config(args['<config>'])
+    cfg = utils.parse_config(*args['<config>'])
     cfg.update(
         verbose=args['--verbose'],
+        debug=args['--debug'],
     )
+    pythonpath = cfg.get('pythonpath', [])
+    pythonpath.append(cfg['here'])
+    for path in pythonpath:
+        sys.path.append(os.path.expanduser(path))
     if args['--logdir'] or 'logdir' in cfg:
         logdir = os.path.expanduser(args['--logdir'] or cfg.get('logdir'))
         IrcBot.logging_config = config.get_file_config(logdir)
