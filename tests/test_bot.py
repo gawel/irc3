@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from irc3.testing import BotTestCase
 from irc3.testing import patch
+import logging
 
 
 class TestBot(BotTestCase):
@@ -48,6 +49,23 @@ class TestBot(BotTestCase):
         bot.include('irc3.plugins.log', venusian_categories=['irc3.debug'])
         bot.dispatch('PING :youhou')
         bot.dispatch(':gawel!user@host PRIVMSG #chan :youhou')
+
+    def test_logger(self):
+        bot = self.callFTU(level='ERROR')
+        log = logging.getLogger('irc.1')
+        log.set_irc_targets(bot, '#log')
+        log2 = logging.getLogger('irc.2')
+        log2.set_irc_targets(bot, '#log2')
+        log.info('foo')
+        log2.info('foo2')
+        self.assertSent([
+            'PRIVMSG #log :INFO foo',
+            'PRIVMSG #log2 :INFO foo2'
+        ])
+        self.assertNotEqual(
+            log.handlers[0].targets,
+            log2.handlers[0].targets
+        )
 
     def test_quote(self):
         bot = self.callFTU()

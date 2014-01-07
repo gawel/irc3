@@ -19,18 +19,6 @@ class TestCommands(BotTestCase):
         self.assertSent(
             ['PRIVMSG #chan :Available commands: !help, !ping'])
 
-        cmd = plugin['help']
-        for i in range(10, 25):
-            plugin['cmd%s' % i] = cmd
-
-        bot.dispatch(':bar!user@host PRIVMSG #chan :!help')
-        self.assertSent(
-            ['PRIVMSG #chan :Available commands: !cmd10, !cmd11, !cmd12',
-             'PRIVMSG #chan :!cmd13, !cmd14, !cmd15, !cmd16, !cmd17, !cmd18',
-             'PRIVMSG #chan :!cmd19, !cmd20, !cmd21, !cmd22, !cmd23, !cmd24',
-             'PRIVMSG #chan :!help, !ping']
-        )
-
     def test_command_char(self):
         bot = self.callFTU(**{'irc3.plugins.command': {'cmd': '\$'}})
         bot.dispatch(':bar!user@host PRIVMSG foo :$ping')
