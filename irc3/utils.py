@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import logging
 import os
 try:
     import configparser
@@ -119,13 +120,15 @@ class Config(dict):
         return self[attr]
 
 
-def parse_config(filename):
+def parse_config(*filenames):
+    """parse config files"""
+    filename = filenames[-1]
     filename = os.path.abspath(filename)
     here = os.path.dirname(filename)
-    defaults = dict(here=here, config=filename)
+    defaults = dict(here=here)
 
     config = configparser.ConfigParser(defaults, allow_no_value=False)
-    config.read([filename, os.path.expanduser('~/.irc3/passwd.ini')])
+    config.read([os.path.expanduser('~/.irc3/passwd.ini')] + list(filenames))
 
     value = {}
     for s in config.sections():
@@ -144,6 +147,8 @@ def parse_config(filename):
             for k in ('here', 'config'):
                 items.pop(k, '')
             value[s] = items
+    value.update(defaults)
+    value['configfiles'] = filenames
     return value
 
 
@@ -230,3 +235,41 @@ def maybedotted(name):
         else:
             return mod
     return name
+
+
+class Handler(logging.Handler):
+
+    def __init__(self, bot, *targets):
+        super(Handler, self).__init__()
+        self.bot = bot
+        self.targets = targets
+
+    def emit(self, record):
+        for t in self.targets:
+            self.bot.privmsg(t, self.format(record))
+
+
+class Logger(logging.getLoggerClass()):
+    """Replace the default logger to add a set_irc_targets() method"""
+
+    def set_irc_targets(self, bot, *targets):
+        """Add a irc Handler using bot and log to targets (can be nicks or
+        channels:
+
+        ..
+            >>> bot = None
+
+        .. code-block::
+
+            >>> log = logging.getLogger('irc.mymodule')
+            >>> log.set_irc_targets(bot, '#chan', 'admin')
+        """
+        # get formatter initialized by config (usualy on a NullHandler)
+        l = logging.getLogger('irc')
+        formatter = l.handlers[0].formatter
+        # add a handler for the sub logger
+        handler = Handler(bot, *targets)
+        handler.setFormatter(formatter)
+        self.addHandler(handler)
+
+logging.setLoggerClass(Logger)
