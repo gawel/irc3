@@ -1,8 +1,13 @@
 0.4.2 (unreleased)
 ==================
 
-- Nothing changed yet.
+- python2.7 support.
 
+- add some plugins (ctcp, uptime, feeds, search)
+
+- add some examples/ (twitter, asterisk)
+
+- improve some internals
 
 0.4.1 (2013-12-30)
 ==================
