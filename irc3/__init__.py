@@ -41,7 +41,6 @@ class IrcConnection(asyncio.Protocol):
         if not self.queue.empty():
             data = self.queue.get_nowait() + data
         lines = data.split('\r\n')
-        print(lines)
         self.queue.put_nowait(lines.pop(-1))
         for line in lines:
             self.factory.dispatch(line)
@@ -185,10 +184,10 @@ class IrcBot(object):
         else:
             self.log.info('Connected')
             self.protocol = protocol
-            self.protocol.queue = Queue(self.loop)
+            self.protocol.queue = Queue(loop=self.loop)
             self.protocol.factory = self
             self.protocol.encoding = self.encoding
-            if self.config.password:
+            if self.config.get('password'):
                 self.send('PASS {password}'.format(**self.config))
             self.send((
                 'USER {nick} {realname} {host} :{userinfo}\r\n'
