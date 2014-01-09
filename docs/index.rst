@@ -44,6 +44,8 @@ Then run:
     $ irc3 -h
     $ irc3 bot.ini
 
+See more examples here: https://github.com/gawel/irc3/tree/master/examples
+
 Contents
 ========
 
