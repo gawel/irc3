@@ -1,4 +1,5 @@
-irc3
+================================================
+irc3. irc with asyncio
 ================================================
 
 .. image:: https://travis-ci.org/gawel/irc3.png?branch=master
@@ -9,7 +10,6 @@ irc3
    :target: https://crate.io/packages/irc3/
 .. image:: https://pypip.in/d/irc3/badge.png
    :target: https://crate.io/packages/irc3/
-
 
 plugable irc client based on python's `asyncio
 <http://docs.python.org/3.4/library/asyncio.html>`_.
@@ -22,3 +22,10 @@ Docs: https://irc3.readthedocs.org/
 
 Irc: irc://irc.freenode.net/irc3 (`www
 <https://kiwiirc.com/client/irc.freenode.net/?nick=irc3|?&theme=basic#irc3>`_)
+
+You like it ? =>
+
+.. raw:: html
+
+   <script data-gittip-username="gawel" data-gittip-widget="button" async="true" src="https://gttp.com/v1.js"></script>
+

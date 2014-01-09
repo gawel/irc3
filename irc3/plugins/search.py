@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+__doc__ = '''
+==============================================
+:mod:`irc3.plugin.search` Search plugin
+==============================================
+
+.. autoclass:: Search
+'''
 from irc3.plugins.command import command
 import irc3
 

@@ -109,7 +109,7 @@ def split_message(message, max_length):
 class Config(dict):
     """Simple dict wrapper:
 
-    .. code-block:
+    .. code-block:: python
 
         >>> c = Config(dict(a=True))
         >>> c.a
@@ -164,7 +164,9 @@ def extract_config(config, prefix):
 
 
 def as_list(value):
-    """clever string spliting::
+    """clever string spliting:
+
+    .. code-block:: python
 
         >>> print(as_list('value'))
         ['value']
@@ -187,7 +189,9 @@ def as_list(value):
 
 
 def as_channel(value):
-    """always return a channel name::
+    """Always return a channel name:
+
+    .. code-block:: python
 
         >>> print(as_channel('chan'))
         #chan
@@ -202,7 +206,9 @@ def as_channel(value):
 
 
 def maybedotted(name):
-    """Resolve dotted names::
+    """Resolve dotted names:
+
+    .. code-block:: python
 
         >>> maybedotted('irc3.config')
         <module 'irc3.config' from '...'>
@@ -259,7 +265,7 @@ class Logger(logging.getLoggerClass()):
         ..
             >>> bot = None
 
-        .. code-block::
+        .. code-block:: python
 
             >>> log = logging.getLogger('irc.mymodule')
             >>> log.set_irc_targets(bot, '#chan', 'admin')
