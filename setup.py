@@ -18,7 +18,7 @@ if sys.version_info[:2] < (3, 0):
         'trollius',
         'futures',
     ])
-    test_requires.extend(['mock', 'pyst'])
+    test_requires.extend(['mock'])
 elif sys.version_info[:2] < (3, 3):
     install_requires.append('trollius')
     test_requires.append('mock')
