@@ -23,9 +23,5 @@ Docs: https://irc3.readthedocs.org/
 Irc: irc://irc.freenode.net/irc3 (`www
 <https://kiwiirc.com/client/irc.freenode.net/?nick=irc3|?&theme=basic#irc3>`_)
 
-You like it ? =>
-
-.. raw:: html
-
-   <script data-gittip-username="gawel" data-gittip-widget="button" async="true" src="https://gttp.com/v1.js"></script>
+You like it ? => https://www.gittip.com/gawel/
 
