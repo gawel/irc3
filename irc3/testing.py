@@ -119,10 +119,7 @@ class BotTestCase(TestCase):
             for k, v in kwargs.items():
                 content = content.replace(k.encode('ascii'), v.encode('ascii'))
             kwargs['content'] = content
-        if 'content' in kwargs:
-            content = kwargs['content'].decode('utf8')
-            kwargs['text'] = content
-            kwargs['lines'] = content.split('\n')
+            kwargs['text'] = content.decode('utf8')
         kwargs.setdefault('status_code', 200)
         resp = MagicMock(**kwargs)
         for k, v in kwargs.items():

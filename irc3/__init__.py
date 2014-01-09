@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from collections import defaultdict
+from asyncio.queues import Queue
 from .dec import event
 from .dec import extend
 from .dec import plugin
@@ -32,13 +33,16 @@ class IrcConnection(asyncio.Protocol):
     def connection_made(self, transport):
         self.transport = transport
         self.closed = False
-        self.buf = ''
+        self.queue = Queue()
 
     def data_received(self, data):
         encoding = getattr(self, 'encoding', 'ascii')
-        data = self.buf + data.decode(encoding, 'ignore')
+        data = data.decode(encoding, 'ignore')
+        if not self.queue.empty():
+            data = self.queue.get_nowait() + data
         lines = data.split('\r\n')
-        self.buf = lines.pop(-1)
+        print(lines)
+        self.queue.put_nowait(lines.pop(-1))
         for line in lines:
             self.factory.dispatch(line)
 
@@ -58,9 +62,9 @@ class IrcConnection(asyncio.Protocol):
         if not self.closed:
             self.close()
             # wait a few before reconnect
-            time.sleep(2)
-            # reconnect
-            self.factory.create_connection(protocol=self.__class__)
+            self.factory.loop.call_later(
+                self.factory.create_connection,
+                self.__class__)
 
     def close(self):  # pragma: no cover
         if not self.closed:
@@ -93,6 +97,7 @@ class IrcBot(object):
         host='irc.freenode.net',
         port=6667,
         ssl=False,
+        timeout=10,
         cmdchar='!',
         encoding='utf8',
         testing=False,
@@ -172,17 +177,22 @@ class IrcBot(object):
     def connection_made(self, f):  # pragma: no cover
         if getattr(self, 'protocol', None):
             self.protocol.close()
-        self.log.info('Connected')
-        transport, protocol = f.result()
-        self.protocol = protocol
-        self.protocol.factory = self
-        self.protocol.encoding = self.encoding
-        if self.config.password:
-            self.send('PASS {password}'.format(**self.config))
-        self.send((
-            'USER {nick} {realname} {host} :{userinfo}\r\n'
-            'NICK {nick}\r\n').format(**self.config))
-        self.notify('connection_made')
+        try:
+            transport, protocol = f.result()
+        except Exception as e:
+            self.log.exception(e)
+            self.loop.call_later(3, self.create_connection)
+        else:
+            self.log.info('Connected')
+            self.protocol = protocol
+            self.protocol.factory = self
+            self.protocol.encoding = self.encoding
+            if self.config.password:
+                self.send('PASS {password}'.format(**self.config))
+            self.send((
+                'USER {nick} {realname} {host} :{userinfo}\r\n'
+                'NICK {nick}\r\n').format(**self.config))
+            self.notify('connection_made')
 
     def notify(self, event, exc=None):
         for p in self.plugins.values():

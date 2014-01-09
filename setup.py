@@ -10,7 +10,7 @@ install_requires = ['venusian>=1.0a8', 'docopt']
 test_requires = [
     'nose', 'coverage',
     'feedparser', 'requests',
-    'twitter',
+    'twitter', 'panoramisk',
 ]
 
 if sys.version_info[:2] < (3, 0):
@@ -19,6 +19,9 @@ if sys.version_info[:2] < (3, 0):
         'futures',
     ])
     test_requires.extend(['mock', 'pyst'])
+elif sys.version_info[:2] < (3, 3):
+    install_requires.append('trollius')
+    test_requires.append('mock')
 elif sys.version_info[:2] < (3, 4):
     install_requires.append('asyncio')
 

@@ -4,12 +4,16 @@ include =
 omit =
     */tests*
     */docs/conf.py
+    */panoramisk.py
     */examples/social*
     */examples/mycommands*
     */examples/myextends*
     */examples/nickserv*
     */examples/freenode*
+    */site-packages*
     */lib/python*
+    */lib-python*
+    */lib_pypy*
 
 [report]
 exclude_lines =

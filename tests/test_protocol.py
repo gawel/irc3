@@ -17,22 +17,24 @@ class TestProtocol(unittest.TestCase):
     def test_buffer(self):
         conn = self.callFTU()
         conn.data_received(b'message')
-        self.assertEqual(conn.buf, 'message')
+        self.assertEqual(conn.queue.get_nowait(), 'message')
 
     def test_no_buffer(self):
         conn = self.callFTU()
         conn.data_received(b'message\r\n')
         conn.factory.dispatch.assert_called_with('message')
-        self.assertEqual(conn.buf, '')
+        self.assertEqual(conn.queue.get_nowait(), '')
 
     def test_with_buffer(self):
         conn = self.callFTU()
         conn.data_received(b'm1 ')
         conn.data_received(b'm2 ')
-        self.assertEqual(conn.buf, 'm1 m2 ')
+        buf = conn.queue.get_nowait()
+        self.assertEqual(buf, 'm1 m2 ')
+        conn.queue.put_nowait(buf)
         conn.data_received(b'm3\r\nm4')
         conn.factory.dispatch.assert_called_with('m1 m2 m3')
-        self.assertEqual(conn.buf, 'm4')
+        self.assertEqual(conn.queue.get_nowait(), 'm4')
 
     def test_write(self):
         conn = self.callFTU()

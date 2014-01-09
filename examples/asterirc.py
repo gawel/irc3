@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+__doc__ = '''
+Asterisk plugin using panoramisk https://github.com/gawel/panoramisk
+'''
 from irc3.plugins.command import command
 from collections import defaultdict
-from irc3.compat import text_type
+from panoramisk import Manager
+from panoramisk import Message
 import logging
 import irc3
 
@@ -31,7 +35,7 @@ class default_resolver(object):
             return dict(
                 exten=value,
                 channel='IAX2/your-provider/' + value,
-                fullname='External call ' + value,
+                fullname='External Call ' + value,
                 context='default')
         else:
             return self.db.get(value)
@@ -56,7 +60,7 @@ class Asterisk(object):
             port=5038,
             http_port='8088',
             protocol='http',
-            #debug=True,
+            debug=True,
         )
         config.update(bot.config.get('asterisk', {}))
         self.log = logging.getLogger('irc3.ast')
@@ -65,9 +69,13 @@ class Asterisk(object):
         self.log.info('Channel is set to {channel}'.format(**config))
         self.rooms = defaultdict(dict)
         self.http = None
-        self.manager = None
-        self.manager_url = None
         self.resolver = irc3.utils.maybedotted(self.config['resolver'])
+        self.manager = Manager(log=logging.getLogger('irc3.ast.manager'),
+                               **config)
+        self.manager.register_event('Shutdown', self.handle_shutdown)
+        self.manager.register_event('Meet*', self.handle_meetme)
+        if config.get('debug'):
+            self.manager.register_event('*', self.handle_event)
         if isinstance(self.resolver, type):
             self.resolver = self.resolver(bot)
 
@@ -75,84 +83,54 @@ class Asterisk(object):
         self.bot.loop.call_later(1, self.connect)
 
     def post_connect(self):
-        if 'use_http' not in self.config:
-            success, resp = self.send_command('http show status', debug=False)
-            if success:
-                host, port, path = None, None, None
-                for line in resp.lines:
-                    if line.startswith('Server Enabled and Bound to'):
-                        host = line.split(' ')[-1]
-                        host, port = host.split(':')
-                        self.config.update(http_port=port)
-                    elif '/arawman' in line:
-                        path = True
-                if host and port and path:
-                    self.config['use_http'] = 'true'
-
-        if self.config.get('use_http', 'false') == 'true':
-            self.manager_url = (
-                '{protocol}://{host}:{http_port}/arawman'
-            ).format(**self.config)
-            success, resp = self.send_command('http show status', debug=False)
-            if success:
-                self.log.info('switching manager calls to %s',
-                              self.manager_url)
-            else:
-                self.config['use_http'] = 'false'
-                self.log.error('not able to use %s (%s)',
-                               self.manager_url, resp)
-        self.update_meetme()
+        self.log.debug('post_connect')
+        resp = self.send_action({'Action': 'Status'})
+        if resp.success:
+            self.update_meetme()
+        else:  # pragma: no cover
+            self.log.error(resp.text)
+            self.bot.loop.call_later(1, self.post_connect)
 
     def update_meetme(self):
-        success, resp = self.send_command('meetme list', debug=True)
-        if success:
-            if 'No active MeetMe conferences.' in resp.lines:
+        resp = self.send_command('meetme list')
+        if resp.success:
+            if 'No active MeetMe conferences.' in resp.text:
                 self.rooms = defaultdict(dict)
             for line in resp.lines[1:-2]:
                 room = line.split(' ', 1)[0]
                 if not room or not room.isdigit():
                     continue
-                success, resp = self.send_command('meetme list ' + room)
-                if success and resp.lines:
+                resp = self.send_command('meetme list ' + room)
+                if resp.success and resp.iter_lines():
                     room = self.rooms[room]
                     for line in resp.lines:
-                        if not line.lower().startswith('user'):
+                        if not line.startswith('User '):
                             continue
                         line = line.split('Channel:')[0]
                         splited = [s for s in line.split() if s][2:]
                         uid = splited.pop(0)
-                        room[' '.join(splited[1:])] = uid
-        else:
-            self.bot.loop.call_later(2, self.post_connect)
+                        caller = ' '.join(splited[1:])
+                        if 'external call ' in caller.lower():
+                            e, c, n = caller.split(' ')[:4]
+                            caller = ' '.join([e, c, n[:6]])
+                        room[caller] = uid
 
     def connect(self):
-        config = self.config
         if self.manager is not None:
             self.manager.close()
+            self.bot.loop.call_later(5, self.post_connect)
         try:
-            Manager = irc3.utils.maybedotted('asterisk.manager.Manager')
-            self.manager = manager = Manager()
-            manager.connect(config['host'], config['port'])
-            manager.login(config['username'], config['secret'])
-            manager.register_event('Shutdown', self.handle_shutdown)
-            for event in ('MeetmeEnd', 'MeetmeJoin', 'MeetmeLeave'):
-                manager.register_event(event, self.handle_meetme)
-            if config.get('debug'):
-                manager.register_event('*', self.handle_event)
-            resp = manager.send_action({'Action': 'Status', 'Channel': ''})
-            status = resp.get_header('Response', '').lower()
-            if status in ('success', 'follows'):
-                self.log.debug('connected')
-                self.bot.loop.call_later(1, self.post_connect)
-                return True
-            self.log.critical('connect failed: %r', resp.headers)
-        except Exception as resp:
-            self.log.exception(resp)
-        self.log.info('connect retry in 5s')
-        self.bot.loop.call_later(5, self.connect)
+            self.manager.connect()
+        except Exception as e:
+            self.log.exception(e)
+            self.log.info('connect retry in 5s')
+            self.bot.loop.call_later(1, self.connect)
+            return False
+        else:
+            return True
 
     def handle_shutdown(self, event, manager):
-        manager.close()
+        self.manager.close()
         self.bot.loop.call_later(2, self.connect)
 
     def handle_event(self, event, manager):
@@ -162,21 +140,23 @@ class Asterisk(object):
         self.log.debug('handle_meetme %s %s', event, event.headers)
         lower_header_keys(event)
         name = event.name.lower()
-        room = event.get_header('meetme')
+        room = event['meetme']
 
         if name == 'meetmeend':
-            if room in self.rooms:
+            if room in self.rooms:  # pragma: no cover
                 del self.rooms[room]
             self.ilog.info('room {} is closed.'.format(room))
             return
 
         action = None
-        caller = event.get_header('calleridname')
-        if 'external call' in caller.lower():
-            caller += ' ' + event.get_header('calleridnum')
+        caller = event['calleridname']
+        if 'external call ' in caller.lower():
+            print(caller)
+            e, c, n = caller.split(' ')[:4]
+            caller = ' '.join([e, c, n[:6]])
         if 'join' in name:
             action = 'join'
-            self.rooms[room][caller] = event.get_header('usernum')
+            self.rooms[room][caller] = event['usernum']
         elif 'leave' in name:
             action = 'leave'
             if caller in self.rooms.get(room, []):
@@ -190,62 +170,27 @@ class Asterisk(object):
                 '{caller} has {action} room {room} '
                 '(total in this room: {total})').format(**args))
 
-    def send_action_via_http(self, cdict, **kwargs):
-        if not self.http:
-            self.http = irc3.utils.maybedotted('requests.Session')()
-            auth = (self.config['username'], self.config['secret'])
-            auth = irc3.utils.maybedotted(
-                'requests.auth.HTTPDigestAuth')(*auth)
-            self.http.auth = auth
-        resp = self.http.get(self.manager_url, params=cdict)
-        self.http.cookies = []
-        if resp.status_code != 200:
-            return False, resp.reason
-        for line in resp.text.strip('\r\n').split('\r\n'):
-            line = line.strip()
-            if ':' in line:
-                k, v = line.split(':', 1)
-                resp.headers[k] = v
-            else:  # pragma: no cover
-                if isinstance(line, text_type):  # pragma: no cover
-                    line = line.encode(resp.encoding)
-                resp._content = line.encode('utf8')
-        return True, resp
-
-    def send_action_via_manager(self, cdict, **kwargs):
-        if self.manager is None or not self.manager.connected:
-            if not self.connect():
-                return (False,
-                        'Not able to connect to server. Please retry later')
-        try:
-            resp = self.manager.send_action(cdict, **kwargs)
-        except Exception as e:
-            self.log.error('send_action(%r, **%r)', cdict, kwargs)
-            self.log.exception(e)
-            return False, 'Sorry an error occured. ({})'.format(repr(e))
-        else:
-            lower_header_keys(resp)
-            status = resp.get_header('response').lower()
-            resp.text = resp.data
-            return status in ('success', 'follows'), resp
-
     def send_action(self, *args, **kwargs):
-        if self.config.get('use_http', 'false') == 'true':
-            send_action = self.send_action_via_http
-        else:
-            send_action = self.send_action_via_manager
-        return send_action(*args, **kwargs)
+        try:
+            res = self.manager.send_action(*args, **kwargs)
+            return res
+        except Exception as e:
+            self.log.error('send_action(%r, **%r)', args, kwargs)
+            self.log.exception(e)
+            return Message('response',
+                           'Sorry an error occured. ({})'.format(repr(e)),
+                           headers={'Response': 'Failed'})
 
     def send_command(self, command, debug=False):
-        st, resp = self.send_action({'Action': 'Command', 'Command': command})
-        if debug:
+        resp = self.send_action({'Action': 'Command', 'Command': command})
+        if debug:  # pragma: no cover
             self.log.debug('Command "%s" => Succeed: %s, Data:\n%s',
-                           command, st, getattr(resp, 'text', resp))
-        if st:
+                           command, resp.success, getattr(resp, 'text', resp))
+        if resp.success:
             resp.lines = []
-            if resp.headers.get('response', '').lower() == 'follows':
+            if resp['response'].lower() == 'follows':
                 resp.lines = resp.text.split('\n')
-        return st, resp
+        return resp
 
     @command(permission='voip')
     def call(self, mask, target, args):
@@ -277,11 +222,11 @@ class Asterisk(object):
             'Context': caller.get('context', 'default'),
             'Priority': 1,
         }
-        success, resp = self.send_action(action)
-        if success:
+        resp = self.send_action(action)
+        if resp.success:
             return '{nick}: Call to {<destination>} done.'.format(**args)
         else:
-            return resp
+            return resp.text
 
     @command(permission='voip')
     def room(self, mask, target, args):
@@ -327,17 +272,16 @@ class Asterisk(object):
             raise StopIteration()
 
         if args['list']:
+            def fmt(room, users):
+                amount = len(users)
+                users = ', '.join([u for u in sorted(users)])
+                return 'Room {0} ({1}): {2}'.format(room, amount, users)
+
             if room:
-                messages = ['Room {0}: {1}'.format(room, u)
-                            for u in self.rooms[room]]
-            else:
-                messages = []
+                yield fmt(room, self.rooms[room])
+            elif self.rooms:
                 for room, users in self.rooms.items():
-                    messages.extend(['Room {0}: {1}'.format(room, u)
-                                     for u in self.rooms[room]])
-            if messages:
-                for message in messages:
-                    yield message
+                    yield fmt(room, self.rooms[room])
             else:
                 yield 'Nobody here.'
 
@@ -357,9 +301,11 @@ class Asterisk(object):
                 raise StopIteration()
 
             for user, command in commands:
-                success, resp = self.send_command(command)
-                if success:
+                resp = self.send_command(command)
+                if resp.success:
                     del self.rooms[room][user]
+                    if not self.rooms[room]:
+                        del self.rooms[room]
                     yield '{0} kicked from {1}.'.format(user, room)
                 else:  # pragma: no cover
                     yield 'Failed to kick {0} from {1}.'.format(user, room)
@@ -379,11 +325,12 @@ class Asterisk(object):
         if peer is None:
             return '{nick}: Your id is invalid.'.format(**args)
         action = {'Action': 'SIPshowpeer', 'peer': peer['login']}
-        success, resp = self.send_action(action)
-        if success:
+        resp = self.send_action(action)
+        if resp.success:
+            print(resp.lheaders)
             return ('{nick}: Your VoIP phone is registered. '
                     '(User Agent: {sip-useragent} on {address-ip})'
-                    ).format(nick=mask.nick, **resp.headers)
+                    ).format(nick=mask.nick, **resp.lheaders)
 
     @command(permission='admin', venusian_category='irc3.debug')
     def asterisk_command(self, mask, target, args):  # pragma: no cover
@@ -395,8 +342,8 @@ class Asterisk(object):
         cmd = dict(
             help='core show help',
         ).get(cmd, cmd)
-        status, resp = self.send_command(cmd, debug=True)
-        return status and 'Success' or 'Failed'
+        resp = self.send_command(cmd, debug=True)
+        return resp.success
 
     @command(permission='admin', venusian_category='irc3.debug')
     def asterisk_originate(self, mask, target, args):  # pragma: no cover
@@ -412,7 +359,7 @@ class Asterisk(object):
         for k, v in list(args.items()):
             if k.startswith('<'):
                 action[k.strip('<>')] = v
-        status, resp = self.send_action(action)
+        self.send_action(action)
         return 'Action {} sent'.format(repr(action))
 
     def SIGINT(self):

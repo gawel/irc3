@@ -9,7 +9,7 @@ Welcome to irc3's documentation!
 plugable irc client based on python's `asyncio
 <http://docs.python.org/3.4/library/asyncio.html>`_.
 
-Require python 2.7, 3.3+
+Require python 2.7, 3.2+
 
 Source: https://github.com/gawel/irc3/
 
