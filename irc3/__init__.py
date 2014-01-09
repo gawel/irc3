@@ -185,6 +185,7 @@ class IrcBot(object):
         else:
             self.log.info('Connected')
             self.protocol = protocol
+            self.protocol.queue = Queue(self.loop)
             self.protocol.factory = self
             self.protocol.encoding = self.encoding
             if self.config.password:
