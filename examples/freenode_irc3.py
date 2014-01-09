@@ -7,7 +7,11 @@ class FeedsHook(object):
 
     def __init__(self, bot):
         self.bot = bot
-        self.packages = ['asyncio', 'irc3']
+        self.packages = [
+            'asyncio', 'irc3', 'panoramisk',
+            'requests', 'trollius', 'webtest',
+            'pyramid',
+        ]
 
     def filter_travis(self, entry):
         """Only show the latest entry iif this entry is in a new state"""
@@ -31,7 +35,7 @@ class FeedsHook(object):
     def filter_pypi(self, entry):
         """Show only usefull packages"""
         for package in self.packages:
-            if entry.title.startswith(package):
+            if entry.title.lower().startswith(package):
                 return entry
 
     def __call__(self, entries):
