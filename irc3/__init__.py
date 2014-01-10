@@ -338,7 +338,7 @@ def run(argv=None):
     if args['--logdir'] or 'logdir' in cfg:
         logdir = os.path.expanduser(args['--logdir'] or cfg.get('logdir'))
         IrcBot.logging_config = config.get_file_config(logdir)
-    if args['--help-page']:
+    if args['--help-page']:  # pragma: no cover
         for v in IrcBot.logging_config['handlers'].values():
             v['level'] = 'ERROR'
     if args['--debug']:
@@ -346,7 +346,7 @@ def run(argv=None):
     bot = IrcBot(**cfg)
     if args['--raw']:
         bot.include('irc3.plugins.log', venusian_categories=['irc3.debug'])
-    if args['--help-page']:
+    if args['--help-page']:  # pragma: no cover
         bot.print_help_page()
     else:
         bot.run()

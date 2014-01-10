@@ -39,7 +39,7 @@ default. You can override it by passing a ``cmd`` parameter to bot's config.
 When a command is not public, you can't use it on a channel::
 
     >>> bot.test(':gawel!user@host PRIVMSG #chan :!adduser foo pass')
-    PRIVMSG #chan :You can only use the 'adduser' command in private
+    PRIVMSG gawel :You can only use the 'adduser' command in private.
 
 You can use a guard to prevent untrusted users to run some commands. The
 :class:`free_policy` is used by default.
@@ -67,6 +67,7 @@ Guard usage::
 Mask based guard using permissions::
 
     >>> config = {
+    ...     'nick': 'nono',
     ...     'irc3.plugins.command': {'guard': mask_based_policy},
     ...     'irc3.plugins.command.masks': {
     ...     'gawel!*@*': ['all_permissions'],
@@ -74,9 +75,9 @@ Mask based guard using permissions::
     ... }}
     >>> bot = IrcBot(**config)
     >>> bot.include('irc3.plugins.command')  # register the plugin
-    >>> bot.test(':foo!u@h PRIVMSG #chan :!ping')
+    >>> bot.test(':foo!u@h PRIVMSG nono :!ping')
     PRIVMSG foo :You are not allowed to use the 'ping' command
-    >>> bot.test(':gawel!u@h PRIVMSG #chan :!ping')
+    >>> bot.test(':gawel!u@h PRIVMSG nono :!ping')
     NOTICE gawel :PONG gawel!
 
 '''
@@ -171,7 +172,7 @@ class Commands(dict):
 
     def __init__(self, bot):
         self.bot = bot
-        config = bot.config.get(__name__, {})
+        self.config = config = bot.config.get(__name__, {})
         self.log = logging.getLogger(__name__)
         self.log.debug('Config: %r', config)
         bot.config['cmd'] = self.cmd = config.get('cmd', '!')
@@ -186,8 +187,8 @@ class Commands(dict):
         if meth is not None:
             if predicates.get('public', True) is False and target.is_channel:
                 self.bot.privmsg(
-                    target,
-                    'You can only use the %r command in private' % cmd)
+                    mask.nick,
+                    'You can only use the %r command in private.' % cmd)
             else:
                 self.do_command(predicates, meth, mask, target, data)
 
@@ -203,7 +204,7 @@ class Commands(dict):
         try:
             args = docopt.docopt(doc, [meth.__name__] + data, help=False)
         except docopt.DocoptExit:
-            self.bot.privmsg(to, 'Invalid arguments')
+            self.bot.privmsg(to, 'Invalid arguments.')
         else:
             msgs = self.guard(predicates, meth, mask, target, args)
             if msgs is not None:
@@ -241,12 +242,15 @@ class Commands(dict):
             lines = utils.split_message('Available commands: ' + cmds, 160)
             for line in lines:
                 yield line
+            url = self.config.get('url')
+            if url:
+                yield 'Full help is available at ' + url
 
     def __repr__(self):
         return '<Commands %s>' % sorted([self.cmd + k for k in self.keys()])
 
 
-@command(permission='admin')
+@command(permission='admin', public=False)
 def ping(bot, mask, target, args):
     """ping/pong
 
