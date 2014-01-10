@@ -1,4 +1,4 @@
-0.4.3 (unreleased)
+0.4.3 (2014-01-10)
 ==================
 
 - Fix a bug on connection_lost.
