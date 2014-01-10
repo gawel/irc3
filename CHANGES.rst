@@ -1,7 +1,9 @@
 0.4.3 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Fix a bug on connection_lost.
+
+- Send realname in USER command instead of nickname
 
 
 0.4.2 (2014-01-09)
