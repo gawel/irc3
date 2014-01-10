@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from __future__ import print_function
 __doc__ = '''
 ==========================================
 :mod:`irc3.plugin.command` Command plugin
@@ -87,6 +88,7 @@ import fnmatch
 import logging
 import docopt
 import irc3
+import sys
 
 
 class free_policy(object):
@@ -212,7 +214,7 @@ class Commands(dict):
                     msgs = [msgs]
                 self.bot.call_many('privmsg', iterator(msgs))
 
-    @command(permission='help')
+    @command(permission='view')
     def help(self, mask, target, args):
         """Show help
 
@@ -262,3 +264,43 @@ def quote(bot, mask, target, args):
     msg = ' '.join(args['<args>'])
     bot.log.info('quote> %r', msg)
     bot.send(msg)
+
+
+@irc3.extend
+def print_help_page(bot, file=sys.stdout):
+    """print help page"""
+    def p(text):
+        print(text, file=file)
+    plugin = bot.get_plugin(Commands)
+    title = "Available Commands for {nick} at {host}".format(**bot.config)
+    p("=" * len(title))
+    p(title)
+    p("=" * len(title))
+    p('')
+    p('.. contents::')
+    p('')
+    modules = {}
+    for name, (predicates, callback) in plugin.items():
+        commands = modules.setdefault(callback.__module__, [])
+        commands.append((name, callback, predicates))
+
+    for module in sorted(modules):
+        p(module)
+        p('=' * len(module))
+        p('')
+        for name, callback, predicates in sorted(modules[module]):
+            p(name)
+            p('-' * len(name))
+            p('')
+            doc = callback.__doc__
+            doc = doc.replace('%%', bot.config.cmd)
+            for line in doc.split('\n'):
+                line = line.strip()
+                if line.startswith(bot.config.cmd):
+                    line = '    ``{}``'.format(line)
+                p(line)
+            if 'permission' in predicates:
+                p('*Require {0[permission]} permission.*'.format(predicates))
+            if predicates.get('public', True) is False:
+                p('*Only available in private.*')
+            p('')

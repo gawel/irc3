@@ -250,9 +250,13 @@ class Handler(logging.Handler):
         self.bot = bot
         self.targets = targets
 
+    def yield_records(self, record):
+        for record in self.format(record).split('\n'):
+            for t in self.targets:
+                yield t, record
+
     def emit(self, record):
-        for t in self.targets:
-            self.bot.privmsg(t, self.format(record))
+        self.bot.call_many('privmsg', self.yield_records(record))
 
 
 class Logger(logging.getLoggerClass()):

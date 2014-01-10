@@ -319,6 +319,7 @@ def run(argv=None):
     -v,--verbose        Increase verbosity
     -r,--raw            Show raw irc log on the console
     -d,--debug          Add some debug commands/utils
+    --help-page         Output a reST page containing commands help
     """
     import os
     import docopt
@@ -337,11 +338,17 @@ def run(argv=None):
     if args['--logdir'] or 'logdir' in cfg:
         logdir = os.path.expanduser(args['--logdir'] or cfg.get('logdir'))
         IrcBot.logging_config = config.get_file_config(logdir)
+    if args['--help-page']:
+        for v in IrcBot.logging_config['handlers'].values():
+            v['level'] = 'ERROR'
     if args['--debug']:
         IrcBot.venusian_categories.append('irc3.debug')
     bot = IrcBot(**cfg)
     if args['--raw']:
         bot.include('irc3.plugins.log', venusian_categories=['irc3.debug'])
-    bot.run()
+    if args['--help-page']:
+        bot.print_help_page()
+    else:
+        bot.run()
     if argv:
         return bot
