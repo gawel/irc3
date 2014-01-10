@@ -189,7 +189,7 @@ class IrcBot(object):
             if self.config.get('password'):
                 self.send('PASS {password}'.format(**self.config))
             self.send((
-                'USER {nick} {realname} {host} :{userinfo}\r\n'
+                'USER {realname} {host} {host} :{userinfo}\r\n'
                 'NICK {nick}\r\n').format(**self.config))
             self.notify('connection_made')
 

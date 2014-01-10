@@ -3,9 +3,29 @@ from irc3.testing import BotTestCase
 from irc3.plugins import command
 
 
+@command.command(permission='myperm')
+def cmd(bot, *args):
+    """Test command
+        %%cmd
+    """
+    return 'Done'
+
+
+@command.command(permission='view')
+def cmd_view(bot, *args):
+    """Test command
+        %%cmd_view
+    """
+    return 'Done'
+
+
 class TestCommands(BotTestCase):
 
-    config = dict(includes=['irc3.plugins.command'])
+    name = 'irc3.plugins.command'
+    guard = 'irc3.plugins.command.mask_based_policy'
+    masks = 'irc3.plugins.command.masks'
+
+    config = dict(includes=[name])
 
     def test_help(self):
         bot = self.callFTU(nick='foo', **{'help.item_per_line': '6'})
@@ -43,3 +63,26 @@ class TestCommands(BotTestCase):
         bot = self.callFTU()
         bot.dispatch(':bar!user@host PRIVMSG #chan :!ping xx')
         self.assertSent(['PRIVMSG #chan :Invalid arguments'])
+
+    def test_permissions(self):
+        bot = self.callFTU(**{
+            self.name: dict(guard=self.guard),
+            self.masks: {
+                'adm!*': 'all_permissions',
+                'local_adm!*': 'myperm view',
+                '*': 'view',
+            }
+        })
+        bot.include(__name__)
+        bot.dispatch(':adm!user@host PRIVMSG #chan :!cmd')
+        self.assertSent(['PRIVMSG #chan :Done'])
+
+        bot.dispatch(':local_adm!user@host PRIVMSG #chan :!cmd')
+        self.assertSent(['PRIVMSG #chan :Done'])
+
+        bot.dispatch(':nobody!user@host PRIVMSG #chan :!cmd')
+        self.assertSent([
+            "PRIVMSG nobody :You are not allowed to use the 'cmd' command"])
+
+        bot.dispatch(':nobody!user@host PRIVMSG #chan :!cmd_view')
+        self.assertSent(['PRIVMSG #chan :Done'])
