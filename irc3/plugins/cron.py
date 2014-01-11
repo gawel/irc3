@@ -26,6 +26,7 @@ from ..third.croniter import croniter
 import functools
 import venusian
 import logging
+import time
 import irc3
 
 
@@ -52,22 +53,25 @@ class Crons(list):
 
     def start(self):
         self.started = True
+        self.time = time.time()
+        self.loop_time = self.bot.loop.time()
         for cron in self:
-            cron.croniter = croniter(cron.cron, self.bot.loop.time())
+            cron.croniter = croniter(cron.cron, self.time)
             self.log.debug('Starting {0.cron} {0.callback}'.format(cron))
             self.bot.loop.call_at(
-                cron.croniter.get_next(float),
+                self.loop_time + (cron.croniter.get_next(float) - self.time),
                 self.call_cron, cron)
 
     def call_cron(self, cron):
-        self.log.debug('{0.cron} {0.callback}.'.format(cron))
         try:
             cron.callback()
         except Exception as e:
             self.log.error('{0.cron} {0.callback}.'.format(cron))
             self.bot.log.exception(e)
+        else:
+            self.log.debug('{0.cron} {0.callback}.'.format(cron))
         self.bot.loop.call_at(
-            cron.croniter.get_next(float),
+            self.loop_time + (cron.croniter.get_next(float) - self.time),
             self.call_cron, cron)
 
     def __repr__(self):
