@@ -83,6 +83,7 @@ class IrcBot(object):
         'irc3.plugin',
         'irc3.extend',
         'irc3.rfc1459',
+        'irc3.plugins.cron',
         'irc3.plugins.command',
     ]
 

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from irc3.plugins.cron import cron
 import os
 
 
@@ -50,3 +51,13 @@ class FeedsHook(object):
         for entry in travis.values():
             if self.filter_travis(entry):
                 yield entry
+
+
+@cron('*/2 * * * *', venusian_category='irc3.debug')
+def test_cron(bot):
+    bot.log.info('Running test_cron')
+
+
+@cron('*/3 * * * *', venusian_category='irc3.debug')
+def test_cron_raise(bot):
+    raise OSError('test_cron_raise')

@@ -24,6 +24,7 @@ ping/pong
     ``!ping``
 
 *Require admin permission.*
+*Only available in private.*
 
 irc3.plugins.search
 ===================

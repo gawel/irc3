@@ -6,10 +6,12 @@ omit =
     */tests*
     */docs/conf.py
     */examples/social*
+    */examples/mycrons*
     */examples/mycommands*
     */examples/myextends*
     */examples/nickserv*
     */examples/freenode*
+    */irc3/third*
     */site-packages*
     */lib/python*
     */lib-python*

@@ -11,6 +11,7 @@ test_requires = [
     'nose', 'coverage',
     'feedparser', 'requests',
     'twitter', 'panoramisk',
+    'python-dateutil',
 ]
 
 if sys.version_info[:2] < (3, 0):
