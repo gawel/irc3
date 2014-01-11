@@ -1,7 +1,11 @@
 0.4.4 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Add cron plugin
+
+- Improve the command plugin. Fix some security issue.
+
+- Add ``--help-page`` option to generate commands help pages
 
 
 0.4.3 (2014-01-10)
