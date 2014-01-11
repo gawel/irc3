@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 __doc__ = '''
 ==========================================
-:mod:`irc3.plugin.command` Command plugin
+:mod:`irc3.plugins.command` Command plugin
 ==========================================
 
 Introduce a ``@command`` decorator

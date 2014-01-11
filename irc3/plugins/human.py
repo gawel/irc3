@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 __doc__ = '''
 ==========================================
-:mod:`irc3.plugin.human` Human plugin
+:mod:`irc3.plugins.human` Human plugin
 ==========================================
 
 Store public message addressed to the bot in a file and reply a random message

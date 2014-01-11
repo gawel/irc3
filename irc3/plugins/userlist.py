@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 __doc__ = '''
 ==============================================
-:mod:`irc3.plugin.userlist` User list plugin
+:mod:`irc3.plugins.userlist` User list plugin
 ==============================================
 
 This plugin maintain a know user list and a channel list.

@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 __doc__ = '''
 ==========================================
-:mod:`irc3.plugin.feeds` Feeds plugin
+:mod:`irc3.plugins.feeds` Feeds plugin
 ==========================================
 
 Send a notification on channel on new feed entry.

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 __doc__ = '''
 ==========================================
-:mod:`irc3.plugin.cron` Cron plugin
+:mod:`irc3.plugins.cron` Cron plugin
 ==========================================
 
 Introduce a ``@cron`` decorator

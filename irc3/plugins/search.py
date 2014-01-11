@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 __doc__ = '''
 ==============================================
-:mod:`irc3.plugin.search` Search plugin
+:mod:`irc3.plugins.search` Search plugin
 ==============================================
 
 .. autoclass:: Search

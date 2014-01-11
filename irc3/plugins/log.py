@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 __doc__ = '''
 ==========================================
-:mod:`irc3.plugin.log` Log plugin
+:mod:`irc3.plugins.log` Log plugin
 ==========================================
 
 Logging / debuging plugin

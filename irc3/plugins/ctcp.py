@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 __doc__ = '''
 ==============================================
-:mod:`irc3.plugin.ctcp` CTCP replies
+:mod:`irc3.plugins.ctcp` CTCP replies
 ==============================================
 
 ..

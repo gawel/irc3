@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 __doc__ = '''
 ==============================================
-:mod:`irc3.plugin.uptime` Uptime plugin
+:mod:`irc3.plugins.uptime` Uptime plugin
 ==============================================
 
 Add an ``uptime`` command.

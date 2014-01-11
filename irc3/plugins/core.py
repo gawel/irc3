@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 __doc__ = '''
 ==============================================
-:mod:`irc3.plugin.core` Core plugin
+:mod:`irc3.plugins.core` Core plugin
 ==============================================
 
 Core events
