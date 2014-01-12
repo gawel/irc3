@@ -39,15 +39,18 @@ class IrcBot(irc3.IrcBot):
 
     def __init__(self, **config):
         self.check_required()
-        config.update(testing=True, async=False, level=1000)
+        loop = MagicMock()
+        loop.call_later = call_later
+        loop.call_soon = call_soon
+        loop.time = MagicMock()
+        loop.time.return_value = 10
+        config.update(testing=True, async=False, level=1000,
+                      loop=loop)
         super(IrcBot, self).__init__(**config)
         self.protocol = irc3.IrcConnection()
         self.protocol.factory = self
         self.protocol.transport = MagicMock()
         self.protocol.write = MagicMock()
-        self.loop = MagicMock()
-        self.loop.call_later = call_later
-        self.loop.call_soon = call_soon
 
     def check_required(self):
         dirname = os.path.expanduser('~/.irc3')

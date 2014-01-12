@@ -18,8 +18,7 @@ Create a python module with some crons:
 And register it::
 
     >>> bot = IrcBot()
-    >>> bot.include('irc3.plugins.cron')    # register the plugin
-    >>> bot.include('mycrons')            # register your crons
+    >>> bot.include('mycrons')    # register your crons
 
 '''
 from ..third.croniter import croniter
@@ -32,10 +31,19 @@ import irc3
 
 class Cron(object):
 
-    def __init__(self, cron, callback):
-        self.cron = cron
+    def __init__(self, cronline, callback, time=time.time()):
+        self.cronline = cronline
+        self.croniter = croniter(cronline, time)
         self.callback = callback
-        self.croniter = None
+
+    def get_next(self):
+        return self.croniter.get_next(float)
+
+    def __call__(self):
+        return self.callback()
+
+    def __str__(self):
+        return '{0.cronline} {0.callback}'.format(self)
 
 
 @irc3.plugin
@@ -46,32 +54,41 @@ class Crons(list):
         self.log = logging.getLogger(__name__)
         self.debug = self.log.getEffectiveLevel() == logging.DEBUG
         self.started = False
+        self.time = time.time()
+        self.loop_time = self.bot.loop.time()
 
     def connection_made(self):
         if not self.started:
             self.start()
 
+    @irc3.extend
+    def add_cron(self, cronline, callback):
+        cron = Cron(cronline, callback, self.time)
+        self.append(cron)
+        if self.started:
+            self.start_cron(cron)
+
     def start(self):
         self.started = True
-        self.time = time.time()
-        self.loop_time = self.bot.loop.time()
         for cron in self:
-            cron.croniter = croniter(cron.cron, self.time)
-            self.log.debug('Starting {0.cron} {0.callback}'.format(cron))
-            self.bot.loop.call_at(
-                self.loop_time + (cron.croniter.get_next(float) - self.time),
-                self.call_cron, cron)
+            self.start_cron(cron)
+
+    def start_cron(self, cron):
+        self.log.debug('Starting {0}'.format(cron))
+        self.bot.loop.call_at(
+            self.loop_time + (cron.get_next() - self.time),
+            self.call_cron, cron)
 
     def call_cron(self, cron):
         try:
-            cron.callback()
+            cron()
         except Exception as e:
-            self.log.error('{0.cron} {0.callback}.'.format(cron))
+            self.log.error(cron)
             self.bot.log.exception(e)
         else:
-            self.log.debug('{0.cron} {0.callback}.'.format(cron))
+            self.log.debug(cron)
         self.bot.loop.call_at(
-            self.loop_time + (cron.croniter.get_next(float) - self.time),
+            self.loop_time + (cron.get_next() - self.time),
             self.call_cron, cron)
 
     def __repr__(self):
@@ -93,7 +110,7 @@ def cron(cronline, venusian_category='irc3.plugins.cron'):
                 def wrapper(**kwargs):
                     return func(bot, **kwargs)
                 callback = wrapper
-            crons.append(Cron(cronline, callback))
+            crons.add_cron(cronline, callback)
         info = venusian.attach(func, callback, category=venusian_category)
         return func
     return wrapper

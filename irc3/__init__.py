@@ -96,7 +96,7 @@ class IrcBot(object):
         host='irc.freenode.net',
         port=6667,
         ssl=False,
-        timeout=10,
+        timeout=240,
         cmdchar='!',
         encoding='utf8',
         testing=False,
@@ -115,6 +115,7 @@ class IrcBot(object):
         self.config = utils.Config(dict(self.defaults, **config))
         logging.config.dictConfig(self.logging_config)
         self.log = logging.getLogger('irc3.' + self.nick)
+        self.original_nick = self.nick
         if config.get('verbose'):
             logging.getLogger('irc3').setLevel(logging.DEBUG)
         else:

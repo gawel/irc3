@@ -76,7 +76,6 @@ def fetch(args):
             resp = session.get(feed)
             content = resp.content
         except:  # pragma: no cover
-            raise
             pass
         else:
             with open(filename, 'wb') as fd:

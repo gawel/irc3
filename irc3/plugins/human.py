@@ -49,7 +49,7 @@ class Human(object):
         self.bot = bot
         self.db = os.path.expanduser(
             bot.config.get('human', '~/.irc3/human.db'))
-        self.delay = (2, 7)
+        self.delay = (2, 5)
         try:
             os.makedirs(os.path.dirname(self.db))
         except OSError:

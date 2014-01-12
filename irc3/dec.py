@@ -32,6 +32,10 @@ class event(object):
     venusian = venusian
 
     def __init__(self, regexp, callback=None, venusian_category=None):
+        try:
+            re.compile(getattr(regexp, 're', regexp))
+        except Exception as e:
+            raise e.__class__(str(e) + ' in ' + getattr(regexp, 're', regexp))
         self.regexp = regexp
         self.callback = callback
         self.venusian_category = venusian_category or 'irc3.rfc1459'

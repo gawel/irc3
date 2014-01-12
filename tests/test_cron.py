@@ -4,19 +4,22 @@ from irc3.testing import MagicMock
 from irc3.plugins import cron
 
 
-class Cron(object):
+class MyCron(object):
 
     def __init__(self, bot):
         pass
 
     @cron.cron('* * * * *')
-    def raiser(bot):
+    def raiser(self):
         raise RuntimeError()
+
+def null_callback(bot):
+    pass
 
 
 class TestCron(BotTestCase):
 
-    config = dict(includes=['irc3.plugins.cron'])
+    config = dict(includes=[])
 
     def setUp(self):
         cron.Cron.start_time = 0
@@ -35,6 +38,8 @@ class TestCron(BotTestCase):
         plugin.call_cron(plugin[1])
         self.assertTrue(bot.loop.call_at.call_count, 1)
 
+        self.assertIn('*/2', str(plugin[0]))
+
     def test_cron_raise(self):
         bot = self.callFTU()
         bot.loop = MagicMock()
@@ -48,3 +53,16 @@ class TestCron(BotTestCase):
         bot.loop.reset_mock()
         plugin.call_cron(plugin[0])
         self.assertTrue(bot.loop.call_at.call_count, 1)
+
+    def test_add_cron(self):
+        bot = self.callFTU(includes=['irc3.plugins.cron'])
+        plugin = bot.get_plugin(cron.Crons)
+        callback = MagicMock()
+        bot.add_cron('* * * * *', callback)
+        self.assertEqual(len(plugin), 1, plugin)
+        self.assertFalse(callback.called)
+        plugin.started = True
+        bot.loop = MagicMock()
+        bot.add_cron('* * * * *', callback)
+        self.assertEqual(len(plugin), 2, plugin)
+        self.assertTrue(bot.loop.call_at.called)
