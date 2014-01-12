@@ -21,7 +21,6 @@ And register it::
     >>> bot.include('mycrons')    # register your crons
 
 '''
-from ..third.croniter import croniter
 import functools
 import venusian
 import logging
@@ -33,7 +32,9 @@ class Cron(object):
 
     def __init__(self, cronline, callback, time=time.time()):
         self.cronline = cronline
-        self.croniter = croniter(cronline, time)
+        self.croniter = irc3.utils.maybedotted(
+            'irc3.third.croniter.croniter'
+        )(cronline, time)
         self.callback = callback
 
     def get_next(self):

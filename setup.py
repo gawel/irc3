@@ -12,6 +12,7 @@ test_requires = [
     'feedparser', 'requests',
     'twitter', 'panoramisk',
     'python-dateutil',
+    'transmissionrpc',
 ]
 
 if sys.version_info[:2] < (3, 0):

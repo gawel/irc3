@@ -7,14 +7,8 @@ __doc__ = '''
 
 Core events
 
-.. autofunction:: pong
-
-
-.. autofunction:: recompile
-
-.. autofunction:: badnick
-
-.. autofunction:: autojoin
+.. autoclass:: Core
+   :members:
 
 ..
     >>> from testing import IrcBot
