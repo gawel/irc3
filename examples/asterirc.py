@@ -151,9 +151,11 @@ class Asterisk(object):
         action = None
         caller = event['calleridname']
         if 'external call ' in caller.lower():
-            print(caller)
             e, c, n = caller.split(' ')[:4]
             caller = ' '.join([e, c, n[:6]])
+        elif 'external call' in caller.lower():  # pragma: no cover
+            caller += event['calleridnum'][:6]
+
         if 'join' in name:
             action = 'join'
             self.rooms[room][caller] = event['usernum']
