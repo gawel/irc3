@@ -6,6 +6,10 @@ __doc__ = '''
 
 Introduce a ``@cron`` decorator
 
+Install croniter::
+
+    $ pip install croniter
+
 Create a python module with some crons:
 
 .. literalinclude:: ../../examples/mycrons.py
@@ -33,7 +37,7 @@ class Cron(object):
     def __init__(self, cronline, callback, time=time.time()):
         self.cronline = cronline
         self.croniter = irc3.utils.maybedotted(
-            'irc3.third.croniter.croniter'
+            'croniter.croniter.croniter'
         )(cronline, time)
         self.callback = callback
 

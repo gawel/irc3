@@ -13,6 +13,7 @@ test_requires = [
     'twitter', 'panoramisk',
     'python-dateutil',
     'transmissionrpc',
+    'croniter',
 ]
 
 if sys.version_info[:2] < (3, 0):
