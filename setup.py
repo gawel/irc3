@@ -4,7 +4,7 @@ import sys
 from setuptools import setup
 from setuptools import find_packages
 
-version = '0.4.4.dev0'
+version = '0.4.4'
 
 install_requires = ['venusian>=1.0a8', 'docopt']
 test_requires = [
