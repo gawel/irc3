@@ -39,15 +39,6 @@ class TestBot(BotTestCase):
             'PRIVMSG gawel :doing?'
         ])
 
-    def test_event(self):
-        bot = self.callFTU()
-        bot.include('irc3.plugins.core')
-        self.assertIn('<event ', repr(list(bot.events.values())[0]))
-
-    def test_bad_event(self):
-        from irc3.dec import event
-        self.assertRaises(Exception, event, '(.*')
-
     def test_log(self):
         bot = self.callFTU(level='ERROR')
         bot.include('irc3.plugins.log', venusian_categories=['irc3.debug'])

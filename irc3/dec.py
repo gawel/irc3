@@ -73,7 +73,7 @@ class event(object):
 
     def __repr__(self):
         s = getattr(self.regexp, 'name', self.regexp)
-        return '<event %s>' % s
+        return '<bound event {0} to {1}>'.format(s, self.callback)
 
 
 def extend(func):

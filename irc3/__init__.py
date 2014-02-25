@@ -127,7 +127,6 @@ class IrcBot(object):
         self.loop = self.config.loop
         self.events_re = []
         self.events = defaultdict(list)
-        self._sent = []
 
         self.plugins = {}
         self.includes = set()
@@ -159,7 +158,7 @@ class IrcBot(object):
         self.events_re = events_re
 
     def add_event(self, event):
-        if event.regexp not in self.events_re:
+        if event.regexp not in [r for r, c in self.events_re]:
             self.events_re.append((event.regexp, event.cregexp))
         self.events[event.regexp].append(event)
 
