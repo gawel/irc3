@@ -1,4 +1,4 @@
-0.4.5 (unreleased)
+0.4.5 (2014-02-25)
 ==================
 
 - Bug fix. An event was run twice if more than one where using the same regexp
