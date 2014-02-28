@@ -33,6 +33,7 @@ class Core(object):
 
     def connection_made(self):
         self.bot.loop.call_later(self.timeout, self.check_ping)
+        self.ping_queue.put_nowait(self.bot.loop.time())
 
     def check_ping(self):  # pragma: no cover
         # check if we received a ping
