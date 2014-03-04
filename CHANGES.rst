@@ -1,7 +1,7 @@
 0.4.6 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Bug fix. The cron need a loop sooner as possible.
 
 
 0.4.5 (2014-02-25)

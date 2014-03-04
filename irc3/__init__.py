@@ -124,7 +124,11 @@ class IrcBot(object):
                 level = getattr(logging, str(level), level)
                 self.log.setLevel(level)
         self.encoding = self.config['encoding']
+
         self.loop = self.config.loop
+        if self.loop is None:
+            self.loop = asyncio.get_event_loop()
+
         self.events_re = []
         self.events = defaultdict(list)
 
@@ -275,8 +279,6 @@ class IrcBot(object):
     nick = property(get_nick, set_nick, doc='nickname get/set')
 
     def create_connection(self, protocol=IrcConnection):
-        if self.loop is None:
-            self.loop = asyncio.get_event_loop()
         t = asyncio.Task(
             self.loop.create_connection(
                 protocol, self.config.host,
