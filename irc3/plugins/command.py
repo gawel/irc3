@@ -188,7 +188,7 @@ class Commands(dict):
             if predicates.get('public', True) is False and target.is_channel:
                 self.bot.privmsg(
                     mask.nick,
-                    'You can only use the %r command in private.' % cmd)
+                    'You can only use the %r command in private.' % str(cmd))
             else:
                 self.do_command(predicates, meth, mask, target, data)
 
@@ -200,6 +200,8 @@ class Commands(dict):
         doc = [nick + ' ' + l.strip('%%')
                for l in doc if l.startswith('%%')]
         doc = 'Usage:' + '\n    ' + '\n    '.join(doc)
+        if data:
+            data = str(data)
         data = data and data.split() or []
         try:
             args = docopt.docopt(doc, [meth.__name__] + data, help=False)

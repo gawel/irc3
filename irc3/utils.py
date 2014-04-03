@@ -7,12 +7,12 @@ except ImportError:  # pragma: no cover
     import ConfigParser as configparser
 
 try:
-    str = unicode
-except NameError:
-    pass
+    BaseString = unicode
+except NameError:  # pragma: no cover
+    BaseString = str
 
 
-class IrcString(str):
+class IrcString(BaseString):
     """Argument wrapper"""
 
     @property
@@ -21,10 +21,10 @@ class IrcString(str):
 
         .. code-block:: py
 
-            >>> IrcString('foo').nick
-            'foo'
-            >>> IrcString('foo!user@host').nick
-            'foo'
+            >>> print(IrcString('foo').nick)
+            foo
+            >>> print(IrcString('foo!user@host').nick)
+            foo
             >>> IrcString('#foo').nick is None
             True
             >>> IrcString('irc.freenode.net').nick is None
@@ -41,8 +41,8 @@ class IrcString(str):
 
         .. code-block:: py
 
-            >>> IrcString('Foo').lnick
-            'foo'
+            >>> print(IrcString('Foo').lnick)
+            foo
         """
         nick = self.nick
         if nick:

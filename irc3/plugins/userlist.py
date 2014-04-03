@@ -16,10 +16,10 @@ Usage::
     >>> bot.include('irc3.plugins.userlist')
     >>> bot.test(':gawel!user@host JOIN #chan')
 
-    >>> list(bot.channels['#chan'])
-    ['gawel']
-    >>> bot.nicks
-    {'gawel': 'gawel!user@host'}
+    >>> print(list(bot.channels['#chan'])[0])
+    gawel
+    >>> print(list(bot.nicks.keys())[0])
+    gawel
 
 '''
 from irc3 import plugin
