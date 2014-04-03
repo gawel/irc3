@@ -1,4 +1,4 @@
-0.4.7 (unreleased)
+0.4.7 (2014-04-03)
 ==================
 
 - Nothing changed yet.
