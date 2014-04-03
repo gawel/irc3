@@ -1,7 +1,7 @@
 0.4.7 (2014-04-03)
 ==================
 
-- Nothing changed yet.
+- IrcString use unicode with py2
 
 
 0.4.6 (2014-03-11)
