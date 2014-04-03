@@ -6,6 +6,11 @@ try:
 except ImportError:  # pragma: no cover
     import ConfigParser as configparser
 
+try:
+    str = unicode
+except NameError:
+    pass
+
 
 class IrcString(str):
     """Argument wrapper"""
