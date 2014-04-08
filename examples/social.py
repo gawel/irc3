@@ -115,10 +115,10 @@ class Social(object):
             return factory(c.pop('user'), **c)
 
     @command(permission='edit')
-    def mb(self, mask, target, args):
+    def tweet(self, mask, target, args):
         """Post to social networks
 
-            %%mb [--id=<id>] <message>...
+            %%tweet [--id=<id>] <message>...
         """
         to = target == self.bot.nick and mask.nick or target
         message = ' '.join(args['<message>'])
