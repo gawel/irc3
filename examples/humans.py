@@ -15,6 +15,7 @@ def main():
     config = dict(
         autojoins=['#irc3'],
         host='irc.freenode.net', port=7000, ssl=True,
+        timeout=30,
         includes=[
             'irc3.plugins.core',
             'irc3.plugins.human',
