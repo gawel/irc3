@@ -96,7 +96,7 @@ class IrcBot(object):
         host='irc.freenode.net',
         port=6667,
         ssl=False,
-        timeout=240,
+        timeout=320,
         cmdchar='!',
         encoding='utf8',
         testing=False,
@@ -302,12 +302,13 @@ class IrcBot(object):
             time.sleep(1)
         self.loop.stop()
 
-    def run(self):
+    def run(self, forever=True):
         """start the bot"""
         loop = self.create_connection()
         loop.add_signal_handler(signal.SIGHUP, self.SIGHUP)
         loop.add_signal_handler(signal.SIGINT, self.SIGINT)
-        loop.run_forever()
+        if forever:
+            loop.run_forever()
 
 
 def run(argv=None):

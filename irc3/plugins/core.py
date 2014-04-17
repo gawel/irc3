@@ -32,7 +32,7 @@ class Core(object):
 
     def connection_made(self):
         self.connection_made_at = self.bot.loop.time()
-        if self.ping_handle is not None:
+        if self.ping_handle is not None:  # pragma: no cover
             self.ping_handle.cancel()
         self.ping_handle = self.bot.loop.call_later(self.timeout,
                                                     self.reconnect)
@@ -40,7 +40,7 @@ class Core(object):
     def reconnect(self):  # pragma: no cover
         self.bot.log.info(
             "We're waiting a ping for too long. Trying to reconnect...")
-        self.bot.loop.call_later(self.bot.protocol.transport.close)
+        self.bot.loop.call_soon(self.bot.protocol.transport.close)
         if self.ping_handle is not None:
             self.ping_handle.cancel()
         self.ping_handle = self.bot.loop.call_later(self.timeout,
@@ -49,7 +49,7 @@ class Core(object):
     @event(rfc.PING)
     def pong(self, data):
         """PING reply"""
-        if self.ping_handle is not None:
+        if self.ping_handle is not None:  # pragma: no cover
             self.ping_handle.cancel()
         self.ping_handle = self.bot.loop.call_later(self.timeout,
                                                     self.reconnect)
