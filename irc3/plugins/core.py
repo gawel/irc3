@@ -18,7 +18,6 @@ Usage::
     >>> bot = IrcBot()
     >>> bot.include('irc3.plugins.core')
 '''
-from asyncio.queues import Queue
 from irc3 import utils
 from irc3 import event
 from irc3 import rfc
@@ -29,28 +28,31 @@ class Core(object):
     def __init__(self, bot):
         self.bot = bot
         self.timeout = int(self.bot.config.get('timeout'))
-        self.ping_queue = Queue(loop=bot.loop)
+        self.ping_handle = None
 
     def connection_made(self):
-        self.bot.loop.call_later(self.timeout, self.check_ping)
-        self.ping_queue.put_nowait(self.bot.loop.time())
+        self.connection_made_at = self.bot.loop.time()
+        if self.ping_handle is not None:
+            self.ping_handle.cancel()
+        self.ping_handle = self.bot.loop.call_later(self.timeout,
+                                                    self.reconnect)
 
-    def check_ping(self):  # pragma: no cover
-        # check if we received a ping
-        # reconnect if queue is empty
-        self.bot.log.debug(
-            'Ping queue size: {}'.format(self.ping_queue.qsize()))
-        if self.ping_queue.empty():
-            self.bot.loop.call_soon(self.bot.protocol.transport.close)
-        else:
-            self.bot.loop.call_later(self.timeout, self.check_ping)
-        while not self.ping_queue.empty():
-            self.ping_queue.get_nowait()
+    def reconnect(self):  # pragma: no cover
+        self.bot.log.info(
+            "We're waiting a ping for too long. Trying to reconnect...")
+        self.bot.loop.call_later(self.bot.protocol.transport.close)
+        if self.ping_handle is not None:
+            self.ping_handle.cancel()
+        self.ping_handle = self.bot.loop.call_later(self.timeout,
+                                                    self.reconnect)
 
     @event(rfc.PING)
     def pong(self, data):
         """PING reply"""
-        self.ping_queue.put_nowait(self.bot.loop.time())
+        if self.ping_handle is not None:
+            self.ping_handle.cancel()
+        self.ping_handle = self.bot.loop.call_later(self.timeout,
+                                                    self.reconnect)
         self.bot.send('PONG ' + data)
 
     @event(rfc.NEW_NICK)
