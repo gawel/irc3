@@ -44,15 +44,15 @@ class Userlist(object):
 
     @event(rfc.JOIN_PART_QUIT)
     def join_part_quit(self, mask, event, channel=None, **kw):
-        getattr(self, event.lower())(mask.lnick, mask, channel)
+        getattr(self, event.lower())(mask.nick, mask, channel)
 
     def join(self, nick, mask, channel):
-        if nick != self.bot.nick.lower():
+        if nick != self.bot.nick:
             self.channels[channel].add(mask.nick)
             self.nicks[mask.nick] = mask
 
     def part(self, nick, mask, channel):
-        if nick == self.bot.nick.lower():
+        if nick == self.bot.nick:
             del self.channels[channel]
         else:
             self.channels[channel].remove(nick)
@@ -60,7 +60,7 @@ class Userlist(object):
                 del self.nicks[nick]
 
     def quit(self, nick, mask, channel):
-        if nick == self.bot.nick.lower():
+        if nick == self.bot.nick:
             self.connection_lost()
         else:
             for channel in self.channels.values():
@@ -68,17 +68,26 @@ class Userlist(object):
                     channel.remove(nick)
             del self.nicks[nick]
 
+    @event(rfc.NEW_NICK)
+    def new_nick(self, nick=None, new_nick=None, **kw):
+        """update list on new nick"""
+        self.nicks[new_nick] = new_nick + '!' + nick.host
+        nick = nick.nick
+        for channel in self.channels.values():
+            if nick in channel:
+                channel.remove(nick)
+                channel.add(new_nick)
+
     @event('^:\S+ 353 [^&#]+(?P<channel>\S+) :(?P<nicknames>.*)')
     def names(self, channel=None, nicknames=None):
         nicknames = nicknames.split(' ')
         for nick in nicknames:
             nick = nick.strip('+%@')
-            lnick = nick.lower()
-            self.channels[channel].add(lnick)
-            self.nicks[lnick] = nick
+            self.channels[channel].add(nick)
+            self.nicks[nick] = nick
 
     @event(rfc.RPL_WHOREPLY)
     def who(self, channel=None, nick=None, user=None, host=None, **kw):
-        self.channels[channel].add(nick.lower())
+        self.channels[channel].add(nick)
         mask = IrcString(nick + '!' + user + '@' + host)
-        self.nicks[nick.lower()] = mask
+        self.nicks[nick] = mask

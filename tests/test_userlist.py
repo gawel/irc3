@@ -23,8 +23,13 @@ class TestUserList(BotTestCase):
         self.assertIn('bar', plugin.channels['#bar'])
         self.assertIn('bar', plugin.nicks)
 
-        bot.dispatch(':bar!u@b QUIT :lksdlds')
-        self.assertNotIn('bar', plugin.nicks)
+        bot.dispatch(':bar!u@b NICK babar')
+        self.assertIn('babar', plugin.nicks)
+        self.assertIn('babar', plugin.channels['#bar'])
+
+        bot.dispatch(':babar!u@b QUIT :lksdlds')
+        self.assertNotIn('babar', plugin.nicks)
+        self.assertNotIn('babar', plugin.channels['#bar'])
 
         bot.dispatch(':serv 352 irc3 #chan ~user host serv bar H@ :Blah')
         self.assertIn('bar', plugin.channels['#chan'])
