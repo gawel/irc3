@@ -133,6 +133,7 @@ def parse_config(*filenames):
     defaults = dict(here=here)
 
     config = configparser.ConfigParser(defaults, allow_no_value=False)
+    config.optionxform = str
     config.read([os.path.expanduser('~/.irc3/passwd.ini')] + list(filenames))
 
     value = {}
