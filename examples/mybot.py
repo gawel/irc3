@@ -37,7 +37,7 @@ class MyPlugin:
     def my_usefull_command(self):
         """The extend decorator will allow you to call::
 
-            >>> bot.my_usefull_command()
+            bot.my_usefull_command()
 
         """
 

@@ -5,7 +5,9 @@ python:
 install:
   - python setup.py dev
   - pip install coveralls
+  - pip install flake8
 script:
   - nosetests
+  - flake8
 after_success:
   - coveralls

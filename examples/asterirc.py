@@ -302,8 +302,8 @@ class Asterisk(object):
                 yield 'No user matching query'
                 raise StopIteration()
 
-            for user, command in commands:
-                resp = self.send_command(command)
+            for user, cmd in commands:
+                resp = self.send_command(cmd)
                 if resp.success:
                     del self.rooms[room][user]
                     if not self.rooms[room]:

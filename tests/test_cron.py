@@ -13,6 +13,7 @@ class MyCron(object):
     def raiser(self):
         raise RuntimeError()
 
+
 def null_callback(bot):
     pass
 
