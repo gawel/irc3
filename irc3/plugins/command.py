@@ -181,7 +181,7 @@ class Commands(dict):
         self.guard = guard(bot)
 
     @irc3.event((r':(?P<mask>\S+) PRIVMSG (?P<target>\S+) '
-                 r':{cmd}(?P<cmd>\w+)(\s(?P<data>[-0-9A-z]+.*)|$)'))
+                 r':{cmd}(?P<cmd>\w+)(\s(?P<data>[-0-9A-z-#-&]+.*)|$)'))
     def on_command(self, cmd, mask=None, target=None, data=None, **kw):
         predicates, meth = self.get(cmd, (None, None))
         if meth is not None:
