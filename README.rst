@@ -12,7 +12,7 @@ irc3. irc with asyncio
    :target: https://crate.io/packages/irc3/
 
 plugable irc client based on python's `asyncio
-<http://docs.python.org/3.4/library/asyncio.html>`_.
+<http://docs.python.org/dev/library/asyncio.html>`_.
 
 Require python 2.7, 3.2+
 
