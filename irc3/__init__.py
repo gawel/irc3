@@ -166,9 +166,10 @@ class IrcBot(object):
             self.events_re[iotype] = events_re
 
     def add_event(self, event):
-        if event.regexp not in self.events:
-            self.events_re[event.iotype].append((event.regexp, event.cregexp))
-        self.events[event.iotype][event.regexp].append(event)
+        regexp = getattr(event.regexp, 're', event.regexp)
+        if regexp not in self.events[event.iotype]:
+            self.events_re[event.iotype].append((regexp, event.cregexp))
+        self.events[event.iotype][regexp].append(event)
 
     def include(self, *modules, **kwargs):
         categories = kwargs.get('venusian_categories',
