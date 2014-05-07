@@ -129,8 +129,11 @@ class IrcBot(object):
         if self.loop is None:
             self.loop = asyncio.get_event_loop()
 
-        self.events_re = []
-        self.events = defaultdict(list)
+        self.events_re = {'in': [], 'out': {}}
+        self.events = {
+            'in': defaultdict(list),
+            'out': defaultdict(list)
+        }
 
         self.plugins = {}
         self.includes = set()
@@ -154,17 +157,18 @@ class IrcBot(object):
         return self.plugins[ob]
 
     def recompile(self):
-        events_re = []
-        for regexp, cregexp in self.events_re:
-            e = self.events[regexp][0]
-            e.compile(self.config)
-            events_re.append((regexp, e.cregexp))
-        self.events_re = events_re
+        for iotype in ('in', 'out'):
+            events_re = []
+            for regexp, cregexp in self.events_re[iotype]:
+                e = self.events[iotype][regexp][0]
+                e.compile(self.config)
+                events_re.append((regexp, e.cregexp))
+            self.events_re[iotype] = events_re
 
     def add_event(self, event):
         if event.regexp not in self.events:
-            self.events_re.append((event.regexp, event.cregexp))
-        self.events[event.regexp].append(event)
+            self.events_re[event.iotype].append((event.regexp, event.cregexp))
+        self.events[event.iotype][event.regexp].append(event)
 
     def include(self, *modules, **kwargs):
         categories = kwargs.get('venusian_categories',
@@ -192,8 +196,8 @@ class IrcBot(object):
             self.protocol.factory = self
             self.protocol.encoding = self.encoding
             if self.config.get('password'):
-                self.send('PASS {password}'.format(**self.config))
-            self.send((
+                self._send('PASS {password}'.format(**self.config))
+            self._send((
                 'USER {realname} {host} {host} :{userinfo}\r\n'
                 'NICK {nick}\r\n').format(**self.config))
             self.notify('connection_made')
@@ -204,22 +208,27 @@ class IrcBot(object):
             if meth is not None:
                 meth()
 
-    def dispatch(self, data):
+    def dispatch(self, data, iotype='in'):
         events = []
-        for regexp, cregexp in self.events_re:
+        for regexp, cregexp in self.events_re[iotype]:
             match = cregexp.search(data)
             if match is not None:
                 match = match.groupdict()
                 for key, value in match.items():
                     if value is not None:
                         match[key] = IrcString(value)
-                for e in self.events[regexp]:
+                for e in self.events[iotype][regexp]:
                     self.loop.call_soon(e.async_callback, match)
                     events.append((e, match))
         return events
 
     def send(self, data):
         """send data to the server"""
+        self._send(data)
+        self.dispatch(data, iotype='out')
+
+    def _send(self, data):
+        # private method to avoid dispatch()
         self.log.debug('> %s', data.strip())
         self.protocol.write(data)
 

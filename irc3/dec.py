@@ -22,21 +22,34 @@ class event(object):
     """register a method or function an irc event callback::
 
         >>> @event('^:\S+ 353 [^&#]+(?P<channel>\S+) :(?P<nicknames>.*)')
-        ... def on_names(self, channel=None, nicknames=None):
+        ... def on_names(bot, channel=None, nicknames=None):
         ...     '''this will catch nickname when you enter a channel'''
         ...     print(channel, nicknames.split(':'))
 
     The callback can be either a function or a plugin method
+
+    If you specify the `iotype` parameter to `"out"` then the event will be
+    triggered when the regexp match something **sent** by the bot.
+
+    For example this event will repeat private messages sent by the bot to the
+    `#irc3` channel::
+
+        >>> @event(r'PRIVMSG (?P<target>[^#]+) :(?P<data>.*)', iotype='out')
+        ... def msg3(bot, target=None, data=None):
+        ...     bot.privmsg('#irc3',
+        ...                 '<{0}> {1}: {2}'.format(bot.nick, target, data))
     """
 
     venusian = venusian
 
-    def __init__(self, regexp, callback=None, venusian_category=None):
+    def __init__(self, regexp, callback=None, iotype='in',
+                 venusian_category=None):
         try:
             re.compile(getattr(regexp, 're', regexp))
         except Exception as e:
             raise e.__class__(str(e) + ' in ' + getattr(regexp, 're', regexp))
         self.regexp = regexp
+        self.iotype = iotype
         self.callback = callback
         self.venusian_category = venusian_category or 'irc3.rfc1459'
 
@@ -64,7 +77,8 @@ class event(object):
             # a new instance is needed to keep this related to *one* bot
             # instance
             e = self.__class__(self.regexp, self.callback,
-                               venusian_category=self.venusian_category)
+                               venusian_category=self.venusian_category,
+                               iotype=self.iotype)
             e.compile(bot.config)
             bot.add_event(e)
         info = self.venusian.attach(wrapped, callback,

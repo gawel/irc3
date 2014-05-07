@@ -1,13 +1,7 @@
 0.4.9 (unreleased)
 ==================
 
-- Nothing changed yet.
-
-
-0.4.8 (2014-05-06)
-==================
-
-- Nothing changed yet.
+- Allow to trigger event on output with ``event(iotype='out')``
 
 
 0.4.7 (2014-04-03)
