@@ -43,8 +43,12 @@ class LoggerTestCase(BotTestCase):
 
         bot.dispatch(':bar!user@host PRIVMSG #foo :!help')
         with open(filenames[0]) as fd:
-            self.assertIn('<bar>', fd.read())
+            self.assertIn('<bar> !help', fd.read())
 
         bot.dispatch(':bar!user@host QUIT')
         with open(filenames[0]) as fd:
             self.assertIn('bar has quit', fd.read())
+
+        bot.dispatch('PRIVMSG #foo :youhou!')
+        with open(filenames[0]) as fd:
+            self.assertIn('<irc3> youhou!', fd.read())

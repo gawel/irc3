@@ -31,7 +31,7 @@ class file_handler(object):
     """
 
     formaters = {
-        'privmsg': '{date:%H:%M} <{mask.nick}>: {data}',
+        'privmsg': '{date:%H:%M} <{mask.nick}> {data}',
         'join': '{date:%H:%M} {mask.nick} joined {channel}',
         'part': '{date:%H:%M} {mask.nick} has leaved {channel} ({data})',
         'quit': '{date:%H:%M} {mask.nick} has quit ({data})',
@@ -84,6 +84,13 @@ class Logger(object):
     def on_input(self, mask, event, target=None, data=None, **kwargs):
         if target and target.is_channel:
             self.process(event=event, mask=mask,
+                         channel=target, data=data, **kwargs)
+
+    @irc3.event((r'''(?P<event>[A-Z]+) (?P<target>#\S+)'''
+                 r'''(\s:(?P<data>.*)|$)'''))
+    def on_ouput(self, event, target=None, data=None, **kwargs):
+        if target and target.is_channel:
+            self.process(event=event, mask=irc3.utils.IrcString(self.bot.nick),
                          channel=target, data=data, **kwargs)
 
     @irc3.event(irc3.rfc.JOIN_PART_QUIT)
