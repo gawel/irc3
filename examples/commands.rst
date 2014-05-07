@@ -53,12 +53,12 @@ Show uptimes
 social
 ======
 
-mb
---
+tweet
+-----
 
 Post to social networks
 
-    ``!mb [--id=<id>] <message>...``
+    ``!tweet [--id=<id>] <message>...``
 
 *Require edit permission.*
 

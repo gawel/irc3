@@ -1623,6 +1623,19 @@ Example:
     def myevent(bot):
         # do something
 
+PONG
+----
+
+Match ``:(?P<server>\S+) PONG (?P=server) :(?P<data>.*)``
+
+Example:
+
+.. code-block:: python
+
+    @irc3.event(rfc.PONG)
+    def myevent(bot):
+        # do something
+
 PRIVMSG
 -------
 
