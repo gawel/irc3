@@ -364,12 +364,16 @@ def run(argv=None):
             v['level'] = 'ERROR'
     if args['--debug']:
         IrcBot.venusian_categories.append('irc3.debug')
-    bot = IrcBot(**cfg)
+    if args['--interactive']:  # pragma: no cover
+        import irc3.testing
+        bot = irc3.testing.IrcBot(**cfg)
+    else:
+        bot = IrcBot(**cfg)
     if args['--raw']:
         bot.include('irc3.plugins.log', venusian_categories=['irc3.debug'])
     if args['--help-page']:  # pragma: no cover
         bot.print_help_page()
-    elif args['--interactive']:
+    elif args['--interactive']:  # pragma: no cover
         import IPython
         IPython.embed()
     else:
