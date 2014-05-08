@@ -118,15 +118,3 @@ class TestBot(BotTestCase):
         bot.SIGHUP()
         self.assertTrue(sleep.called)
         self.assertTrue(bot.protocol.transport.close.called)
-
-    def test_autojoin(self):
-        bot = self.callFTU(autojoins=['#foo'])
-        bot.include('irc3.plugins.core')
-        bot.dispatch(':hobana.freenode.net 376 irc3 :End of /MOTD command.')
-        self.assertSent(['JOIN #foo'])
-
-    def test_autojoin_without_diese(self):
-        bot = self.callFTU(autojoins=['foo'])
-        bot.include('irc3.plugins.core')
-        bot.dispatch(':hobana.freenode.net 376 irc3 :End of /MOTD command.')
-        self.assertSent(['JOIN #foo'])

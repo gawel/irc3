@@ -138,6 +138,12 @@ class IrcBot(object):
         self.plugins = {}
         self.includes = set()
         self.include(*self.config.get('includes', []))
+
+        # auto include the autojoins plugin if needed (for backward compat)
+        if 'autojoins' in self.config and \
+           'irc3.plugins.autojoins' not in self.includes:
+            self.include('irc3.plugins.autojoins')
+
         self.recompile()
 
     def get_plugin(self, ob):

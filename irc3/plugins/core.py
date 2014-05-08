@@ -18,7 +18,6 @@ Usage::
     >>> bot = IrcBot()
     >>> bot.include('irc3.plugins.core')
 '''
-from irc3 import utils
 from irc3 import event
 from irc3 import rfc
 
@@ -73,14 +72,3 @@ class Core(object):
             self.bot.set_nick(self.bot.nick + '_')
         self.bot.log.debug('Trying to regain nickname in 30s...')
         self.bot.loop.call_later(30, self.bot.set_nick, self.bot.original_nick)
-
-    @event(rfc.RPL_ENDOFMOTD)
-    def autojoin(self, **kw):
-        """autojoin at the end of MOTD"""
-        self.bot.config['nick'] = kw['me']
-        self.bot.recompile()
-        channels = utils.as_list(self.bot.config.get('autojoins', []))
-        for channel in channels:
-            channel = utils.as_channel(channel)
-            self.bot.log.info('Trying to join %s', channel)
-            self.bot.join(channel)
