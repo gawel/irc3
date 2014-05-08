@@ -19,7 +19,7 @@ class TestUserList(BotTestCase):
         self.assertIn('bar', plugin.channels['#bar'])
         self.assertIn('bar', plugin.nicks)
 
-        bot.dispatch(':bar!u@b PART #foo')
+        bot.dispatch(':foo!u@b KICK #foo bar :bastard!')
         self.assertIn('bar', plugin.channels['#bar'])
         self.assertIn('bar', plugin.nicks)
 

@@ -30,6 +30,12 @@ JOIN_PART_QUIT = raw.new(
     (r':(?P<mask>\S+) '
      r'(?P<event>JOIN|PART|QUIT)\s*(?P<channel>\S*)(\s+:(?P<data>.*)|$)'))
 
+KICK = raw.new(
+    'KICK',
+    (r':(?P<mask>\S+) '
+     r'(?P<event>KICK)\s*(?P<channel>\S+)\s*(?P<target>\S+)'
+     r'(\s+:(?P<data>.*)|$)'))
+
 MY_PRIVMSG = raw.new(
     'MY_PRIVMSG',
     (r':(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) '

@@ -43,8 +43,12 @@ class Userlist(object):
         self.bot.nicks = self.nicks
 
     @event(rfc.JOIN_PART_QUIT)
-    def join_part_quit(self, mask, event, channel=None, **kw):
+    def on_join_part_quit(self, mask, event, channel=None, **kw):
         getattr(self, event.lower())(mask.nick, mask, channel)
+
+    @event(rfc.KICK)
+    def on_kick(self, mask, event, channel=None, target=None, **kw):
+        self.part(target.nick, None, channel)
 
     def join(self, nick, mask, channel):
         if nick != self.bot.nick:
