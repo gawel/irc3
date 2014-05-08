@@ -4,6 +4,9 @@ __doc__ = '''
 :mod:`irc3.plugins.autojoins` Auto join plugin
 ==============================================
 
+Auto join channels. The bot will retry to join when kicked and will retry to
+join each 30s when an error occurs.
+
 ..
     >>> from testing import IrcBot
 
