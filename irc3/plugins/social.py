@@ -9,8 +9,6 @@ Add ``tweet`` and ``retweet`` commands.
 
 Extend the bot with ``.get_social_connection()`` and ``.search_tweets()``.
 
-Usage::
-
 ..
     >>> from irc3.testing import IrcBot
 
