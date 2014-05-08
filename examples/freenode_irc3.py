@@ -53,6 +53,35 @@ class FeedsHook(object):
                 yield entry
 
 
+@cron('*/15 * * * *')
+def auto_retweet(bot):
+    """retweet author tweets about irc3 and pypi releases"""
+    conn = bot.get_social_connection(network='twitter')
+    dirname = os.path.expanduser('~/.irc3/twitter/{nick}'.format(**bot.config))
+
+    if not os.path.isdir(dirname):
+        os.makedirs(dirname)
+
+    filename = os.path.join(dirname, 'retweeted')
+    if os.path.isfile(filename):
+        with open(filename) as fd:
+            retweeted = [i.strip() for i in fd.readlines()]
+    else:
+        retweeted = []
+
+    for user in ('pypi', 'gawel_'):
+        results = conn.search.tweets(
+            q=user + ' AND irc3',
+            result_type='recent')
+        for item in results.get('statuses', []):
+            if item['user']['screen_name'] == user:
+                if item['id_str'] not in retweeted:
+                    res = conn(getattr(conn.statuses.retweet, item['id_str']))
+                    if 'id' in res:
+                        with open(filename, 'a+') as fd:
+                            fd.write(item['id_str'] + '\n')
+
+
 @cron('*/2 * * * *', venusian_category='irc3.debug')
 def test_cron(bot):
     bot.log.info('Running test_cron')

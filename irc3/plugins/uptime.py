@@ -25,7 +25,7 @@ class Uptime(object):
 
     def __init__(self, bot):
         self.bot = bot
-        bot.uptimes = self
+        bot.uptime = self
         self.uptime = time.time()
         self.connection_uptime = None
         config = bot.config.get(__name__, {})

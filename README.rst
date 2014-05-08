@@ -32,5 +32,7 @@ Docs: https://irc3.readthedocs.org/
 Irc: irc://irc.freenode.net/irc3 (`www
 <https://kiwiirc.com/client/irc.freenode.net/?nick=irc3|?&theme=basic#irc3>`_)
 
+Twitter: `@python_irc3 <https://twiter.com/python_irc3>`_
+
 You like it ? => https://www.gittip.com/gawel/
 
