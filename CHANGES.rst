@@ -3,6 +3,12 @@
 
 - Allow to trigger event on output with ``event(iotype='out')``
 
+- Add a channel logger plugin
+
+- autojoins is now a separate plugin
+
+- userlist plugin take care of kicks
+
 
 0.4.7 (2014-04-03)
 ==================
