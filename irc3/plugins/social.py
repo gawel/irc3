@@ -1,4 +1,35 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+__doc__ = '''
+==============================================
+:mod:`irc3.plugins.social` Social networking
+==============================================
+
+Add ``tweet`` and ``retweet`` commands.
+
+Extend the bot with ``.get_social_connection()`` and ``.search_tweets()``.
+
+Usage::
+
+..
+    >>> from irc3.testing import IrcBot
+
+Usage::
+
+    >>> bot = IrcBot(
+    ...     includes=['irc3.plugins.social'],
+    ...     twitter=dict(key='yourkey', secret='yoursecret',
+    ...                  token='yourtoken', token_secret='yoursecret')
+    ... )
+    >>> bot.get_social_connection()
+    <TwitterAdapter for <twitter.api.Twitter object at ...>>
+
+Api:
+
+.. autoclass:: Social
+   :members:
+
+'''
 from irc3.plugins.command import command
 import irc3
 import json
@@ -24,7 +55,7 @@ class TwitterAdapter(object):
             if isinstance(res, dict):
                 return res
             return dict(error=res)
-        except self.exc as e:
+        except self.exc as e:  # pragma: no cover
             self.bot.log.exception(e)
             message = ''
             try:
@@ -49,6 +80,7 @@ class TwitterAdapter(object):
 
 @irc3.plugin
 class Social(object):
+    """The social plugin"""
 
     requires = [
         'irc3.plugins.command',
@@ -83,9 +115,9 @@ class Social(object):
         for name, config in self.networks.copy().items():
             if 'twitter' in name:
                 factory = self.twitter_factory
-            else:
+            else:  # pragma: no cover
                 factory = self.identica_factory
-            conn = factory(config)
+            conn = factory(config.copy())
             if conn:
                 self.conns[name] = conn
                 self.bot.log.info('%s initialized', name)
@@ -95,7 +127,7 @@ class Social(object):
             auth = irc3.utils.maybedotted(config.pop('auth_factory'))
             factory = irc3.utils.maybedotted(config.pop('factory'))
             adapter = irc3.utils.maybedotted(config.pop('adapter'))
-        except LookupError as e:
+        except LookupError as e:  # pragma: no cover
             self.bot.log.exception(e)
         else:
             c = self.bot.config['twitter']
@@ -103,7 +135,8 @@ class Social(object):
                                   c['key'], c['secret'])
             return adapter(self.bot, factory(**config))
 
-    def identica_factory(self, config):
+    def identica_factory(self, config):  # pragma: no cover
+        # not really implemented for now
         try:
             factory = irc3.utils.maybedotted(config.pop('factory'))
         except LookupError as e:
@@ -114,7 +147,12 @@ class Social(object):
 
     @irc3.extend
     def get_social_connection(self, network='twitter'):
-        """return a connection object"""
+        """return a connection object for the network:
+
+        - A Twitter instance from
+          https://github.com/sixohsix/twitter/tree/master
+
+        """
         return self.conns[network]
 
     @command(permission='edit')
@@ -134,11 +172,11 @@ class Social(object):
 
     @irc3.extend
     def send_tweet(self, message, network=None):
-        """Send a tweet"""
+        """Send a tweet to networks"""
         for name, conn in self.conns.items():
             if 'stream' in name:
                 continue
-            if network and network != name:
+            if network and network != name:  # pragma: no cover
                 continue
             status = 'failure'
             res = conn(conn.statuses.update, status=message)
@@ -163,7 +201,7 @@ class Social(object):
             args['--net'] = 'twitter'
         to = target == self.bot.nick and mask.nick or target
         conn = self.get_social_connection(args['--net'])
-        tid = args['url_or_id'].strip('/')
+        tid = args['<url_or_id>'].strip('/')
         tid = tid.split('/')[-1]
         res = conn(getattr(conn.statuses.retweet, tid))
         if 'error' in res:
@@ -174,11 +212,11 @@ class Social(object):
                 to, conn.format(res))
 
     @irc3.extend
-    def search_tweets(self, q=None, **kw):
-        """Search twitter"""
-        conn = self.get_social_connection()
+    def search_tweets(self, q=None, **kwargs):
+        """Search for tweets on twitter"""
+        conn = self.get_social_connection(network='twitter')
         try:
-            results = conn.search.tweets(q=q, **kw)
+            results = conn.search.tweets(q=q, **kwargs)
         except Exception as e:
             self.bot.log.exception(e)
         else:

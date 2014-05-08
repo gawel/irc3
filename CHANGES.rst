@@ -9,6 +9,8 @@
 
 - userlist plugin take care of kicks
 
+- social plugin is now officially supported and tested
+
 
 0.4.7 (2014-04-03)
 ==================

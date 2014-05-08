@@ -38,6 +38,27 @@ Search using https://duckduckgo.com/api
 
 *Require view permission.*
 
+irc3.plugins.social
+===================
+
+retweet
+-------
+
+Retweet
+
+    ``!retweet [--net=<network>] <url_or_id>``
+
+*Require edit permission.*
+
+tweet
+-----
+
+Post to social networks
+
+    ``!tweet [--net=<network>] <message>...``
+
+*Require edit permission.*
+
 irc3.plugins.uptime
 ===================
 
@@ -49,16 +70,4 @@ Show uptimes
     ``!uptime``
 
 *Require view permission.*
-
-social
-======
-
-tweet
------
-
-Post to social networks
-
-    ``!tweet [--id=<id>] <message>...``
-
-*Require edit permission.*
 
