@@ -339,6 +339,7 @@ def run(argv=None):
     -v,--verbose        Increase verbosity
     -r,--raw            Show raw irc log on the console
     -d,--debug          Add some debug commands/utils
+    -i,--interactive    Load a ipython console with a bot instance
     --help-page         Output a reST page containing commands help
     """
     import os
@@ -368,6 +369,9 @@ def run(argv=None):
         bot.include('irc3.plugins.log', venusian_categories=['irc3.debug'])
     if args['--help-page']:  # pragma: no cover
         bot.print_help_page()
+    elif args['--interactive']:
+        import IPython
+        IPython.embed()
     else:
         bot.run()
     if argv:
