@@ -1571,6 +1571,19 @@ Example:
     def myevent(bot):
         # do something
 
+KICK
+----
+
+Match ``:(?P<mask>\S+) (?P<event>KICK)\s*(?P<channel>\S+)\s*(?P<target>\S+)(\s+:(?P<data>.*)|$)``
+
+Example:
+
+.. code-block:: python
+
+    @irc3.event(rfc.KICK)
+    def myevent(bot):
+        # do something
+
 MY_PRIVMSG
 ----------
 
