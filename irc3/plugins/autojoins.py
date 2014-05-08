@@ -25,6 +25,13 @@ class AutoJoins(object):
     def __init__(self, bot):
         self.bot = bot
         self.channels = utils.as_list(self.bot.config.get('autojoins', []))
+        self.handles = {}
+        self.timeout = 240
+
+    def connection_lost(self):  # pragma: no cover
+        for timeout, handle in self.handles.values():
+            handle.cancel()
+        self.handles = {}
 
     def join(self, channel=None):
         if channel is None:
@@ -33,7 +40,12 @@ class AutoJoins(object):
             channels = [channel]
         for channel in channels:
             channel = utils.as_channel(channel)
-            self.bot.log.info('Trying to join %s', channel)
+            if channel in self.handles:
+                timeout, handle = self.handles[channel]
+                self.bot.log.info('Re-trying to join %s after %ss',
+                                  channel, timeout)
+            else:
+                self.bot.log.info('Trying to join %s', channel)
             self.bot.join(channel)
 
     @irc3.event(irc3.rfc.RPL_ENDOFMOTD)
@@ -46,10 +58,23 @@ class AutoJoins(object):
     @irc3.event(irc3.rfc.KICK)
     def on_kick(self, mask, channel, target, **kwargs):
         """bot must rejoin when kicked from a channel"""
+        if channel in self.handles:
+            timeout, handle = self.handles[channel]
+            handle.cancel()
+            del self.handles[channel]
         if target.nick == self.bot.nick:
             self.join(channel)
 
-    @irc3.event("^:\S+ 47[12345] \S+ (?P<channel>\S+).*")
+    @irc3.event("^:\S+ 47[1234567] \S+ (?P<channel>\S+).*")
     def on_err_join(self, channel, **kwargs):
         """bot must try to rejoin later when he can't join"""
-        self.bot.loop.call_later(30, self.join, channel)
+        if channel in self.handles:
+            timeout, handle = self.handles[channel]
+            handle.cancel()
+            timeout = timeout * 4
+            if timeout > self.timeout:  # pragma: no cover
+                timeout = self.timeout
+        else:
+            timeout = 2
+        handle = self.bot.loop.call_later(timeout, self.join, channel)
+        self.handles[channel] = timeout, handle

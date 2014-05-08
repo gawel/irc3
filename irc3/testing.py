@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from unittest import TestCase
 import irc3
 from irc3.compat import PY3
+import asyncio
 import os
 
 try:
@@ -28,11 +29,13 @@ token_secret=token_secret
 
 def call_later(i, func, *args):
     if func.__name__ in dir(IrcBot):
-        return func(*args)
+        func(*args)
+        return asyncio.Handle(func, args, None)
 
 
 def call_soon(func, *args):
-    return func(*args)
+    func(*args)
+    return asyncio.Handle(func, args, None)
 
 
 class IrcBot(irc3.IrcBot):
