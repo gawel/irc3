@@ -97,6 +97,7 @@ class IrcBot(object):
         port=6667,
         ssl=False,
         timeout=320,
+        max_lag=60,
         cmdchar='!',
         encoding='utf8',
         testing=False,
