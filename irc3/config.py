@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+TIMESTAMPED_FMT = '%(asctime)s %(levelname)-4s %(name)-10s %(message)s'
 
 LOGGING = {
     'version': 1,
@@ -10,12 +11,15 @@ LOGGING = {
             'format': '%(levelname)-4s %(name)-10s %(message)s',
             'datefmt': '%Y-%m-%d %H:%M:%S',
         },
+        'console_plus': {
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
         'irc': {
             'format': '%(levelname)-4s %(message)s',
             'datefmt': '%Y-%m-%d %H:%M:%S',
         },
         'file': {
-            'format': '%(asctime)s %(levelname)-4s %(name)-10s %(message)s',
+            'format': TIMESTAMPED_FMT,
             'datefmt': '%Y-%m-%d %H:%M:%S',
         },
     },

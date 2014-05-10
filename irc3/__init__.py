@@ -337,6 +337,7 @@ def run(argv=None):
     Options:
 
     --logdir DIRECTORY  Log directory to use instead of stderr
+    --logdate           Show datetimes in console output
     -v,--verbose        Increase verbosity
     -r,--raw            Show raw irc log on the console
     -d,--debug          Add some debug commands/utils
@@ -360,6 +361,9 @@ def run(argv=None):
     if args['--logdir'] or 'logdir' in cfg:
         logdir = os.path.expanduser(args['--logdir'] or cfg.get('logdir'))
         IrcBot.logging_config = config.get_file_config(logdir)
+    if args['--logdate']:  # pragma: no cover
+        fmt = IrcBot.logging_config['formatters']['console']
+        fmt['format'] = config.TIMESTAMPED_FMT
     if args['--help-page']:  # pragma: no cover
         for v in IrcBot.logging_config['handlers'].values():
             v['level'] = 'ERROR'
