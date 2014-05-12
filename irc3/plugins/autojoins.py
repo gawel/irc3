@@ -48,7 +48,14 @@ class AutoJoins(object):
                 self.bot.log.info('Trying to join %s', channel)
             self.bot.join(channel)
 
+    @irc3.event(irc3.rfc.ERR_NOMOTD)
+    def on_no_motd(self, **kw):
+        self.autojoin(**kw)
+
     @irc3.event(irc3.rfc.RPL_ENDOFMOTD)
+    def on_end_of_motd(self, **kw):
+        self.autojoin(**kw)
+
     def autojoin(self, **kw):
         """autojoin at the end of MOTD"""
         self.bot.config['nick'] = kw['me']
