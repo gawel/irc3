@@ -36,7 +36,7 @@ def read(*rnames):
 setup(
     name='irc3',
     version=version,
-    description="plugable irc client based on asyncio",
+    description="plugable irc client library based on asyncio",
     long_description=read('README.rst'),
     classifiers=[
         'Intended Audience :: Developers',
@@ -45,7 +45,7 @@ setup(
         'Programming Language :: Python :: 3.4',
         'License :: OSI Approved :: MIT License',
     ],
-    keywords='irc asyncio',
+    keywords='irc asyncio tulip',
     author='Gael Pasgrimaud',
     author_email='gael@gawel.org',
     url='https://github.com/gawel/irc3/',

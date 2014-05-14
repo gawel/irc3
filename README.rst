@@ -1,6 +1,6 @@
-===================================================
-irc3. plugable irc client based on python's asyncio
-===================================================
+============================================================
+irc3. plugable irc client library based on python's asyncio
+============================================================
 
 .. image:: https://travis-ci.org/gawel/irc3.png?branch=master
   :target: https://travis-ci.org/gawel/irc3
@@ -20,7 +20,7 @@ irc3. plugable irc client based on python's asyncio
    :target: http://thenounproject.com/term/hydra/46963/
 
 
-A plugable irc client based on python's `asyncio
+A plugable irc client library based on python's `asyncio
 <http://docs.python.org/dev/library/asyncio.html>`_.
 
 Require python 2.7, 3.2+
