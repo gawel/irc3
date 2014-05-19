@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+import codecs
 from setuptools import setup
 from setuptools import find_packages
 
@@ -30,7 +31,9 @@ elif sys.version_info[:2] < (3, 4):
 
 
 def read(*rnames):
-    return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
+    filename = os.path.join(os.path.dirname(__file__), *rnames)
+    with codecs.open(filename, encoding='utf8') as fd:
+        return fd.read()
 
 
 setup(
