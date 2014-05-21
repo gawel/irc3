@@ -1,4 +1,4 @@
-0.4.10 (unreleased)
+0.4.10 (2014-05-21)
 ===================
 
 - Nothing changed yet.
