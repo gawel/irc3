@@ -98,7 +98,7 @@ class IrcBot(object):
         ssl=False,
         timeout=320,
         max_lag=60,
-        cmdchar='!',
+        cmd='!',
         encoding='utf8',
         testing=False,
         async=True,
