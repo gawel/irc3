@@ -12,13 +12,13 @@ class MyPlugin:
 
     def __init__(self, bot):
         self.bot = bot
-        self.log = self.bot.log
+        self.log = bot.log
 
     @irc3.event(irc3.rfc.JOIN)
     def welcome(self, mask, channel):
         """Welcome people who join a channel"""
         bot = self.bot
-        if mask.nick != self.bot.nick:
+        if mask.nick != bot.nick:
             bot.call_with_human_delay(
                 bot.privmsg, channel, 'Welcome %s!' % mask.nick)
         else:
