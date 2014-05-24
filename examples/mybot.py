@@ -17,13 +17,12 @@ class MyPlugin:
     @irc3.event(irc3.rfc.JOIN)
     def welcome(self, mask, channel):
         """Welcome people who join a channel"""
-        bot = self.bot
         if mask.nick != self.bot.nick:
-            bot.call_with_human_delay(
-                bot.privmsg, channel, 'Welcome %s!' % mask.nick)
+            self.bot.call_with_human_delay(
+                self.bot.privmsg, channel, 'Welcome %s!' % mask.nick)
         else:
-            bot.call_with_human_delay(
-                bot.privmsg, channel, "Hi guys!")
+            self.bot.call_with_human_delay(
+                self.bot.privmsg, channel, "Hi guys!")
 
     @command
     def echo(self, mask, target, args):
