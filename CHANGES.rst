@@ -1,13 +1,15 @@
 0.4.11 (unreleased)
 ===================
 
-- Nothing changed yet.
+- Fixed #9: The ``command`` plugin uses ``cmd``, not ``cmdchar``.
 
 
 0.4.10 (2014-05-21)
 ===================
 
-- Nothing changed yet.
+- Fixed #5: autojoin on no motd
+
+- allow to show date/times in console log
 
 
 0.4.9 (2014-05-08)
