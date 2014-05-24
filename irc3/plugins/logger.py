@@ -12,7 +12,11 @@ Log channels
 
 Usage::
 
-    >>> bot = IrcBot()
+    >>> bot = IrcBot(**{
+    ...     'irc3.plugins.logger': {
+    ...         'handler': 'irc3.plugins.logger.file_handler',
+    ...     },
+    ... })
     >>> bot.include('irc3.plugins.logger')
 
 
@@ -39,11 +43,11 @@ class file_handler(object):
     }
 
     def __init__(self, bot):
-        config = bot.config.get(__name__, {
+        config = {
             'filename': '~/.irc3/logs/{host}/{channel}-{date:%Y-%m-%d}.log',
-
             'channels': [],
-        })
+        }
+        config.update(bot.config.get(__name__, {}))
         self.filename = config['filename']
         self.formaters = bot.config.get(
             __name__ + '.formaters',
