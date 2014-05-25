@@ -10,6 +10,11 @@ class TestAutojoin(BotTestCase):
         bot.dispatch(':hobana.freenode.net 376 irc3 :End of /MOTD command.')
         self.assertSent(['JOIN #foo'])
 
+    def test_autojoin_nomotd(self):
+        bot = self.callFTU(autojoins=['#foo'])
+        bot.dispatch(':hobana.freenode.net 422 irc3 :No MOTD.')
+        self.assertSent(['JOIN #foo'])
+
     def test_autojoin(self):
         bot = self.callFTU(autojoins=['#foo'])
 
