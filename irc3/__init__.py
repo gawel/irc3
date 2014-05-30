@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from collections import defaultdict
-from asyncio.queues import Queue
 from .dec import event
 from .dec import extend
 from .dec import plugin
@@ -11,10 +10,11 @@ from . import utils
 from . import rfc
 from .compat import string_types
 from .compat import text_type
+from .compat import asyncio
+from .compat import Queue
 import logging.config
 import logging
 import venusian
-import asyncio
 import signal
 import time
 import sys

@@ -9,6 +9,8 @@
 - The autojoin plugin now detach motd related events after trigerring one of
   them.
 
+- Fix latest trollius compat
+
 
 0.4.10 (2014-05-21)
 ===================

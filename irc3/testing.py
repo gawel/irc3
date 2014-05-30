@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from unittest import TestCase
 import irc3
 from irc3.compat import PY3
-import asyncio
+from irc3.compat import asyncio
 import os
 
 try:
@@ -135,9 +135,9 @@ class BotTestCase(TestCase):
         return request
 
     def patch_asyncio(self):
-        patcher = patch('asyncio.Task')
+        patcher = patch('irc3.compat.asyncio.Task')
         self.Task = patcher.start()
         self.addCleanup(patcher.stop)
-        patcher = patch('asyncio.get_event_loop')
+        patcher = patch('irc3.compat.asyncio.get_event_loop')
         patcher.start()
         self.addCleanup(patcher.stop)
