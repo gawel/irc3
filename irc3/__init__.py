@@ -182,7 +182,10 @@ class IrcBot(object):
                     self.events_re[e.iotype].insert(0, (regexp, e.cregexp))
                 else:
                     self.events_re[e.iotype].append((regexp, e.cregexp))
-            self.events[e.iotype][regexp].append(e)
+            if 'insert' in kwargs:
+                self.events[e.iotype][regexp].insert(0, e)
+            else:
+                self.events[e.iotype][regexp].append(e)
 
     def detach_events(self, *events):
         """Detach one or more events from the bot instance"""
