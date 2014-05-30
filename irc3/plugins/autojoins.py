@@ -27,6 +27,15 @@ class AutoJoins(object):
         self.channels = utils.as_list(self.bot.config.get('autojoins', []))
         self.handles = {}
         self.timeout = 240
+        self.events = (
+            irc3.event(irc3.rfc.RPL_ENDOFMOTD, self.autojoin),
+            irc3.event(irc3.rfc.ERR_NOMOTD, self.autojoin),
+        )
+
+    def connection_made(self):
+        # detach in case we lost connection before triggering the events
+        self.bot.detach_events(*self.events)
+        self.bot.attach_events(*self.events)
 
     def connection_lost(self):  # pragma: no cover
         for timeout, handle in self.handles.values():
@@ -48,17 +57,11 @@ class AutoJoins(object):
                 self.bot.log.info('Trying to join %s', channel)
             self.bot.join(channel)
 
-    @irc3.event(irc3.rfc.ERR_NOMOTD)
-    def on_no_motd(self, **kw):
-        self.autojoin(**kw)
-
-    @irc3.event(irc3.rfc.RPL_ENDOFMOTD)
-    def on_end_of_motd(self, **kw):
-        self.autojoin(**kw)
-
     def autojoin(self, **kw):
         """autojoin at the end of MOTD"""
         self.bot.config['nick'] = kw['me']
+        print('join')
+        self.bot.detach_events(*self.events)
         self.bot.recompile()
         self.join()
 

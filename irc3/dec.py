@@ -43,7 +43,7 @@ class event(object):
     venusian = venusian
 
     def __init__(self, regexp, callback=None, iotype='in',
-                 venusian_category=None):
+                 venusian_category='irc3.rfc1459'):
         try:
             re.compile(getattr(regexp, 're', regexp))
         except Exception as e:
@@ -51,7 +51,7 @@ class event(object):
         self.regexp = regexp
         self.iotype = iotype
         self.callback = callback
-        self.venusian_category = venusian_category or 'irc3.rfc1459'
+        self.venusian_category = venusian_category
 
     def async_callback(self, kwargs):  # pragma: no cover
         return self.callback(**kwargs)
@@ -79,8 +79,7 @@ class event(object):
             e = self.__class__(self.regexp, self.callback,
                                venusian_category=self.venusian_category,
                                iotype=self.iotype)
-            e.compile(bot.config)
-            bot.add_event(e)
+            bot.attach_events(e)
         info = self.venusian.attach(wrapped, callback,
                                     category=self.venusian_category)
         return wrapped

@@ -3,6 +3,12 @@
 
 - Fixed #9: The ``command`` plugin uses ``cmd``, not ``cmdchar``.
 
+- Rename ``add_event`` to ``attach_events`` and added ``detach_events``. This
+  allow to add/remove events on the fly.
+
+- The autojoin plugin now detach motd related events after trigerring one of
+  them.
+
 
 0.4.10 (2014-05-21)
 ===================

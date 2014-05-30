@@ -130,7 +130,7 @@ class IrcBot(object):
         if self.loop is None:
             self.loop = asyncio.get_event_loop()
 
-        self.events_re = {'in': [], 'out': {}}
+        self.events_re = {'in': [], 'out': []}
         self.events = {
             'in': defaultdict(list),
             'out': defaultdict(list)
@@ -172,11 +172,26 @@ class IrcBot(object):
                 events_re.append((regexp, e.cregexp))
             self.events_re[iotype] = events_re
 
-    def add_event(self, event):
-        regexp = getattr(event.regexp, 're', event.regexp)
-        if regexp not in self.events[event.iotype]:
-            self.events_re[event.iotype].append((regexp, event.cregexp))
-        self.events[event.iotype][regexp].append(event)
+    def attach_events(self, *events):
+        """Attach one or more events to the bot instance"""
+        for e in events:
+            e.compile(self.config)
+            regexp = getattr(e.regexp, 're', e.regexp)
+            if regexp not in self.events[e.iotype]:
+                self.events_re[e.iotype].append((regexp, e.cregexp))
+            self.events[e.iotype][regexp].append(e)
+
+    def detach_events(self, *events):
+        """Detach one or more events from the bot instance"""
+        for e in events:
+            regexp = getattr(e.regexp, 're', e.regexp)
+            if e in self.events[e.iotype].get(regexp, []):
+                self.events[e.iotype][regexp].remove(e)
+                if not self.events[e.iotype][regexp]:
+                    del self.events[e.iotype][regexp]
+                    events_re = self.events_re[e.iotype]
+                    events_re = [r for r in events_re if r[0] != regexp]
+                    self.events_re[e.iotype] = events_re
 
     def include(self, *modules, **kwargs):
         categories = kwargs.get('venusian_categories',
