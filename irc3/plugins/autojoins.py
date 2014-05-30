@@ -61,10 +61,9 @@ class AutoJoins(object):
     def autojoin(self, **kw):
         """autojoin at the end of MOTD"""
         self.bot.config['nick'] = kw['me']
-        print('join')
-        self.bot.detach_events(*self.events)
         self.bot.recompile()
         self.join()
+        self.bot.detach_events(*self.events)
 
     @irc3.event(irc3.rfc.KICK)
     def on_kick(self, mask, channel, target, **kwargs):
