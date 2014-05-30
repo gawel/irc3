@@ -172,13 +172,16 @@ class IrcBot(object):
                 events_re.append((regexp, e.cregexp))
             self.events_re[iotype] = events_re
 
-    def attach_events(self, *events):
+    def attach_events(self, *events, **kwargs):
         """Attach one or more events to the bot instance"""
         for e in events:
             e.compile(self.config)
             regexp = getattr(e.regexp, 're', e.regexp)
             if regexp not in self.events[e.iotype]:
-                self.events_re[e.iotype].append((regexp, e.cregexp))
+                if 'insert' in kwargs:
+                    self.events_re[e.iotype].insert(0, (regexp, e.cregexp))
+                else:
+                    self.events_re[e.iotype].append((regexp, e.cregexp))
             self.events[e.iotype][regexp].append(e)
 
     def detach_events(self, *events):

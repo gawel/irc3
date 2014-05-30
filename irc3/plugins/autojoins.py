@@ -28,14 +28,15 @@ class AutoJoins(object):
         self.handles = {}
         self.timeout = 240
         self.events = (
-            irc3.event(irc3.rfc.RPL_ENDOFMOTD, self.autojoin),
             irc3.event(irc3.rfc.ERR_NOMOTD, self.autojoin),
+            irc3.event(irc3.rfc.RPL_ENDOFMOTD, self.autojoin),
         )
 
     def connection_made(self):
         # detach in case we lost connection before triggering the events
         self.bot.detach_events(*self.events)
-        self.bot.attach_events(*self.events)
+        # insert motd events at the begining of the event list
+        self.bot.attach_events(insert=True, *self.events)
 
     def connection_lost(self):  # pragma: no cover
         for timeout, handle in self.handles.values():
