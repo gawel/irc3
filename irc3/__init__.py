@@ -35,9 +35,13 @@ class IrcConnection(asyncio.Protocol):
         self.closed = False
         self.queue = Queue()
 
-    def data_received(self, data):
+    def decode(self, data):
+        """Decode data with bot's encoding"""
         encoding = getattr(self, 'encoding', 'ascii')
-        data = data.decode(encoding, 'ignore')
+        return data.decode(encoding, 'ignore')
+
+    def data_received(self, data):
+        data = self.decode(data)
         if not self.queue.empty():
             data = self.queue.get_nowait() + data
         lines = data.split('\r\n')
@@ -45,10 +49,15 @@ class IrcConnection(asyncio.Protocol):
         for line in lines:
             self.factory.dispatch(line)
 
+    def encode(self, data):
+        """Encode data with bot's encoding"""
+        if isinstance(data, text_type):
+            data = data.encode(self.encoding)
+        return data
+
     def write(self, data):
         if data is not None:
-            if isinstance(data, text_type):
-                data = data.encode(self.encoding)
+            data = self.encode(data)
             if not data.endswith(b'\r\n'):
                 data = data + b'\r\n'
             self.transport.write(data)
@@ -102,14 +111,15 @@ class IrcBot(object):
         encoding='utf8',
         testing=False,
         async=True,
-        loop=None,
         max_length=512,
         version=version,
         url='https://irc3.readthedocs.org/',
         ctcp=dict(
             version='irc3 {version} - {url}',
             userinfo='{userinfo}',
-        )
+        ),
+        loop=None,
+        connection=IrcConnection,
     )
 
     def __init__(self, **config):
@@ -316,7 +326,8 @@ class IrcBot(object):
 
     nick = property(get_nick, set_nick, doc='nickname get/set')
 
-    def create_connection(self, protocol=IrcConnection):
+    def create_connection(self):
+        protocol = utils.maybedotted(self.config.connection)
         t = asyncio.Task(
             self.loop.create_connection(
                 protocol, self.config.host,
