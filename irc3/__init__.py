@@ -84,7 +84,7 @@ class IrcConnection(asyncio.Protocol):
 
 
 class IrcBot(object):
-    """The main class"""
+    """An IRC bot"""
 
     _pep8 = [event, extend, plugin, rfc, config]
     venusian = venusian
