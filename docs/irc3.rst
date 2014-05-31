@@ -11,6 +11,8 @@ IrcBot
 .. autoclass:: IrcBot
    :members:
 
+    .. autoattribute:: defaults
+
 IrcConnection
 =============
 
