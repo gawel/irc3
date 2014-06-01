@@ -81,6 +81,7 @@ class TestBot(BotTestCase):
         bot.include('irc3.plugins.core')
         bot.notify('connection_made')
         bot.dispatch(':srv 005 foo STATUSMSG=+%@ ETRACE :are supported')
+        bot.dispatch(':srv 376 foo :End of MOTD')
         self.assertEqual(bot.config['server_config']['STATUSMSG'], '+%@')
         self.assertTrue(bot.config['server_config']['ETRACE'])
 

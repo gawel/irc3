@@ -47,8 +47,7 @@ class Channel(set):
     .. code-block:: python
 
         >>> channel = Channel()
-        >>> channel.add('gawel')
-        >>> channel.modes['@'].add('gawel')
+        >>> channel.add('gawel', modes='@')
         >>> 'gawel' in channel
         True
         >>> 'gawel' in channel.modes['@']
@@ -63,6 +62,11 @@ class Channel(set):
     def __init__(self):
         set.__init__(self)
         self.modes = defaultdict(set)
+
+    def add(self, item, modes=''):
+        set.add(self, item)
+        for mode in modes:
+            self.modes[mode].add(item)
 
     def remove(self, item):
         set.remove(self, item)
@@ -139,9 +143,7 @@ class Userlist(object):
         channel = self.channels[channel]
         for item in nicknames:
             nick = item.strip(statusmsg)
-            channel.add(nick)
-            for mode in item[:-len(nick)]:
-                channel.modes[mode].add(nick)
+            channel.add(nick, modes=item[:-len(nick)])
             self.nicks[nick] = nick
 
     @event(rfc.RPL_WHOREPLY)
