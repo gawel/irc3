@@ -30,26 +30,36 @@ class Core(object):
         self.max_lag = int(self.bot.config.get('max_lag'))
         self.reconn_handle = None
         self.ping_handle = None
-        self.events = (
+        self.before_connect_events = [
+            event(rfc.CONNECTED, self.connected),
             event(r"^:\S+ 005 \S+ (?P<data>.+) :\S+.*",
                   self.set_config),
-            event(rfc.CONNECTED, self.connected),
-        )
+        ]
 
     def connection_made(self):
         # handle server config
         config = self.bot.defaults['server_config'].copy()
         self.bot.config['server_config'] = config
-        self.bot.detach_events(*self.events)
-        self.bot.attach_events(insert=True, *self.events)
+        self.bot.detach_events(*self.before_connect_events)
+        self.bot.attach_events(insert=True, *self.before_connect_events)
 
         # ping/ping
         self.connection_made_at = self.bot.loop.time()
         self.pong(event='CONNECT', data='')
 
     def connected(self, **kwargs):
+        """triger the server_ready event"""
         self.bot.log.info('Server config: %r', self.bot.server_config)
-        self.bot.detach_events(*self.events)
+
+        # recompile when I'm sure of my nickname
+        self.bot.config['nick'] = kwargs['me']
+        self.bot.recompile()
+
+        # Let all plugins know that server can handle commands
+        self.bot.notify('server_ready')
+
+        # detach useless events
+        self.bot.detach_events(*self.before_connect_events)
 
     def reconnect(self):  # pragma: no cover
         self.bot.log.info(

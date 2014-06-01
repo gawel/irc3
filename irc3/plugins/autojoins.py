@@ -22,25 +22,23 @@ from irc3 import utils
 @irc3.plugin
 class AutoJoins(object):
 
+    requires = [
+        'irc3.plugins.core',
+    ]
+
     def __init__(self, bot):
         self.bot = bot
         self.channels = utils.as_list(self.bot.config.get('autojoins', []))
         self.handles = {}
         self.timeout = 240
-        self.events = (
-            irc3.event(irc3.rfc.CONNECTED, self.autojoin),
-        )
-
-    def connection_made(self):
-        # detach in case we lost connection before triggering the events
-        self.bot.detach_events(*self.events)
-        # insert motd events at the begining of the event list
-        self.bot.attach_events(insert=True, *self.events)
 
     def connection_lost(self):  # pragma: no cover
         for timeout, handle in self.handles.values():
             handle.cancel()
         self.handles = {}
+
+    def server_ready(self):
+        self.join()
 
     def join(self, channel=None):
         if channel is None:
@@ -56,13 +54,6 @@ class AutoJoins(object):
             else:
                 self.bot.log.info('Trying to join %s', channel)
             self.bot.join(channel)
-
-    def autojoin(self, **kw):
-        """autojoin at the end of MOTD"""
-        self.bot.config['nick'] = kw['me']
-        self.bot.recompile()
-        self.join()
-        self.bot.detach_events(*self.events)
 
     @irc3.event(irc3.rfc.KICK)
     def on_kick(self, mask, channel, target, **kwargs):
