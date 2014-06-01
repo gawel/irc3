@@ -30,7 +30,7 @@ token_secret=token_secret
 def call_later(i, func, *args):
     if func.__name__ in dir(IrcBot):
         func(*args)
-        return asyncio.Handle(func, args, None)
+    return asyncio.Handle(func, args, None)
 
 
 def call_soon(func, *args):

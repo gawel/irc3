@@ -31,7 +31,7 @@ class CTCP(object):
     """ctcp replies"""
 
     def __init__(self, bot):
-        maxsize = int(bot.config.get('ctcp_max_replies', 5))
+        maxsize = int(bot.config.get('ctcp_max_replies', 3))
         self.queue = Queue(loop=bot.loop, maxsize=maxsize)
         self.handle = None
         self.event = irc3.event(irc3.rfc.CTCP, self.on_ctcp)
@@ -39,31 +39,42 @@ class CTCP(object):
         self.bot = bot
 
     def send_replies(self):
-        if self.queue.full():  # pragma: no cover
-            # ignore requests when the queue is full / flood
-            self.queue = Queue(loop=self.bot.loop)
-        else:
-            while not self.queue.empty():
-                target, ctcp = self.queue.get_nowait()
-                data = self.bot.config.ctcp[ctcp].format(now=datetime.now(),
-                                                         **self.bot.config)
-                self.bot.ctcp_reply(target, '%s %s' % (ctcp.upper(), data))
+        replies = []
+        while not self.queue.empty():
+            target, ctcp = self.queue.get_nowait()
+            data = self.bot.config.ctcp[ctcp].format(now=datetime.now(),
+                                                     **self.bot.config)
+            replies.append((target, '%s %s' % (ctcp.upper(), data)))
+        if replies:
+            self.bot.call_many(self.bot.ctcp_reply, replies)
         self.handle = None
+
+    def handle_flood(self):
+        self.bot.log.warn('CTCP Flood detected. '
+                          'Ignoring requests for 30s')
+        # reset queue
+        self.queue = Queue(loop=self.bot.loop)
+
+        # cancel handle to ignore current queue
+        if self.handle is not None:
+            self.handle.cancel()
+        self.handle = None
+
+        # ignore events for 30s
+        self.bot.detach_events(self.event)
+        self.bot.loop.call_later(30, self.bot.attach_events, self.event)
 
     def on_ctcp(self, mask=None, target=None, ctcp=None, **kw):
         lctcp = ctcp.lower()
         if lctcp in self.bot.config.ctcp:
             try:
                 self.queue.put_nowait((mask.nick, lctcp))
-            except QueueFull:  # pragma: no cover
-                self.bot.log.warn('CTCP Flood detected. '
-                                  'Ignoring requests for 30s')
-                self.bot.detach_events(self.event)
-                self.bot.loop.call_later(
-                    30, self.bot.attach_events, self.event)
+            except QueueFull:
+                self.handle_flood()
             else:
-                if self.bot.config.testing:
-                    self.send_replies()
-                elif self.handle is None:  # pragma: no cover
+                if self.handle is None:
                     self.handle = self.bot.loop.call_later(
                         2, self.send_replies)
+                if not self.bot.config.async:
+                    # used for testing
+                    self.send_replies()
