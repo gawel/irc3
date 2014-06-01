@@ -1,7 +1,9 @@
-0.4.12 (unreleased)
+0.5.0 (unreleased)
 ===================
 
 - Added ``bot.kick()`` and ``bot.mode()``
+
+- Rewrite ctcp plugin so we can ignore flood requests
 
 - Trigger ``{plugin}.server_ready()`` at the end of MOTD
 

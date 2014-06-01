@@ -12,6 +12,8 @@ else:  # pragma: no cover
 try:  # pragma: no cover
     import asyncio
     from asyncio.queues import Queue
+    from asyncio.queues import QueueFull  # NOQA
 except ImportError:  # pragma: no cover
     import trollius as asyncio  # NOQA
     from trollius.queues import Queue  # NOQA
+    from trollius.queues import QueueFull  # NOQA
