@@ -3,6 +3,8 @@
 
 - Fixed #9: The ``command`` plugin uses ``cmd``, not ``cmdchar``.
 
+- Fixed #10. Store server config. Use STATUSMSG config if any in userlist
+
 - Rename ``add_event`` to ``attach_events`` and added ``detach_events``. This
   allow to add/remove events on the fly.
 

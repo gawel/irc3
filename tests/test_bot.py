@@ -76,6 +76,14 @@ class TestBot(BotTestCase):
         bot.ctcp('gawel', 'VERSION')
         self.assertSent(['PRIVMSG gawel :\x01VERSION\x01'])
 
+    def test_server_config(self):
+        bot = self.callFTU()
+        bot.include('irc3.plugins.core')
+        bot.notify('connection_made')
+        bot.dispatch(':srv 005 foo STATUSMSG=+%@ ETRACE :are supported')
+        self.assertEqual(bot.config['server_config']['STATUSMSG'], '+%@')
+        self.assertTrue(bot.config['server_config']['ETRACE'])
+
     def test_ping(self):
         bot = self.callFTU()
         bot.include('irc3.plugins.core')

@@ -28,8 +28,7 @@ class AutoJoins(object):
         self.handles = {}
         self.timeout = 240
         self.events = (
-            irc3.event(irc3.rfc.ERR_NOMOTD, self.autojoin),
-            irc3.event(irc3.rfc.RPL_ENDOFMOTD, self.autojoin),
+            irc3.event(irc3.rfc.CONNECTED, self.autojoin),
         )
 
     def connection_made(self):
