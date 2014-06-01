@@ -107,7 +107,6 @@ class IrcBot(object):
         ssl=False,
         timeout=320,
         max_lag=60,
-        cmd='!',
         encoding='utf8',
         testing=False,
         async=True,
@@ -295,8 +294,12 @@ class IrcBot(object):
         """callback is run with each arg but run a call per second"""
         if isinstance(callback, string_types):
             callback = getattr(self, callback)
+        i = 0
         for i, arg in enumerate(args):
             self.loop.call_later(i, callback, *arg)
+        f = asyncio.Future()
+        self.loop.call_later(i + 1, f.set_result, True)
+        return f
 
     def privmsg(self, target, message):
         """send a privmsg to target"""

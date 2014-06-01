@@ -69,6 +69,10 @@ class TestCommands(BotTestCase):
         bot.dispatch(':bar!user@host PRIVMSG foo :$ping')
         self.assertSent(['NOTICE bar :PONG bar!'])
 
+        bot = self.callFTU(**{'cmd': '\$'})
+        bot.dispatch(':bar!user@host PRIVMSG foo :$ping')
+        self.assertSent(['NOTICE bar :PONG bar!'])
+
     def test_private_command(self):
         bot = self.callFTU()
         bot.dispatch(':bar!user@host PRIVMSG nono :!ping')
@@ -79,6 +83,19 @@ class TestCommands(BotTestCase):
 
     def test_help_command(self):
         bot = self.callFTU()
+        bot.dispatch(':bar!user@host PRIVMSG #chan :!help ping')
+        self.assertSent(['PRIVMSG #chan :ping/pong', 'PRIVMSG #chan :!ping'])
+
+    def test_antiflood(self):
+        bot = self.callFTU(**{self.name: dict(antiflood=True)})
+        bot.dispatch(':bar!user@host PRIVMSG #chan :!help ping')
+        self.assertSent(['PRIVMSG #chan :ping/pong', 'PRIVMSG #chan :!ping'])
+
+        bot.dispatch(':bar!user@host PRIVMSG #chan :!help ping')
+        self.assertSent(["NOTICE bar :Please be patient and don't flood me"])
+
+        plugin = bot.get_plugin(command.Commands)
+        plugin.handles[('help', '#chan')].set_result(True)
         bot.dispatch(':bar!user@host PRIVMSG #chan :!help ping')
         self.assertSent(['PRIVMSG #chan :ping/pong', 'PRIVMSG #chan :!ping'])
 

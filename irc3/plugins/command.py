@@ -83,6 +83,7 @@ Mask based guard using permissions::
 '''
 from irc3.compat import string_types
 from irc3 import utils
+from collections import defaultdict
 import functools
 import venusian
 import fnmatch
@@ -175,10 +176,18 @@ class Commands(dict):
         self.config = config = bot.config.get(__name__, {})
         self.log = logging.getLogger(__name__)
         self.log.debug('Config: %r', config)
+
+        if 'cmd' in bot.config:  # in case of
+            config['cmd'] = bot.config['cmd']
         bot.config['cmd'] = self.cmd = config.get('cmd', '!')
+
+        self.antiflood = self.config.get('antiflood', False)
+
         guard = utils.maybedotted(config.get('guard', free_policy))
         self.log.debug('Guard: %s', guard.__name__)
         self.guard = guard(bot)
+
+        self.handles = defaultdict(Done)
 
     @irc3.event((r':(?P<mask>\S+) PRIVMSG (?P<target>\S+) '
                  r':{cmd}(?P<cmd>\w+)(\s(?P<data>[-0-9A-z-#-&]+.*)|$)'))
@@ -208,14 +217,20 @@ class Commands(dict):
         except docopt.DocoptExit:
             self.bot.privmsg(to, 'Invalid arguments.')
         else:
-            msgs = self.guard(predicates, meth, mask, target, args)
-            if msgs is not None:
-                def iterator(msgs):
-                    for msg in msgs:
-                        yield to, msg
-                if isinstance(msgs, string_types):
-                    msgs = [msgs]
-                self.bot.call_many('privmsg', iterator(msgs))
+            uid = (meth.__name__, to)
+            if not self.handles[uid].done() and self.antiflood:
+                self.bot.notice(mask.nick,
+                                "Please be patient and don't flood me")
+            else:
+                msgs = self.guard(predicates, meth, mask, target, args)
+                if msgs is not None:
+                    def iterator(msgs):
+                        for msg in msgs:
+                            yield to, msg
+                    if isinstance(msgs, string_types):
+                        msgs = [msgs]
+                    handle = self.bot.call_many('privmsg', iterator(msgs))
+                    self.handles[uid] = handle
 
     @command(permission='view')
     def help(self, mask, target, args):
@@ -250,6 +265,12 @@ class Commands(dict):
 
     def __repr__(self):
         return '<Commands %s>' % sorted([self.cmd + k for k in self.keys()])
+
+
+class Done(object):
+
+    def done(self):
+        return True
 
 
 @command(permission='admin', public=False)
