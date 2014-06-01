@@ -1,4 +1,4 @@
-0.4.11 (unreleased)
+0.4.11 (2014-06-01)
 ===================
 
 - Fixed #9: The ``command`` plugin uses ``cmd``, not ``cmdchar``.
