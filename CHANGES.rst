@@ -1,7 +1,9 @@
 0.4.12 (unreleased)
 ===================
 
-- Nothing changed yet.
+- Added ``bot.kick()`` and ``bot.mode()``
+
+- Trigger ``{plugin}.server_ready()`` at the end of MOTD
 
 
 0.4.11 (2014-06-01)

@@ -117,6 +117,7 @@ class IrcBot(object):
         ctcp=dict(
             version='irc3 {version} - {url}',
             userinfo='{userinfo}',
+            time='{now:%c}',
         ),
         # freenode config as default for testing
         server_config=dict(
@@ -321,6 +322,10 @@ class IrcBot(object):
         if target and message:
             self.send('NOTICE %s :\x01%s\x01' % (target, message))
 
+    def mode(self, target, *data):
+        """set user or channel mode"""
+        self.send('MODE %s %s' % (target, ' '.join(data)))
+
     def join(self, target):
         """join a channel"""
         self.send('JOIN %s' % target)
@@ -330,6 +335,12 @@ class IrcBot(object):
         if reason:
             target += ' :' + reason
         self.send('PART %s' % target)
+
+    def kick(self, channel, target, reason=None):
+        """kick target from channel"""
+        if reason:
+            target += ' :' + reason
+        self.send('KICK %s %s' % (channel, target))
 
     def quit(self, reason=None):
         """disconnect"""

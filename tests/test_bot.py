@@ -102,6 +102,18 @@ class TestBot(BotTestCase):
         bot.dispatch(':h.net 432 * bar :xx')
         self.assertSent(['NICK bar_'])
 
+    def test_mode(self):
+        bot = self.callFTU()
+        bot.mode('#foo', '+v', 'bar')
+        self.assertSent(['MODE #foo +v bar'])
+
+    def test_kick(self):
+        bot = self.callFTU()
+        bot.kick('#foo', 'bar')
+        self.assertSent(['KICK #foo bar'])
+        bot.kick('#foo', 'bar', 'bye')
+        self.assertSent(['KICK #foo bar :bye'])
+
     def test_part(self):
         bot = self.callFTU()
         bot.part('#foo')
