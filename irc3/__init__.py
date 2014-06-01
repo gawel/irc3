@@ -118,6 +118,7 @@ class IrcBot(object):
             version='irc3 {version} - {url}',
             userinfo='{userinfo}',
         ),
+        server_config=dict(STATUSMSG='~+%&@'),
         loop=None,
         connection=IrcConnection,
     )
@@ -156,6 +157,18 @@ class IrcBot(object):
             self.include('irc3.plugins.autojoins')
 
         self.recompile()
+
+    @property
+    def server_config(self):
+        """return server configuration (rfc rpl 005)::
+
+            >>> bot = IrcBot()
+            >>> print(bot.server_config['STATUSMSG'])
+            ~+%&@
+
+        The real values are only available after the server sent them.
+        """
+        return self.config.server_config
 
     def get_plugin(self, ob):
         if isinstance(ob, str):

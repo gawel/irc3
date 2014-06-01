@@ -38,7 +38,8 @@ class Core(object):
 
     def connection_made(self):
         # handle server config
-        self.bot.config['server_config'] = {}
+        config = self.bot.defaults['server_config'].copy()
+        self.bot.config['server_config'] = config
         self.detach_events()
         self.bot.attach_events(insert=True, *self.events)
 

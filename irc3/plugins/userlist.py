@@ -84,8 +84,7 @@ class Userlist(object):
 
     @event('^:\S+ 353 [^&#]+(?P<channel>\S+) :(?P<nicknames>.*)')
     def names(self, channel=None, nicknames=None):
-        config = self.bot.config.get('server_config', {})
-        statusmsg = config.get('STATUSMSG', '~+%&@')
+        statusmsg = self.bot.server_config['STATUSMSG']
         nicknames = nicknames.split(' ')
         for nick in nicknames:
             nick = nick.strip(statusmsg)
