@@ -13,10 +13,6 @@
 
 - Trigger ``{plugin}.server_ready()`` at the end of MOTD
 
-
-0.4.11 (2014-06-01)
-===================
-
 - Fixed #9: The ``command`` plugin uses ``cmd``, not ``cmdchar``.
 
 - Fixed #10. Store server config. Use STATUSMSG config if any in ``userlist``
