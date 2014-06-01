@@ -22,7 +22,7 @@ PONG = raw.new(
     'PONG',
     r':(?P<server>\S+) PONG (?P=server) :(?P<data>.*)')
 
-NEW_NICK = raw.new('NEW_NICK', r':(?P<nick>\S+) NICK (?P<new_nick>\S+)')
+NEW_NICK = raw.new('NEW_NICK', r':(?P<nick>\S+) NICK :?(?P<new_nick>\S+)')
 
 JOIN = raw.new('JOIN', r':(?P<mask>\S+) JOIN (?P<channel>\S+)')
 PART = raw.new('PART',
