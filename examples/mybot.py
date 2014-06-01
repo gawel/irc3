@@ -21,6 +21,15 @@ class MyPlugin:
         self.bot = bot
         self.log = self.bot.log
 
+    def connection_made(self):
+        """triggered when connection is up"""
+
+    def server_ready(self):
+        """triggered after the server sent the MOTD (require core plugin)"""
+
+    def connection_lost(self):
+        """triggered when connection is lost"""
+
     @irc3.event(irc3.rfc.JOIN)
     def welcome(self, mask, channel):
         """Welcome people who join a channel"""
