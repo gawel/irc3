@@ -3,15 +3,17 @@
 
 - Fixed #9: The ``command`` plugin uses ``cmd``, not ``cmdchar``.
 
-- Fixed #10. Store server config. Use STATUSMSG config if any in userlist
+- Fixed #10. Store server config. Use STATUSMSG config if any in ``userlist``
+
+- ``userlist`` plugin now also store user modes per channel.
 
 - Rename ``add_event`` to ``attach_events`` and added ``detach_events``. This
   allow to add/remove events on the fly.
 
-- The autojoin plugin now detach motd related events after trigerring one of
+- The autojoin plugin now detach motd related events after triggering one of
   them.
 
-- Fix latest trollius compat
+- Fix compatibility with trollius 0.3
 
 
 0.4.10 (2014-05-21)
