@@ -118,7 +118,13 @@ class IrcBot(object):
             version='irc3 {version} - {url}',
             userinfo='{userinfo}',
         ),
-        server_config=dict(STATUSMSG='~+%&@'),
+        # freenode config as default for testing
+        server_config=dict(
+            STATUSMSG='+@',
+            PREFIX='(ov)@+',
+            CHANTYPES='#',
+            CHANMODES='eIbq,k,flj,CFLMPQScgimnprstz',
+        ),
         loop=None,
         connection=IrcConnection,
     )
@@ -164,7 +170,7 @@ class IrcBot(object):
 
             >>> bot = IrcBot()
             >>> print(bot.server_config['STATUSMSG'])
-            ~+%&@
+            +@
 
         The real values are only available after the server sent them.
         """

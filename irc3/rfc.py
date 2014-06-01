@@ -38,8 +38,14 @@ JOIN_PART_QUIT = raw.new(
 KICK = raw.new(
     'KICK',
     (r':(?P<mask>\S+) '
-     r'(?P<event>KICK)\s*(?P<channel>\S+)\s*(?P<target>\S+)'
+     r'(?P<event>KICK)\s+(?P<channel>\S+)\s*(?P<target>\S+)'
      r'(\s+:(?P<data>.*)|$)'))
+
+MODE = raw.new(
+    'MODE',
+    (r':(?P<mask>\S+) '
+     r'(?P<event>MODE)\s+(?P<target>\S+)\s+'
+     r'(?P<modes>\S+)(\s+(?P<data>.*)|$)'))
 
 MY_PRIVMSG = raw.new(
     'MY_PRIVMSG',

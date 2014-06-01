@@ -19,13 +19,24 @@ class TestUserList(BotTestCase):
         self.assertIn('bar', plugin.channels['#bar'])
         self.assertIn('bar', plugin.nicks)
 
+        bot.dispatch(':gawel!u@h MODE #foo +v-v+v bar bar bar')
+        self.assertIn('bar', plugin.channels['#foo'].modes['+'])
+
         bot.dispatch(':foo!u@b KICK #foo bar :bastard!')
-        self.assertIn('bar', plugin.channels['#bar'])
-        self.assertIn('bar', plugin.nicks)
+        self.assertNotIn('bar', plugin.channels['#foo'])
+        self.assertNotIn('bar', plugin.channels['#foo'].modes['+'])
+
+        bot.dispatch(':gawel!u@h MODE #foo +c')  # coverage
+        bot.dispatch(':gawel!u@h MODE gawel')  # coverage
+
+        bot.dispatch(':gawel!u@h MODE #bar +v bar')
+        self.assertIn('bar', plugin.channels['#bar'].modes['+'])
 
         bot.dispatch(':bar!u@b NICK babar')
         self.assertIn('babar', plugin.nicks)
         self.assertIn('babar', plugin.channels['#bar'])
+        self.assertIn('babar', plugin.channels['#bar'].modes['+'])
+        self.assertNotIn('bar', plugin.channels['#bar'].modes['+'])
 
         bot.dispatch(':babar!u@b QUIT :lksdlds')
         self.assertNotIn('babar', plugin.nicks)
@@ -38,6 +49,7 @@ class TestUserList(BotTestCase):
         bot.dispatch(':serv 353 irc3 = #chan2 :bar @gawel')
         self.assertIn('bar', plugin.channels['#chan2'])
         self.assertIn('gawel', plugin.channels['#chan2'])
+        self.assertIn('gawel', plugin.channels['#chan2'].modes['@'])
         self.assertIn('gawel', plugin.nicks)
 
         bot.notify('connection_lost')
@@ -48,8 +60,12 @@ class TestUserList(BotTestCase):
         self.assertEqual(len(plugin.nicks), 2)
         self.assertEqual(len(plugin.channels), 1)
 
+        bot.dispatch(':gawel!u@h MODE #chan2 +v bar')
+        self.assertIn('bar', plugin.channels['#chan2'].modes['+'])
+
         bot.dispatch(':bar!u@h PART #chan2')
         self.assertEqual(len(plugin.nicks), 1)
+        self.assertNotIn('bar', plugin.channels['#chan2'].modes['+'])
 
         bot.dispatch(':foo!u@h PART #chan2')
         self.assertNotIn('#chan2', plugin.channels)

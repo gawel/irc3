@@ -211,6 +211,28 @@ def as_channel(value):
     return value
 
 
+def parse_modes(modes, targets=None, noargs=''):
+    """Parse channel modes:
+
+    .. code-block:: python
+
+        >>> parse_modes('+c-n', noargs='cn')
+        [('+', 'c', None), ('-', 'n', None)]
+        >>> parse_modes('+c-v', ['gawel'], noargs='c')
+        [('+', 'c', None), ('-', 'v', 'gawel')]
+    """
+    if not targets:
+        targets = []
+    cleaned = []
+    for mode in modes:
+        if mode in '-+':
+            char = mode
+            continue
+        target = targets.pop(0) if mode not in noargs else None
+        cleaned.append((char, mode, target))
+    return cleaned
+
+
 def maybedotted(name):
     """Resolve dotted names:
 

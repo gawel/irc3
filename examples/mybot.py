@@ -10,6 +10,13 @@ class MyPlugin:
     """A plugin is a class which take the IrcBot as argument
     """
 
+    requires = [
+        'irc3.plugins.core',
+        'irc3.plugins.userlist',
+        'irc3.plugins.command',
+        'irc3.plugins.human',
+    ]
+
     def __init__(self, bot):
         self.bot = bot
         self.log = self.bot.log
@@ -32,11 +39,29 @@ class MyPlugin:
         """
         self.bot.privmsg(mask.nick, ' '.join(args['<words>']))
 
+    @command
+    def stats(self, mask, target, args):
+        """Show stats of the channel using the userlist plugin
+
+            %%stats [<channel>]
+        """
+        if args['<channel>']:
+            channel = args['<channel>']
+            target = mask.nick
+        else:
+            channel = target
+        if channel in self.bot.channels:
+            channel = self.bot.channels[channel]
+            message = '{0} users'.format(len(channel))
+            for mode, nicknames in sorted(channel.modes.items()):
+                message += ' - {0}({1})'.format(mode, len(nicknames))
+            self.bot.privmsg(target, message)
+
     @irc3.extend
-    def my_usefull_command(self):
+    def my_usefull_method(self):
         """The extend decorator will allow you to call::
 
-            bot.my_usefull_command()
+            bot.my_usefull_method()
 
         """
 

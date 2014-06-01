@@ -31,23 +31,24 @@ class Core(object):
         self.reconn_handle = None
         self.ping_handle = None
         self.events = (
-            event(r"^:(?P<srv>\S+) 005 (?P<me>\S+) (?P<data>.+) :\S+",
+            event(r"^:\S+ 005 \S+ (?P<data>.+) :\S+.*",
                   self.set_config),
-            event(rfc.CONNECTED, self.detach_events),
+            event(rfc.CONNECTED, self.connected),
         )
 
     def connection_made(self):
         # handle server config
         config = self.bot.defaults['server_config'].copy()
         self.bot.config['server_config'] = config
-        self.detach_events()
+        self.bot.detach_events(*self.events)
         self.bot.attach_events(insert=True, *self.events)
 
         # ping/ping
         self.connection_made_at = self.bot.loop.time()
         self.pong(event='CONNECT', data='')
 
-    def detach_events(self, **kwargs):
+    def connected(self, **kwargs):
+        self.bot.log.info('Server config: %r', self.bot.server_config)
         self.bot.detach_events(*self.events)
 
     def reconnect(self):  # pragma: no cover
