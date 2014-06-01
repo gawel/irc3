@@ -1532,6 +1532,19 @@ Example:
 Misc
 ====
 
+CONNECTED
+---------
+
+Match ``^:(?P<srv>\S+) (376|422) (?P<me>\S+) :(?P<data>.*)``
+
+Example:
+
+.. code-block:: python
+
+    @irc3.event(rfc.CONNECTED)
+    def myevent(bot):
+        # do something
+
 CTCP
 ----
 
@@ -1574,13 +1587,26 @@ Example:
 KICK
 ----
 
-Match ``:(?P<mask>\S+) (?P<event>KICK)\s*(?P<channel>\S+)\s*(?P<target>\S+)(\s+:(?P<data>.*)|$)``
+Match ``:(?P<mask>\S+) (?P<event>KICK)\s+(?P<channel>\S+)\s*(?P<target>\S+)(\s+:(?P<data>.*)|$)``
 
 Example:
 
 .. code-block:: python
 
     @irc3.event(rfc.KICK)
+    def myevent(bot):
+        # do something
+
+MODE
+----
+
+Match ``:(?P<mask>\S+) (?P<event>MODE)\s+(?P<target>\S+)\s+(?P<modes>\S+)(\s+(?P<data>.*)|$)``
+
+Example:
+
+.. code-block:: python
+
+    @irc3.event(rfc.MODE)
     def myevent(bot):
         # do something
 
@@ -1600,7 +1626,7 @@ Example:
 NEW_NICK
 --------
 
-Match ``:(?P<nick>\S+) NICK (?P<new_nick>\S+)``
+Match ``:(?P<nick>\S+) NICK :?(?P<new_nick>\S+)``
 
 Example:
 

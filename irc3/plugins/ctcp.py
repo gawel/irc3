@@ -7,11 +7,18 @@ __doc__ = '''
 
 ..
     >>> from testing import IrcBot
+    >>> from testing import ini2config
 
 Usage::
 
-    >>> bot = IrcBot(ctcp=dict(foo='bar'), ctcp_max_replies=5)
-    >>> bot.include('irc3.plugins.ctcp')
+    >>> config = ini2config("""
+    ... [bot]
+    ... includes =
+    ...     irc3.plugins.ctcp
+    ... [ctcp]
+    ... foo = bar
+    ... """)
+    >>> bot = IrcBot(**config)
 
 Try to send a ``CTCP FOO``::
 

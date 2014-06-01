@@ -129,8 +129,8 @@ class IrcBot(object):
         connection=IrcConnection,
     )
 
-    def __init__(self, **config):
-        self.config = utils.Config(dict(self.defaults, **config))
+    def __init__(self, *ini, **config):
+        self.config = utils.Config(dict(self.defaults, *ini, **config))
         logging.config.dictConfig(self.logging_config)
         self.log = logging.getLogger('irc3.' + self.nick)
         self.original_nick = self.nick

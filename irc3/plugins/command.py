@@ -10,7 +10,8 @@ Introduce a ``@command`` decorator
 
 The decorator use `docopts <http://docopt.org/>`_ to parse command arguments.
 
-Example:
+Usage
+=====
 
 Create a python module with some commands:
 
@@ -20,6 +21,7 @@ Create a python module with some commands:
     >>> import sys
     >>> sys.path.append('examples')
     >>> from testing import IrcBot
+    >>> from testing import ini2config
 
 And register it::
 
@@ -41,6 +43,9 @@ When a command is not public, you can't use it on a channel::
     >>> bot.test(':gawel!user@host PRIVMSG #chan :!adduser foo pass')
     PRIVMSG gawel :You can only use the 'adduser' command in private.
 
+Guard
+=====
+
 You can use a guard to prevent untrusted users to run some commands. The
 :class:`free_policy` is used by default.
 
@@ -51,34 +56,45 @@ There is two builtin policy:
 
 .. autoclass:: mask_based_policy
 
-Guard usage::
-
-    >>> config = {
-    ...     'irc3.plugins.command': {'guard': mask_based_policy},
-    ...     'irc3.plugins.command.masks': ['gawel!*@*']}
-    >>> bot = IrcBot(**config)
-    >>> bot.include('irc3.plugins.command')  # register the plugin
-    >>> bot.include('mycommands')            # register your commands
-    >>> bot.test(':foo!u@h PRIVMSG #chan :!echo bar')
-    PRIVMSG foo :You are not allowed to use the 'echo' command
-    >>> bot.test(':gawel!u@h PRIVMSG #chan :!echo bar')
-    PRIVMSG gawel :bar
-
 Mask based guard using permissions::
 
-    >>> config = {
-    ...     'nick': 'nono',
-    ...     'irc3.plugins.command': {'guard': mask_based_policy},
-    ...     'irc3.plugins.command.masks': {
-    ...     'gawel!*@*': ['all_permissions'],
-    ...     'foo!*@*': ['help'],
-    ... }}
+    >>> config = ini2config("""
+    ... [bot]
+    ... includes =
+    ...     irc3.plugins.command
+    ...     mycommands
+    ... [irc3.plugins.command]
+    ... guard = irc3.plugins.command.mask_based_policy
+    ... [irc3.plugins.command.masks]
+    ... gawel!*@* = all_permissions
+    ... foo!*@* = help
+    ... """)
     >>> bot = IrcBot(**config)
-    >>> bot.include('irc3.plugins.command')  # register the plugin
+
+foo is allowed to use command without permissions::
+
+    >>> bot.test(':foo!u@h PRIVMSG nono :!echo got the power')
+    PRIVMSG foo :got the power
+
+foo is not allowed to use command except those with the help permission::
+
     >>> bot.test(':foo!u@h PRIVMSG nono :!ping')
     PRIVMSG foo :You are not allowed to use the 'ping' command
+
+gawel is allowed::
+
     >>> bot.test(':gawel!u@h PRIVMSG nono :!ping')
     NOTICE gawel :PONG gawel!
+
+Available options
+=================
+
+.. code-block:: ini
+
+    [irc3.plugins.command]
+    cmd = !
+    antiflood = true
+    guard = irc3.plugins.command.mask_based_policy
 
 '''
 from irc3.compat import string_types

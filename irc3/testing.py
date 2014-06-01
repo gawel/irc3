@@ -4,6 +4,7 @@ from unittest import TestCase
 import irc3
 from irc3.compat import PY3
 from irc3.compat import asyncio
+import tempfile
 import os
 
 try:
@@ -25,6 +26,16 @@ secret=secret
 token=token
 token_secret=token_secret
 """
+
+
+def ini2config(data):
+    if PY3:
+        data = data.encode('utf8')
+    with tempfile.NamedTemporaryFile(prefix='irc3-') as fd:
+        fd.write(data)
+        fd.flush()
+        data = irc3.utils.parse_config(fd.name)
+    return data
 
 
 def call_later(i, func, *args):
