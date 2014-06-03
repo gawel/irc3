@@ -127,6 +127,7 @@ class IrcBot(object):
         ),
         loop=None,
         connection=IrcConnection,
+        categories=[]
     )
 
     def __init__(self, *ini, **config):
@@ -152,6 +153,8 @@ class IrcBot(object):
             'in': defaultdict(list),
             'out': defaultdict(list)
         }
+
+        self.venusian_categories.extend(self.config.get('categories'))
 
         self.plugins = {}
         self.includes = set()
