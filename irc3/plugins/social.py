@@ -87,6 +87,7 @@ class Social(object):
     conn = dict(
     )
 
+    default_network = 'twitter'
     networks = dict(
         twitter_stream=dict(
             adapter=TwitterAdapter,
@@ -111,14 +112,12 @@ class Social(object):
         self.config = bot.config.get(__name__, {})
         self.conns = irc3.utils.Config()
         for name, config in self.networks.copy().items():
-            if 'twitter' in name:
-                factory = self.twitter_factory
-            conn = factory(config.copy())
+            conn = self.twitter_factory(name, config.copy())
             if conn:
                 self.conns[name] = conn
                 self.bot.log.info('%s initialized', name)
 
-    def twitter_factory(self, config):
+    def twitter_factory(self, name, config):
         try:
             auth = irc3.utils.maybedotted(config.pop('auth_factory'))
             factory = irc3.utils.maybedotted(config.pop('factory'))
@@ -126,43 +125,48 @@ class Social(object):
         except LookupError as e:  # pragma: no cover
             self.bot.log.exception(e)
         else:
-            c = self.bot.config['twitter']
+            if name in self.bot.config:
+                c = self.bot.config[name]
+            else:
+                c = self.bot.config[self.default_network]
             config['auth'] = auth(c['token'], c['token_secret'],
                                   c['key'], c['secret'])
             return adapter(self.bot, factory(**config))
 
     @irc3.extend
-    def get_social_connection(self, network='twitter'):
+    def get_social_connection(self, id=None):
         """return a connection object for the network:
 
         - A Twitter instance from
           https://github.com/sixohsix/twitter/tree/master
 
         """
-        return self.conns[network]
+        if id is None:
+            id = self.default_network
+        return self.conns[id]
 
     @command(permission='edit')
     def tweet(self, mask, target, args):
         """Post to social networks
 
-            %%tweet [--net=<network>] <message>...
+            %%tweet [--id=<id>] <message>...
         """
         to = target == self.bot.nick and mask.nick or target
         message = ' '.join(args['<message>'])
-        if args['--net'] and args['--net'] not in self.conns:
-            return '{0} is an invalid network. Use {1}'.format(
-                args['--net'],
+        if args['--id'] and args['--id'] not in self.conns:
+            return '{0} is an invalid id. Use {1}'.format(
+                args['--id'],
                 ', '.join([k for k in self.conns if 'stream' not in k]))
-        for name, status in self.send_tweet(message, network=args['--net']):
+        for name, status in self.send_tweet(message, id=args['--id']):
             self.bot.privmsg(to, '{0} {1}'.format(name, status))
 
     @irc3.extend
-    def send_tweet(self, message, network=None):
+    def send_tweet(self, message, id=None):
         """Send a tweet to networks"""
         for name, conn in self.conns.items():
             if 'stream' in name:
                 continue
-            if network and network != name:  # pragma: no cover
+            if id and id != name:  # pragma: no cover
                 continue
             status = 'failure'
             res = conn(conn.statuses.update, status=message)
@@ -177,22 +181,22 @@ class Social(object):
     def retweet(self, mask, target, args):
         """Retweet
 
-            %%retweet [--net=<network>] <url_or_id>
+            %%retweet [--id=<id>] <url_or_id>
         """
-        if args['--net'] and args['--net'] not in self.conns:
-            return '{0} is an invalid network. Use {1}'.format(
-                args['--net'],
+        if args['--id'] and args['--id'] not in self.conns:
+            return '{0} is an invalid id. Use {1}'.format(
+                args['--id'],
                 ', '.join([k for k in self.conns if 'stream' not in k]))
         else:
-            args['--net'] = 'twitter'
+            args['--id'] = 'twitter'
         to = target == self.bot.nick and mask.nick or target
-        conn = self.get_social_connection(args['--net'])
+        conn = self.get_social_connection(args['--id'])
         tid = args['<url_or_id>'].strip('/')
         tid = tid.split('/')[-1]
         res = conn(getattr(conn.statuses.retweet, tid))
         if 'error' in res:
             self.bot.privmsg(
-                to, '{0}: {1[error]}'.format(args['--net'], res))
+                to, '{0}: {1[error]}'.format(args['--id'], res))
         elif 'id' in res:
             self.bot.privmsg(
                 to, conn.format(res))
@@ -200,7 +204,7 @@ class Social(object):
     @irc3.extend
     def search_tweets(self, q=None, **kwargs):
         """Search for tweets on twitter"""
-        conn = self.get_social_connection(network='twitter')
+        conn = self.get_social_connection(id=self.default_network)
         try:
             results = conn.search.tweets(q=q, **kwargs)
         except Exception as e:

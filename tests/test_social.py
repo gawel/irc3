@@ -12,7 +12,7 @@ class TestSocial(BotTestCase):
 
     def test_get_conn(self):
         bot = self.callFTU()
-        conn = bot.get_social_connection(network='twitter')
+        conn = bot.get_social_connection(id='twitter')
         self.assertTrue(hasattr(conn, 'conn'))
 
     def test_conns(self):
@@ -26,11 +26,11 @@ class TestSocial(BotTestCase):
         bot.dispatch(':bar!a@b PRIVMSG irc3 :!tweet yo')
         self.assertSent(['PRIVMSG bar :twitter success'])
 
-        bot.dispatch(':bar!a@b PRIVMSG irc3 :!tweet --net=twitter yo')
+        bot.dispatch(':bar!a@b PRIVMSG irc3 :!tweet --id=twitter yo')
         self.assertSent(['PRIVMSG bar :twitter success'])
 
-        bot.dispatch(':bar!a@b PRIVMSG irc3 :!tweet --net=tw yo')
-        self.assertSent(['PRIVMSG bar :tw is an invalid network. Use twitter'])
+        bot.dispatch(':bar!a@b PRIVMSG irc3 :!tweet --id=tw yo')
+        self.assertSent(['PRIVMSG bar :tw is an invalid id. Use twitter'])
 
     @patch('twitter.api.TwitterCall.__call__', return_value=dict(error='fail'))
     def test_tweet_fail(self, c):
@@ -46,11 +46,11 @@ class TestSocial(BotTestCase):
         bot.dispatch(':bar!a@b PRIVMSG irc3 :!retweet 123')
         self.assertSent(['PRIVMSG bar :@foo: yo!'])
 
-        bot.dispatch(':bar!a@b PRIVMSG irc3 :!retweet --net=twitter 123')
+        bot.dispatch(':bar!a@b PRIVMSG irc3 :!retweet --id=twitter 123')
         self.assertSent(['PRIVMSG bar :@foo: yo!'])
 
-        bot.dispatch(':bar!a@b PRIVMSG irc3 :!retweet --net=tw 123')
-        self.assertSent(['PRIVMSG bar :tw is an invalid network. Use twitter'])
+        bot.dispatch(':bar!a@b PRIVMSG irc3 :!retweet --id=tw 123')
+        self.assertSent(['PRIVMSG bar :tw is an invalid id. Use twitter'])
 
     @patch('twitter.api.TwitterCall.__call__', return_value='fail')
     def test_retweet_fail(self, c):
