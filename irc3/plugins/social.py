@@ -113,8 +113,6 @@ class Social(object):
         for name, config in self.networks.copy().items():
             if 'twitter' in name:
                 factory = self.twitter_factory
-            else:  # pragma: no cover
-                factory = self.identica_factory
             conn = factory(config.copy())
             if conn:
                 self.conns[name] = conn
@@ -132,16 +130,6 @@ class Social(object):
             config['auth'] = auth(c['token'], c['token_secret'],
                                   c['key'], c['secret'])
             return adapter(self.bot, factory(**config))
-
-    def identica_factory(self, config):  # pragma: no cover
-        # not really implemented for now
-        try:
-            factory = irc3.utils.maybedotted(config.pop('factory'))
-        except LookupError as e:
-            self.bot.log.exception(e)
-        else:
-            c = self.bot.config['identica']
-            return factory(c.pop('user'), **c)
 
     @irc3.extend
     def get_social_connection(self, network='twitter'):
