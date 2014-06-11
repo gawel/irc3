@@ -2,6 +2,13 @@
 import sys
 PY3 = bool(sys.version_info[0] == 3)
 
+
+def u(value):
+    if not PY3:
+        return value.decode('utf8')
+    return value
+
+
 if PY3:  # pragma: no cover
     text_type = str
     string_types = (bytes, str)

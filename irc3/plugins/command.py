@@ -206,7 +206,7 @@ class Commands(dict):
         self.handles = defaultdict(Done)
 
     @irc3.event((r':(?P<mask>\S+) PRIVMSG (?P<target>\S+) '
-                 r':{cmd}(?P<cmd>\w+)(\s(?P<data>[-0-9A-z-#-&]+.*)|$)'))
+                 r':{cmd}(?P<cmd>\w+)(\s(?P<data>\S.*)|$)'))
     def on_command(self, cmd, mask=None, target=None, data=None, **kw):
         predicates, meth = self.get(cmd, (None, None))
         if meth is not None:
@@ -226,7 +226,8 @@ class Commands(dict):
                for l in doc if l.startswith('%%')]
         doc = 'Usage:' + '\n    ' + '\n    '.join(doc)
         if data:
-            data = str(data)
+            if not isinstance(data, str):
+                data = data.encode(self.bot.encoding)
         data = data and data.split() or []
         try:
             args = docopt.docopt(doc, [meth.__name__] + data, help=False)

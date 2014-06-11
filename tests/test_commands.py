@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from irc3.testing import BotTestCase
 from irc3.plugins import command
+from irc3.compat import u
 import tempfile
 import shutil
 import codecs
@@ -98,6 +99,11 @@ class TestCommands(BotTestCase):
         plugin.handles[('help', '#chan')].set_result(True)
         bot.dispatch(':bar!user@host PRIVMSG #chan :!help ping')
         self.assertSent(['PRIVMSG #chan :ping/pong', 'PRIVMSG #chan :!ping'])
+
+    def test_unicode(self):
+        bot = self.callFTU(nick='nono')
+        bot.dispatch(u(':bar!user@host PRIVMSG nono :!ping eé'))
+        self.assertSent(['PRIVMSG bar :Invalid arguments.'])
 
     def test_invalid_arguments(self):
         bot = self.callFTU(nick='nono')

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from irc3.testing import BotTestCase
 from irc3.testing import patch
+from irc3.compat import u
 
 
 class TestSocial(BotTestCase):
@@ -23,7 +24,7 @@ class TestSocial(BotTestCase):
     @patch('twitter.api.TwitterCall.__call__', return_value=dict(id='yy'))
     def test_tweet(self, c):
         bot = self.callFTU()
-        bot.dispatch(':bar!a@b PRIVMSG irc3 :!tweet yo')
+        bot.dispatch(u(':bar!a@b PRIVMSG irc3 :!tweet yé'))
         self.assertSent(['PRIVMSG bar :twitter success'])
 
         bot.dispatch(':bar!a@b PRIVMSG irc3 :!tweet --id=twitter yo')

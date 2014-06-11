@@ -1,7 +1,7 @@
 0.5.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+- commands now accept unicode
 
 
 0.5.0 (2014-06-01)

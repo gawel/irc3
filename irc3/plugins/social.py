@@ -152,7 +152,7 @@ class Social(object):
             %%tweet [--id=<id>] <message>...
         """
         to = target == self.bot.nick and mask.nick or target
-        message = ' '.join(args['<message>'])
+        message = str(' ').join(args['<message>'])
         if args['--id'] and args['--id'] not in self.conns:
             return '{0} is an invalid id. Use {1}'.format(
                 args['--id'],
