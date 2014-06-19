@@ -64,7 +64,10 @@ class Core(object):
     def reconnect(self):  # pragma: no cover
         self.bot.log.info(
             "We're waiting a ping for too long. Trying to reconnect...")
-        self.bot.loop.call_soon(self.bot.protocol.transport.close)
+        self.bot.loop.call_soon(
+            self.bot.protocol.connection_lost,
+            'No pong reply'
+        )
         self.pong(event='RECONNECT', data='')
 
     @event(rfc.PONG)

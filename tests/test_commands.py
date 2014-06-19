@@ -87,6 +87,16 @@ class TestCommands(BotTestCase):
         bot.dispatch(':bar!user@host PRIVMSG #chan :!help ping')
         self.assertSent(['PRIVMSG #chan :ping/pong', 'PRIVMSG #chan :!ping'])
 
+    def test_reconnect_command(self):
+        self.patch_asyncio()
+        bot = self.callFTU(includes=['irc3.plugins.core'])
+        bot.include('irc3.plugins.command',
+                    venusian_categories=bot.venusian_categories + [
+                        'irc3.debug',
+                    ])
+        bot.dispatch(':bar!user@host PRIVMSG #chan :!reconnect')
+        self.assertSent(['PING 10'])
+
     def test_antiflood(self):
         bot = self.callFTU(**{self.name: dict(antiflood=True)})
         bot.dispatch(':bar!user@host PRIVMSG #chan :!help ping')

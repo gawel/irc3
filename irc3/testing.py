@@ -62,6 +62,7 @@ class IrcBot(irc3.IrcBot):
                       loop=loop)
         super(IrcBot, self).__init__(**config)
         self.protocol = irc3.IrcConnection()
+        self.protocol.closed = False
         self.protocol.factory = self
         self.protocol.transport = MagicMock()
         self.protocol.write = MagicMock()

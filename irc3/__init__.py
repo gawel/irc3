@@ -68,10 +68,11 @@ class IrcConnection(asyncio.Protocol):
                                   exc)
         self.factory.notify('connection_lost')
         if not self.closed:
+            self.closed = True
             self.close()
             # wait a few before reconnect
             self.factory.loop.call_later(
-                2, self.factory.create_connection, self.__class__)
+                2, self.factory.create_connection)
 
     def close(self):  # pragma: no cover
         if not self.closed:

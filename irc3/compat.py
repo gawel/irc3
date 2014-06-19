@@ -4,7 +4,7 @@ PY3 = bool(sys.version_info[0] == 3)
 
 
 def u(value):
-    if not PY3:
+    if not PY3:  # pragma: no cover
         return value.decode('utf8')
     return value
 

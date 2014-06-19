@@ -226,7 +226,7 @@ class Commands(dict):
                for l in doc if l.startswith('%%')]
         doc = 'Usage:' + '\n    ' + '\n    '.join(doc)
         if data:
-            if not isinstance(data, str):
+            if not isinstance(data, str):  # pragma: no cover
                 data = data.encode(self.bot.encoding)
         data = data and data.split() or []
         try:
@@ -308,6 +308,16 @@ def quote(bot, mask, target, args):
     msg = ' '.join(args['<args>'])
     bot.log.info('quote> %r', msg)
     bot.send(msg)
+
+
+@command(venusian_category='irc3.debug')
+def reconnect(bot, mask, target, args):
+    """force reconnect
+
+        %%reconnect
+    """
+    plugin = bot.get_plugin(utils.maybedotted('irc3.plugins.core.Core'))
+    bot.loop.call_soon(plugin.reconnect)
 
 
 @irc3.extend
