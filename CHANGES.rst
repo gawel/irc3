@@ -1,7 +1,11 @@
 0.5.1 (unreleased)
 ==================
 
-- commands now accept unicode
+- Fixed #13: venusian 1.0 compat
+
+- Add antiflood option for the command plugin
+
+- commands accept unicode
 
 
 0.5.0 (2014-06-01)

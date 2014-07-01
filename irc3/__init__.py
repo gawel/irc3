@@ -90,7 +90,7 @@ class IrcBot(object):
     _pep8 = [event, extend, plugin, rfc, config]
     venusian = venusian
     venusian_categories = [
-        'irc3.plugin',
+        'irc3',
         'irc3.extend',
         'irc3.rfc1459',
         'irc3.plugins.cron',
@@ -189,6 +189,9 @@ class IrcBot(object):
         if ob not in self.plugins:
             self.log.info("Register plugin '%s.%s'",
                           ob.__module__, ob.__name__)
+            for dotted in getattr(ob, 'requires', []):
+                if dotted not in self.includes:
+                    self.include(dotted)
             plugin = ob(self)
             self.plugins[ob] = plugin
         return self.plugins[ob]
@@ -238,7 +241,18 @@ class IrcBot(object):
                 self.log.warn('%s included twice', module)
             else:
                 self.includes.add(module)
-                scanner.scan(utils.maybedotted(module), categories=categories)
+                module = utils.maybedotted(module)
+                # we have to manualy check for plugins. venusian no longer
+                # support to attach both a class and methods
+                for klass in module.__dict__.values():
+                    if not isinstance(klass, type):
+                        continue
+                    if klass.__module__ == module.__name__:
+                        if getattr(klass, '__irc3_plugin__', False):
+                            self.get_plugin(klass)
+                        elif getattr(klass, venusian.ATTACH_ATTR, None):
+                            self.get_plugin(klass)
+                scanner.scan(module, categories=categories)
 
     def connection_made(self, f):  # pragma: no cover
         if getattr(self, 'protocol', None):
