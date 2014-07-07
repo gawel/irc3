@@ -24,7 +24,7 @@ PONG = raw.new(
 
 NEW_NICK = raw.new('NEW_NICK', r':(?P<nick>\S+) NICK :?(?P<new_nick>\S+)')
 
-JOIN = raw.new('JOIN', r':(?P<mask>\S+) JOIN (?P<channel>\S+)')
+JOIN = raw.new('JOIN', r':(?P<mask>\S+) JOIN :*(?P<channel>\S+)')
 PART = raw.new('PART',
                r':(?P<mask>\S+) PART (?P<channel>\S+)(\s+:(?P<data>.*)|$)')
 QUIT = raw.new('QUIT',
@@ -33,7 +33,7 @@ QUIT = raw.new('QUIT',
 JOIN_PART_QUIT = raw.new(
     'JOIN_PART_QUIT',
     (r':(?P<mask>\S+) '
-     r'(?P<event>JOIN|PART|QUIT)\s*(?P<channel>\S*)(\s+:(?P<data>.*)|$)'))
+     r'(?P<event>JOIN|PART|QUIT)\s*:*(?P<channel>\S*)(\s+:(?P<data>.*)|$)'))
 
 KICK = raw.new(
     'KICK',
