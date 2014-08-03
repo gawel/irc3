@@ -41,12 +41,12 @@ def ini2config(data):
 def call_later(i, func, *args):
     if func.__name__ in dir(IrcBot):
         func(*args)
-    return asyncio.Handle(func, args, None)
+    return asyncio.Handle(func, args, asyncio.get_event_loop())
 
 
 def call_soon(func, *args):
     func(*args)
-    return asyncio.Handle(func, args, None)
+    return asyncio.Handle(func, args,  asyncio.get_event_loop())
 
 
 class IrcBot(irc3.IrcBot):
