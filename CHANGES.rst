@@ -1,4 +1,10 @@
-0.5.1 (unreleased)
+0.5.2 (unreleased)
+==================
+
+- Nothing changed yet.
+
+
+0.5.1 (2014-07-21)
 ==================
 
 - Fixed #13: venusian 1.0 compat
