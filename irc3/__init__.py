@@ -91,6 +91,7 @@ class IrcBot(object):
     venusian = venusian
     venusian_categories = [
         'irc3',
+        'irc3.debug',
         'irc3.extend',
         'irc3.rfc1459',
         'irc3.plugins.cron',
