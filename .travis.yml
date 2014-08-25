@@ -11,3 +11,4 @@ env:
   - TOXENV=py33
   - TOXENV=py34
   - TOXENV=flake8
+  - TOXENV=docs
