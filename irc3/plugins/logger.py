@@ -34,7 +34,7 @@ class file_handler(object):
     """Write logs to file in ~/.irc3/logs
     """
 
-    formaters = {
+    formatters = {
         'privmsg': '{date:%H:%M} <{mask.nick}> {data}',
         'join': '{date:%H:%M} {mask.nick} joined {channel}',
         'part': '{date:%H:%M} {mask.nick} has leaved {channel} ({data})',
@@ -49,9 +49,9 @@ class file_handler(object):
         }
         config.update(bot.config.get(__name__, {}))
         self.filename = config['filename']
-        self.formaters = bot.config.get(
-            __name__ + '.formaters',
-            self.formaters)
+        self.formatters = bot.config.get(
+            __name__ + '.formatters',
+            self.formatters)
 
     def __call__(self, event):
         filename = self.filename.format(**event)
@@ -59,7 +59,7 @@ class file_handler(object):
             dirname = os.path.dirname(filename)
             if not os.path.isdir(dirname):  # pragma: no cover
                 os.makedirs(dirname)
-        fmt = self.formaters.get(event['event'].lower())
+        fmt = self.formatters.get(event['event'].lower())
         if fmt:
             with open(filename, 'a+') as fd:
                 fd.write(fmt.format(**event) + '\r\n')

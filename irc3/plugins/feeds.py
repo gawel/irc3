@@ -20,11 +20,11 @@ Your config must looks like this:
     delay = 5                                    # delay to check feeds
     directory = ~/.irc3/feeds                    # directory to store feeds
     hook = irc3.plugins.feeds.default_hook       # dotted name to a callable
-    fmt = [{name}] {entry.title} - {entry.link}  # formater
+    fmt = [{name}] {entry.title} - {entry.link}  # formatter
 
     # some feeds: name = url
     github/irc3 = https://github.com/gawel/irc3/commits/master.atom#irc3
-    # custom formater for the feed
+    # custom formatter for the feed
     github/irc3.fmt = [{feed.name}] New commit: {entry.title} - {entry.link}
     # custom channels
     github/irc3.channels = #irc3dev #irc3
