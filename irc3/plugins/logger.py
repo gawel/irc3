@@ -37,7 +37,7 @@ class file_handler(object):
     formatters = {
         'privmsg': '{date:%H:%M} <{mask.nick}> {data}',
         'join': '{date:%H:%M} {mask.nick} joined {channel}',
-        'part': '{date:%H:%M} {mask.nick} has leaved {channel} ({data})',
+        'part': '{date:%H:%M} {mask.nick} has left {channel} ({data})',
         'quit': '{date:%H:%M} {mask.nick} has quit ({data})',
         'topic': '{date:%H:%M} {mask.nick} has set topic to: {data}',
     }
