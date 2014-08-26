@@ -14,7 +14,8 @@ test_requires = [
     'twitter', 'panoramisk',
     'python-dateutil',
     'transmissionrpc',
-    'croniter',
+    'croniter', 'moto',
+    'freezegun',
 ]
 
 if sys.version_info[:2] < (3, 0):

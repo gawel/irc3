@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
-from irc3.testing import BotTestCase
+from irc3.testing import BotTestCase, mock
 import tempfile
 import shutil
 import glob
 import os
+import boto
+from moto import mock_s3
+from freezegun import freeze_time
 
 
-class LoggerTestCase(BotTestCase):
+class LoggerFileTestCase(BotTestCase):
 
     config = dict(includes=[
         'irc3.plugins.logger',
@@ -14,7 +17,7 @@ class LoggerTestCase(BotTestCase):
     ])
 
     def setUp(self):
-        super(LoggerTestCase, self).setUp()
+        super(LoggerFileTestCase, self).setUp()
         self.logdir = tempfile.mkdtemp(prefix='irc3log')
         self.addCleanup(shutil.rmtree, self.logdir)
 
@@ -52,3 +55,45 @@ class LoggerTestCase(BotTestCase):
         bot.privmsg('#foo',  'youhou!')
         with open(filenames[0]) as fd:
             self.assertIn('<irc3> youhou!', fd.read())
+
+
+class LoggerS3NullTestCase(BotTestCase):
+    config = {
+        "nick": "myircbot",
+        "host": "irc.testing.net",
+        "includes": [
+            'irc3.plugins.logger',
+            'irc3.plugins.userlist',
+        ],
+    }
+
+    @mock.patch('irc3.plugins.logger.boto', None)
+    def test_no_boto(self):
+        with self.assertRaises(ImportError):
+            self.callFTU(
+                **{'irc3.plugins.logger': dict(
+                    handler='irc3.plugins.logger.s3_handler',
+                )}
+            )
+
+
+class LoggerS3TestCase(LoggerS3NullTestCase):
+    def setUp(self):
+        super(LoggerS3NullTestCase, self).setUp()
+        self.bot = self.callFTU(
+            **{'irc3.plugins.logger': dict(
+                handler='irc3.plugins.logger.s3_handler',
+            )}
+        )
+
+    @mock_s3
+    @freeze_time("2014-01-04")
+    def test_message(self):
+        self.bot.dispatch(':server 332 foo #foo :topic')
+        conn = boto.connect_s3()
+        bucket = conn.get_bucket("irc3-myircbot")
+        key = bucket.get_key("irc.testing.net/#foo-2014-01-04.log")
+        self.assertIn(
+            'server has set topic to: topic\r\n',
+            key.get_contents_as_string()
+        )
