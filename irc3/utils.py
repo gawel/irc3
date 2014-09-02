@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import os
-try:
-    import configparser
-except ImportError:  # pragma: no cover
-    import ConfigParser as configparser
+import configparser
 
 try:
     BaseString = unicode
