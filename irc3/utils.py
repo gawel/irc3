@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import os
-try:
-    import configparser
-except ImportError:  # pragma: no cover
-    import ConfigParser as configparser
+import configparser
 
 try:
     BaseString = unicode
@@ -132,7 +129,10 @@ def parse_config(*filenames):
     here = os.path.dirname(filename)
     defaults = dict(here=here)
 
-    config = configparser.ConfigParser(defaults, allow_no_value=False)
+    config = configparser.ConfigParser(
+        defaults, allow_no_value=False,
+        interpolation=configparser.ExtendedInterpolation(),
+    )
     config.optionxform = str
     config.read([os.path.expanduser('~/.irc3/passwd.ini')] + list(filenames))
 

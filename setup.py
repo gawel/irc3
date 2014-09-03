@@ -21,6 +21,7 @@ if sys.version_info[:2] < (3, 0):
     install_requires.extend([
         'trollius',
         'futures',
+        'configparser',
     ])
     test_requires.extend(['mock'])
 elif sys.version_info[:2] < (3, 3):
