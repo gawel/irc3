@@ -91,8 +91,8 @@ class Logger(object):
                          channel=target, data=data, **kwargs)
 
     @irc3.event((r'''(?P<event>[A-Z]+) (?P<target>#\S+)'''
-                 r'''(\s:(?P<data>.*)|$)'''))
-    def on_ouput(self, event, target=None, data=None, **kwargs):
+                 r'''(\s:(?P<data>.*)|$)'''), iotype='out')
+    def on_output(self, event, target=None, data=None, **kwargs):
         if target and target.is_channel:
             self.process(event=event, mask=irc3.utils.IrcString(self.bot.nick),
                          channel=target, data=data, **kwargs)
