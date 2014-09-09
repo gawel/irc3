@@ -15,20 +15,28 @@ test_requires = [
     'python-dateutil',
     'transmissionrpc',
     'croniter',
+    'freezegun',
 ]
 
-if sys.version_info[:2] < (3, 0):
+py_ver = sys.version_info[:2]
+if py_ver < (3, 0):
     install_requires.extend([
         'trollius',
         'futures',
         'configparser',
     ])
     test_requires.extend(['mock'])
-elif sys.version_info[:2] < (3, 3):
+elif py_ver < (3, 3):
     install_requires.append('trollius')
     test_requires.append('mock')
-elif sys.version_info[:2] < (3, 4):
+elif py_ver < (3, 4):
     install_requires.append('asyncio')
+
+# some of moto's dependencies use the u-prefix for strings (u"foo"),
+# which is not compatible with Python 3.0, 3.1, or 3.2. Only declare
+# moto as a test dependency if we're on Python 2, or if we're on 3.3 or higher.
+if py_ver < (3, 0) or py_ver >= (3, 3):
+    test_requires.append('moto')
 
 
 def read(*rnames):
