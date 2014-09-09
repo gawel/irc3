@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
 from irc3.testing import BotTestCase, mock
+from unittest import SkipTest
 import tempfile
 import shutil
 import glob
 import os
-import boto
-from moto import mock_s3
 from freezegun import freeze_time
+try:
+    from moto import mock_s3
+    import boto
+except ImportError:
+    mock_s3 = lambda x: x
+    boto = None
 
 
 class LoggerFileTestCase(BotTestCase):
@@ -80,6 +85,9 @@ class LoggerS3NullTestCase(BotTestCase):
 class LoggerS3TestCase(LoggerS3NullTestCase):
     def setUp(self):
         super(LoggerS3NullTestCase, self).setUp()
+        if not boto:
+            raise SkipTest("missing dependency: boto")
+
         self.bot = self.callFTU(
             **{'irc3.plugins.logger': dict(
                 handler='irc3.plugins.logger.s3_handler',
