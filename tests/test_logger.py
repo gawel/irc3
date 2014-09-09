@@ -103,5 +103,5 @@ class LoggerS3TestCase(LoggerS3NullTestCase):
         key = bucket.get_key("irc.testing.net/#foo-2014-01-04.log")
         self.assertIn(
             'server has set topic to: topic\r\n',
-            key.get_contents_as_string()
+            key.get_contents_as_string().decode('utf8')
         )
