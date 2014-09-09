@@ -30,7 +30,7 @@ import logging
 from datetime import datetime
 try:
     import boto
-except ImportError:
+except ImportError:  # pragma: no cover
     boto = None
 
 
