@@ -25,7 +25,7 @@ class TestRun(BotTestCase):
         self.assertRaises(DocoptExit, self.callFTU, '-x')
 
     def test_logdir(self):
-        bot = self.callFTU('-dr', 'examples/bot.ini', '--logdir=' + self.wd)
+        bot = self.callFTU('-dr', 'tests/test.ini', '--logdir=' + self.wd)
         self.assertEqual(
             bot.logging_config['handlers']['console']['formatter'], 'file')
         self.assertTrue(self.Task.called)
