@@ -61,6 +61,7 @@ import time
 import irc3
 import datetime
 from concurrent.futures import ThreadPoolExecutor
+from operator import itemgetter
 
 
 def default_hook(entries):
@@ -108,7 +109,7 @@ def parse(feedparser, args):
             e['feed'] = args
             entries.append((e.updated, e))
         if entries:
-            entries = sorted(entries)
+            entries = sorted(entries, key=itemgetter(0))
             with open(filename + '.updated', 'w') as fd:
                 fd.write(str(entries[-1][0]))
     return entries
