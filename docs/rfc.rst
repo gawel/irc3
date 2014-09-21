@@ -1561,7 +1561,7 @@ Example:
 JOIN
 ----
 
-Match ``:(?P<mask>\S+) JOIN (?P<channel>\S+)``
+Match ``:(?P<mask>\S+) JOIN :*(?P<channel>\S+)``
 
 Example:
 
@@ -1574,7 +1574,7 @@ Example:
 JOIN_PART_QUIT
 --------------
 
-Match ``:(?P<mask>\S+) (?P<event>JOIN|PART|QUIT)\s*(?P<channel>\S*)(\s+:(?P<data>.*)|$)``
+Match ``:(?P<mask>\S+) (?P<event>JOIN|PART|QUIT)\s*:*(?P<channel>\S*)(\s+:(?P<data>.*)|$)``
 
 Example:
 

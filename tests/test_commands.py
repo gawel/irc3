@@ -16,7 +16,7 @@ def cmd(bot, *args):
     return 'Done'
 
 
-@command.command(permission='view')
+@command.command
 def cmd_view(bot, *args):
     """Test command
         %%cmd_view

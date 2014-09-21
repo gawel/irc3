@@ -72,5 +72,6 @@ setup(
     entry_points='''
     [console_scripts]
     irc3 = irc3:run
+    irc3d = irc3d:run
     ''',
 )

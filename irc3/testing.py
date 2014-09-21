@@ -2,9 +2,11 @@
 from __future__ import unicode_literals
 from unittest import TestCase
 import irc3
+import irc3d
 from irc3.compat import PY3
 from irc3.compat import asyncio
 import tempfile
+import time
 import os
 
 try:
@@ -34,7 +36,7 @@ def ini2config(data):
     with tempfile.NamedTemporaryFile(prefix='irc3-') as fd:
         fd.write(data)
         fd.flush()
-        data = irc3.utils.parse_config(fd.name)
+        data = irc3.utils.parse_config('bot', fd.name)
     return data
 
 
@@ -94,7 +96,39 @@ class IrcBot(irc3.IrcBot):
         return values
 
 
-class BotTestCase(TestCase):
+class IrcTestCase(TestCase):
+
+    def patch_requests(self, **kwargs):
+        self.patcher = patch('requests.Session.request')
+        self.addCleanup(self.patcher.stop)
+        request = self.patcher.start()
+
+        filename = kwargs.pop('filename', None)
+        if filename:
+            with open(filename, 'rb') as feed:
+                content = feed.read()
+            for k, v in kwargs.items():
+                content = content.replace(k.encode('ascii'), v.encode('ascii'))
+            kwargs['content'] = content
+            kwargs['text'] = content.decode('utf8')
+        kwargs.setdefault('status_code', 200)
+        resp = MagicMock(**kwargs)
+        for k, v in kwargs.items():
+            if k in ('json',):
+                setattr(resp, k, MagicMock(return_value=v))
+        request.return_value = resp
+        return request
+
+    def patch_asyncio(self):
+        patcher = patch('irc3.compat.asyncio.Task')
+        self.Task = patcher.start()
+        self.addCleanup(patcher.stop)
+        patcher = patch('irc3.compat.asyncio.get_event_loop')
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+
+class BotTestCase(IrcTestCase):
 
     config = {'nick': 'nono'}
 
@@ -125,31 +159,65 @@ class BotTestCase(TestCase):
         self.bot.protocol.write.reset_mock()
         self.bot.loop.reset_mock()
 
-    def patch_requests(self, **kwargs):
-        self.patcher = patch('requests.Session.request')
-        self.addCleanup(self.patcher.stop)
-        request = self.patcher.start()
 
-        filename = kwargs.pop('filename', None)
-        if filename:
-            with open(filename, 'rb') as feed:
-                content = feed.read()
-            for k, v in kwargs.items():
-                content = content.replace(k.encode('ascii'), v.encode('ascii'))
-            kwargs['content'] = content
-            kwargs['text'] = content.decode('utf8')
-        kwargs.setdefault('status_code', 200)
-        resp = MagicMock(**kwargs)
-        for k, v in kwargs.items():
-            if k in ('json',):
-                setattr(resp, k, MagicMock(return_value=v))
-        request.return_value = resp
-        return request
+class IrcClient(irc3d.IrcClient):
 
-    def patch_asyncio(self):
-        patcher = patch('irc3.compat.asyncio.Task')
-        self.Task = patcher.start()
-        self.addCleanup(patcher.stop)
-        patcher = patch('irc3.compat.asyncio.get_event_loop')
-        patcher.start()
-        self.addCleanup(patcher.stop)
+    def __init__(self):
+        self.sent = []
+
+    def dispatch(self, data):
+        self.data['data_received'] = time.time()
+        return self.factory.dispatch(data, client=self)
+
+    def write(self, data):
+        super(IrcClient, self).write(data)
+        self.sent.extend(data.split('\r\n'))
+
+
+class IrcServer(irc3d.IrcServer):
+
+    def __init__(self, **config):
+        loop = MagicMock()
+        loop.call_later = call_later
+        loop.call_soon = call_soon
+        loop.time = MagicMock()
+        loop.time.return_value = 10
+        config.update(testing=True, async=False, level=1000,
+                      loop=loop)
+        super(IrcServer, self).__init__(**config)
+
+    def add_clients(self, amount=2):
+        for i in range(1, amount + 1):
+            client = IrcClient()
+            client.factory = self
+            transport = MagicMock()
+            transport.get_extra_info.return_value = ('127.0.0.1', i)
+            client.connection_made(transport)
+            nick = 'client%s' % i
+            client.data.update(nick=nick)
+            client.dispatch(
+                "USER u{0} 127.0.0.1 127.0.0.1 :I'm {0}".format(nick))
+            setattr(self, nick, client)
+
+
+class ServerTestCase(IrcTestCase):
+
+    config = {'servername': 'irc.example.com',
+              'includes': ['irc3d.plugins.core']}
+
+    def callFTU(self, clients=2, **config):
+        config = dict(self.config, **config)
+        server = IrcServer(**config)
+        server.add_clients(amount=clients)
+        self.server = server
+        return server
+
+    def assertSent(self, client, data, origin=None):
+        if origin:
+            data = data.format(**origin.data)
+        self.assertIn(data, client.sent)
+
+    def assertNotSent(self, client, data, origin=None):
+        if origin:
+            data = data.format(**origin.data)
+        self.assertNotIn(data, client.sent)

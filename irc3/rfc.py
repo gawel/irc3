@@ -6,25 +6,31 @@ from ._rfc import *  # NOQA
 class raw(str):
     name = None
     re = None
+    server = None
 
     @classmethod
     def new(cls, name, regexp):
         r = cls(name)
         r.name = name
         r.re = regexp
+        if regexp.startswith((':', '^:')):
+            name = 'SERVER_' + name
+            r.server = cls(name)
+            r.server.name = name
+            r.server.re = regexp.split(' ', 1)[1]
         return r
 
 CONNECTED = raw.new('CONNECTED',
                     r'^:(?P<srv>\S+) (376|422) (?P<me>\S+) :(?P<data>.*)')
 
-PING = raw.new('PING', r'PING :(?P<data>.*)')
+PING = raw.new('PING', r'PING :?(?P<data>.*)')
 PONG = raw.new(
     'PONG',
-    r':(?P<server>\S+) PONG (?P=server) :(?P<data>.*)')
+    r':(?P<server>\S+) PONG (?P=server) :?(?P<data>.*)')
 
 NEW_NICK = raw.new('NEW_NICK', r':(?P<nick>\S+) NICK :?(?P<new_nick>\S+)')
 
-JOIN = raw.new('JOIN', r':(?P<mask>\S+) JOIN :*(?P<channel>\S+)')
+JOIN = raw.new('JOIN', r':(?P<mask>\S+) JOIN :?(?P<channel>\S+)')
 PART = raw.new('PART',
                r':(?P<mask>\S+) PART (?P<channel>\S+)(\s+:(?P<data>.*)|$)')
 QUIT = raw.new('QUIT',

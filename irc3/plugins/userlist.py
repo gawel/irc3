@@ -34,8 +34,8 @@ Api
 '''
 from irc3 import plugin
 from irc3 import utils
-from irc3 import event
 from irc3 import rfc
+from irc3.dec import event
 from irc3.utils import IrcString
 from collections import defaultdict
 
@@ -62,6 +62,7 @@ class Channel(set):
     def __init__(self):
         set.__init__(self)
         self.modes = defaultdict(set)
+        self.topic = None
 
     def add(self, item, modes=''):
         set.add(self, item)
@@ -81,64 +82,80 @@ class Channel(set):
 @plugin
 class Userlist(object):
 
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, context):
+        self.context = context
         self.connection_lost()
 
-    def connection_lost(self):
+    def connection_lost(self, client=None):
         self.channels = defaultdict(Channel)
-        self.bot.channels = self.channels
+        self.context.channels = self.channels
         self.nicks = {}
-        self.bot.nicks = self.nicks
+        self.context.nicks = self.nicks
+
+    def broadcast(self, *args, **kwargs):
+        # only usefull for servers
+        pass
 
     @event(rfc.JOIN_PART_QUIT)
-    def on_join_part_quit(self, mask, event, channel=None, **kw):
-        getattr(self, event.lower())(mask.nick, mask, channel)
+    def on_join_part_quit(self, mask=None, event=None, **kwargs):
+        getattr(self, event.lower())(mask.nick, mask, **kwargs)
 
     @event(rfc.KICK)
-    def on_kick(self, mask, event, channel=None, target=None, **kw):
-        self.part(target.nick, None, channel)
+    def on_kick(self, mask=None, event=None, target=None, **kwargs):
+        self.part(target.nick, mask=None, **kwargs)
 
-    def join(self, nick, mask, channel):
-        if nick != self.bot.nick:
-            self.channels[channel].add(mask.nick)
-            self.nicks[mask.nick] = mask
+    def join(self, nick, mask, client=None, **kwargs):
+        channel = self.channels[kwargs['channel']]
+        if nick != self.context.nick:
+            channel.add(mask.nick)
+            self.nicks[mask.nick] = client or mask
+            if client:
+                self.broadcast(client=client, clients=channel, **kwargs)
+                self.context.NAMES(client=client, **kwargs)
 
-    def part(self, nick, mask, channel):
-        if nick == self.bot.nick:
+    def part(self, nick, mask=None, channel=None, client=None, **kwargs):
+        if nick == self.context.nick:
             del self.channels[channel]
         else:
             channel = self.channels[channel]
+            self.broadcast(client=client, clients=channel, **kwargs)
             channel.remove(nick)
             if True not in [nick in c for c in self.channels.values()]:
                 del self.nicks[nick]
 
-    def quit(self, nick, mask, channel):
-        if nick == self.bot.nick:
+    def quit(self, nick, mask, channel=None, client=None, **kwargs):
+        if nick == self.context.nick:
             self.connection_lost()
         else:
+            clients = set()
             for channel in self.channels.values():
                 if nick in channel:
+                    clients.update(channel)
                     channel.remove(nick)
+            self.broadcast(client=client, clients=clients, **kwargs)
             del self.nicks[nick]
 
     @event(rfc.NEW_NICK)
-    def new_nick(self, nick=None, new_nick=None, **kw):
+    def new_nick(self, nick=None, new_nick=None, client=None, **kwargs):
         """update list on new nick"""
-        self.nicks[new_nick] = new_nick + '!' + nick.host
-        nick = nick.nick
+        if client is None:
+            self.nicks[new_nick] = new_nick + '!' + nick.host
+            nick = nick.nick
+        clients = set()
         for channel in self.channels.values():
             if nick in channel:
                 for nicknames in channel.modes.values():
                     if nick in nicknames:
                         nicknames.add(new_nick)
                 channel.remove(nick)
+                clients.update(channel)
                 channel.add(new_nick)
+        self.broadcast(client=client, clients=clients, **kwargs)
 
     @event('^:\S+ 353 [^&#]+(?P<channel>\S+) :(?P<nicknames>.*)')
     def names(self, channel=None, nicknames=None):
         """Initialise channel list and channel.modes"""
-        statusmsg = self.bot.server_config['STATUSMSG']
+        statusmsg = self.context.server_config['STATUSMSG']
         nicknames = nicknames.split(' ')
         channel = self.channels[channel]
         for item in nicknames:
@@ -154,21 +171,34 @@ class Userlist(object):
         self.nicks[nick] = mask
 
     @event(rfc.MODE)
-    def mode(self, target=None, modes=None, data=None, **kw):
+    def mode(self, target=None, modes=None, data=None, client=None, **kw):
         """Add nicknames to channel.modes"""
-        if target[0] not in self.bot.server_config['CHANTYPES'] or not data:
+        if target[0] not in self.context.server_config['CHANTYPES'] \
+           or not data:
             # not a channel or no user target
             return
-        noargs = self.bot.server_config['CHANMODES'].split(',')[-1]
-        data = [d for d in data.split(' ') if d]
+        noargs = self.context.server_config['CHANMODES'].split(',')[-1]
+        if not isinstance(data, list):
+            data = [d for d in data.split(' ') if d]
         modes = utils.parse_modes(modes, data, noargs)
-        prefix = self.bot.server_config['PREFIX']
+        prefix = self.context.server_config['PREFIX']
         prefix = dict(zip(*prefix.strip('(').split(')')))
         channel = self.channels[target]
-        for char, mode, target in modes:
+        for char, mode, tgt in modes:
             if mode in prefix:
                 nicknames = channel.modes[prefix[mode]]
                 if char == '+':
-                    nicknames.add(target)
+                    nicknames.add(tgt)
                 elif target in nicknames:
-                    nicknames.remove(target)
+                    nicknames.remove(tgt)
+                if client is not None:
+                    broadcast = (
+                        ':{mask} MODE {target} {char}{mode} {tgt}').format(
+                        char=char, mode=mode, target=target, tgt=tgt,
+                        **client.data)
+                    self.broadcast(client=client, broadcast=broadcast,
+                                   clients=channel)
+
+    @event(rfc.RPL_TOPIC)
+    def topic(self, channel=None, data=None, client=None, **kwargs):
+        self.channels[channel].topic = data

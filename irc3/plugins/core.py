@@ -36,7 +36,7 @@ class Core(object):
                   self.set_config),
         ]
 
-    def connection_made(self):
+    def connection_made(self, client=None):
         # handle server config
         config = self.bot.defaults['server_config'].copy()
         self.bot.config['server_config'] = config

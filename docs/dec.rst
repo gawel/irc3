@@ -9,13 +9,23 @@ plugin
 
 .. autofunction:: plugin
 
-event
-======
+bot event
+=========
 
 .. autoclass:: event
 
-extend
-======
+bot extend
+==========
 
 .. autoclass:: extend
+
+server event
+============
+
+.. autoclass:: server_event
+
+server extend
+=============
+
+.. autoclass:: server_extend
 

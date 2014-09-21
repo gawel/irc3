@@ -112,16 +112,19 @@ import sys
 class free_policy(object):
     """Default policy"""
     def __init__(self, bot):
-        self.bot = bot
+        self.context = bot
 
-    def __call__(self, predicates, meth, mask, target, args):
-        return meth(mask, target, args)
+    def __call__(self, predicates, meth, client, target, args, **kwargs):
+        if self.context.server:
+            return meth(client, args)
+        else:
+            return meth(client, target, args)
 
 
 class mask_based_policy(object):
     """Allow only valid masks. Able to take care or permissions"""
     def __init__(self, bot):
-        self.bot = bot
+        self.context = bot
         self.log = logging.getLogger(__name__)
         self.masks = bot.config[__name__ + '.masks']
         self.log.debug('Masks: %r', self.masks)
@@ -136,48 +139,48 @@ class mask_based_policy(object):
                     return True
         return False
 
-    def __call__(self, predicates, meth, mask, target, args):
-        if self.has_permission(mask, predicates.get('permission')):
-            return meth(mask, target, args)
-        self.bot.privmsg(
-            mask.nick,
+    def __call__(self, predicates, meth, client, target, args, **kwargs):
+        if self.has_permission(client, predicates.get('permission')):
+            return meth(client, target, args)
+        self.context.privmsg(
+            client.nick,
             'You are not allowed to use the %r command' % meth.__name__
         )
 
 
-class command(object):
+def attach_command(func, depth=2, **predicates):
+    commands = predicates.pop('commands',
+                              'irc3.plugins.command.Commands')
+    category = predicates.pop('venusian_category',
+                              'irc3.plugins.command')
 
-    venusian = venusian
-    defaults = {'permission': None}
-
-    def __init__(self, *func, **predicates):
-        self.predicates = predicates
-        if func:
-            self.__call__ = self.func = func[0]
-            self.info = self.venusian.attach(self, self.callback,
-                                             category=self.__module__)
-        self.category = self.predicates.pop('venusian_category',
-                                            self.__module__)
-
-    def callback(self, context, name, ob):
-        bot = context.bot
-        if self.info.scope == 'class':
-            callback = self.func.__get__(bot.get_plugin(ob), ob)
+    def callback(context, name, ob):
+        obj = context.context
+        if info.scope == 'class':
+            callback = func.__get__(obj.get_plugin(ob), ob)
         else:
-            @functools.wraps(self.func)
+            @functools.wraps(func)
             def wrapper(*args, **kwargs):
-                return self.func(bot, *args, **kwargs)
+                return func(obj, *args, **kwargs)
             callback = wrapper
-        plugin = bot.get_plugin(Commands)
-        self.predicates.update(module=self.func.__module__)
-        plugin[self.func.__name__] = (self.predicates, callback)
-        bot.log.info('Register command %r', self.func.__name__)
+        plugin = obj.get_plugin(utils.maybedotted(commands))
+        predicates.update(module=func.__module__)
+        plugin[func.__name__] = (predicates, callback)
+        obj.log.info('Register command %r', func.__name__)
+    info = venusian.attach(func, callback,
+                           category=category, depth=depth)
 
-    def __call__(self, func):
-        self.__call__ = self.func = func
-        self.info = self.venusian.attach(func, self.callback,
-                                         category=self.category)
+
+def command(*func, **predicates):
+    if func:
+        func = func[0]
+        attach_command(func, **predicates)
         return func
+    else:
+        def wrapper(func):
+            attach_command(func, **predicates)
+            return func
+        return wrapper
 
 
 @irc3.plugin
@@ -187,39 +190,39 @@ class Commands(dict):
         __name__.replace('command', 'core'),
     ]
 
-    def __init__(self, bot):
-        self.bot = bot
-        self.config = config = bot.config.get(__name__, {})
+    def __init__(self, context):
+        self.context = context
+        self.config = config = context.config.get(__name__, {})
         self.log = logging.getLogger(__name__)
         self.log.debug('Config: %r', config)
 
-        if 'cmd' in bot.config:  # in case of
-            config['cmd'] = bot.config['cmd']
-        bot.config['cmd'] = self.cmd = config.get('cmd', '!')
+        if 'cmd' in context.config:  # in case of
+            config['cmd'] = context.config['cmd']
+        context.config['cmd'] = self.cmd = config.get('cmd', '!')
 
         self.antiflood = self.config.get('antiflood', False)
 
         guard = utils.maybedotted(config.get('guard', free_policy))
         self.log.debug('Guard: %s', guard.__name__)
-        self.guard = guard(bot)
+        self.guard = guard(context)
 
         self.handles = defaultdict(Done)
 
     @irc3.event((r':(?P<mask>\S+) PRIVMSG (?P<target>\S+) '
                  r':{cmd}(?P<cmd>\w+)(\s(?P<data>\S.*)|$)'))
-    def on_command(self, cmd, mask=None, target=None, data=None, **kw):
+    def on_command(self, cmd, mask=None, target=None, client=None, **kw):
         predicates, meth = self.get(cmd, (None, None))
         if meth is not None:
             if predicates.get('public', True) is False and target.is_channel:
-                self.bot.privmsg(
+                self.context.privmsg(
                     mask.nick,
                     'You can only use the %r command in private.' % str(cmd))
             else:
-                self.do_command(predicates, meth, mask, target, data)
+                self.do_command(predicates, meth, mask, target, **kw)
 
-    def do_command(self, predicates, meth, mask, target, data):
-        nick = self.bot.nick
-        to = target == nick and mask.nick or target
+    def do_command(self, predicates, meth, client, target, data=None, **kw):
+        nick = self.context.nick or '-'
+        to = target == nick and client.nick or target
         doc = meth.__doc__ or ''
         doc = [l.strip() for l in doc.strip().split('\n')]
         doc = [nick + ' ' + l.strip('%%')
@@ -227,29 +230,30 @@ class Commands(dict):
         doc = 'Usage:' + '\n    ' + '\n    '.join(doc)
         if data:
             if not isinstance(data, str):  # pragma: no cover
-                data = data.encode(self.bot.encoding)
+                data = data.encode(self.context.encoding)
         data = data and data.split() or []
         try:
             args = docopt.docopt(doc, [meth.__name__] + data, help=False)
         except docopt.DocoptExit:
-            self.bot.privmsg(to, 'Invalid arguments.')
+            self.context.privmsg(to, 'Invalid arguments.')
         else:
             uid = (meth.__name__, to)
             if not self.handles[uid].done() and self.antiflood:
-                self.bot.notice(mask.nick,
-                                "Please be patient and don't flood me")
+                self.context.notice(
+                    client if self.context.server else client.nick,
+                    "Please be patient and don't flood me")
             else:
-                msgs = self.guard(predicates, meth, mask, target, args)
+                msgs = self.guard(predicates, meth, client, target, args=args)
                 if msgs is not None:
                     def iterator(msgs):
                         for msg in msgs:
                             yield to, msg
                     if isinstance(msgs, string_types):
                         msgs = [msgs]
-                    handle = self.bot.call_many('privmsg', iterator(msgs))
+                    handle = self.context.call_many('privmsg', iterator(msgs))
                     self.handles[uid] = handle
 
-    @command(permission='view')
+    @command
     def help(self, mask, target, args):
         """Show help
 
@@ -269,7 +273,7 @@ class Commands(dict):
                             for b in utils.split_message(buf, 160):
                                 yield b
                             buf = None
-                        line = line.replace('%%', self.bot.config.cmd)
+                        line = line.replace('%%', self.context.config.cmd)
                         yield line
         else:
             cmds = ', '.join([self.cmd + k for k in sorted(self.keys())])

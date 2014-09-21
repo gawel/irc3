@@ -122,7 +122,7 @@ class Config(dict):
         return self[attr]
 
 
-def parse_config(*filenames):
+def parse_config(main_section, *filenames):
     """parse config files"""
     filename = filenames[-1]
     filename = os.path.abspath(filename)
@@ -147,7 +147,7 @@ def parse_config(*filenames):
             elif v in ('true', 'false'):
                 v = v == 'true' and True or False
             items[k] = v
-        if s == 'bot':
+        if s == main_section:
             value.update(items)
         else:
             for k in ('here', 'config'):

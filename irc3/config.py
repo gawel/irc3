@@ -63,6 +63,11 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
+        'irc3d': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
         'raw': {
             'handlers': ['logs'],
             'level': 'INFO',

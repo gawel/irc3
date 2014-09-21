@@ -8,6 +8,7 @@ import re
 def plugin(wrapped):
     """register a class as plugin"""
     setattr(wrapped, '__irc3_plugin__', True)
+    setattr(wrapped, '__irc3d_plugin__', False)
     return wrapped
 
 
@@ -57,29 +58,30 @@ class event(object):
 
     def __call__(self, wrapped):
         def callback(context, name, ob):
-            bot = context.bot
+            obj = context.context
             if info.scope == 'class':
                 self.callback = getattr(
-                    bot.get_plugin(ob),
+                    obj.get_plugin(ob),
                     wrapped.__name__)
             else:
                 @functools.wraps(wrapped)
                 def wrapper(**kwargs):
-                    return wrapped(bot, **kwargs)
+                    return wrapped(obj, **kwargs)
                 self.callback = wrapper
             # a new instance is needed to keep this related to *one* bot
             # instance
             e = self.__class__(self.regexp, self.callback,
                                venusian_category=self.venusian_category,
                                iotype=self.iotype)
-            bot.attach_events(e)
+            obj.attach_events(e)
         info = self.venusian.attach(wrapped, callback,
                                     category=self.venusian_category)
         return wrapped
 
     def __repr__(self):
         s = getattr(self.regexp, 'name', self.regexp)
-        return '<bound event {0} to {1}>'.format(s, self.callback)
+        name = self.__class__.__name__
+        return '<bound {0} {1} to {2}>'.format(name, s, self.callback)
 
 
 def extend(func):
@@ -105,14 +107,14 @@ def extend(func):
 
     """
     def callback(context, name, ob):
-        bot = context.bot
+        obj = context.context
         if info.scope == 'class':
             @functools.wraps(func)
             def f(self, *args, **kwargs):
-                plugin = bot.get_plugin(ob)
+                plugin = obj.get_plugin(ob)
                 return getattr(plugin, func.__name__)(*args, **kwargs)
-            setattr(bot, func.__name__, f.__get__(bot, bot.__class__))
+            setattr(obj, func.__name__, f.__get__(obj, obj.__class__))
         else:
-            setattr(bot, func.__name__, func.__get__(bot, bot.__class__))
+            setattr(obj, func.__name__, func.__get__(obj, obj.__class__))
     info = venusian.attach(func, callback, category='irc3.extend')
     return func

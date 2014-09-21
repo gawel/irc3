@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from irc3.testing import BotTestCase
+from irc3 import testing
 
 
-class TestUserList(BotTestCase):
+class TestUserList(testing.BotTestCase):
 
     def test_userlist(self):
         bot = self.callFTU(nick='foo')
@@ -72,3 +72,45 @@ class TestUserList(BotTestCase):
 
         bot.dispatch(':foo!u@h QUIT')
         self.assertEqual(len(plugin.nicks), 0)
+
+
+class TestServerUserList(testing.ServerTestCase):
+
+    def test_userlist(self):
+        s = self.callFTU(clients=0)
+        self.assertEqual(len(s.nicks), 0)
+        s.add_clients(amount=3)
+        self.assertEqual(len(s.nicks), 3)
+        s.client1.dispatch('JOIN #irc')
+        s.client1.dispatch('JOIN #irc3')
+        self.assertEqual(len(s.channels['#irc3']), 1)
+        s.client2.dispatch('JOIN #irc3')
+        self.assertEqual(len(s.channels['#irc3']), 2)
+        self.assertSent(s.client1, ':{mask} JOIN #irc3', s.client2)
+        self.assertNotSent(s.client3, ':{mask} JOIN #irc3', s.client2)
+
+        s.client1.dispatch('KICK #irc3 client2 :Lamer!')
+        self.assertEqual(len(s.channels['#irc3']), 1)
+        self.assertSent(s.client2, ':{mask} KICK #irc3 :Lamer!', s.client1)
+        self.assertNotSent(s.client3, ':{mask} KICK #irc3 :Lamer!', s.client1)
+
+        s.client2.dispatch('JOIN #irc3')
+        self.assertEqual(len(s.channels['#irc3']), 2)
+
+        s.client1.dispatch('MODE #irc3 +v client2')
+        self.assertSent(s.client2, ':{mask} MODE #irc3 +v client2', s.client1)
+        self.assertNotSent(
+            s.client3, ':{mask} MODE #irc3 +v client2', s.client1)
+
+        s.client1.dispatch('NICK irc3')
+        self.assertSent(s.client2, ':client1!uclient1@127.0.0.1 NICK irc3')
+        self.assertNotSent(s.client3, ':client1!uclient1@127.0.0.1 NICK irc3')
+
+        s.client3.dispatch('JOIN #irc')
+        s.client1.dispatch('NICK client1')
+        self.assertSent(s.client2, ':irc3!uclient1@127.0.0.1 NICK client1')
+        self.assertSent(s.client3, ':irc3!uclient1@127.0.0.1 NICK client1')
+
+        s.client3.dispatch('PART #irc :Bye')
+        self.assertSent(s.client1, ':{mask} PART #irc :Bye', s.client3)
+        self.assertNotSent(s.client2, ':{mask} PART #irc :Bye', s.client3)

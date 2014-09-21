@@ -1,31 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from collections import defaultdict
 from .dec import event
 from .dec import extend
 from .dec import plugin
-from .utils import IrcString
 from . import config
 from . import utils
 from . import rfc
-from .compat import string_types
+from . import base
 from .compat import text_type
 from .compat import asyncio
 from .compat import Queue
-import logging.config
-import logging
 import venusian
-import signal
 import time
-import sys
-import ssl
-
-try:
-    import pkg_resources
-except ImportError:  # pragma: no cover
-    version = ''
-else:
-    version = pkg_resources.get_distribution('irc3').version
 
 
 class IrcConnection(asyncio.Protocol):
@@ -85,7 +71,7 @@ class IrcConnection(asyncio.Protocol):
                 self.closed = True
 
 
-class IrcBot(object):
+class IrcBot(base.IrcObject):
     """An IRC bot"""
 
     _pep8 = [event, extend, plugin, rfc, config]
@@ -101,20 +87,11 @@ class IrcBot(object):
     logging_config = config.LOGGING
 
     defaults = dict(
+        base.IrcObject.defaults,
         nick='irc3',
         realname='irc3',
         userinfo='Irc bot based on irc3 http://irc3.readthedocs.org',
         host='irc.freenode.net',
-        port=6667,
-        ssl=False,
-        timeout=320,
-        max_lag=60,
-        ssl_verify=ssl.CERT_REQUIRED,
-        encoding='utf8',
-        testing=False,
-        async=True,
-        max_length=512,
-        version=version,
         url='https://irc3.readthedocs.org/',
         ctcp=dict(
             version='irc3 {version} - {url}',
@@ -128,43 +105,15 @@ class IrcBot(object):
             CHANTYPES='#',
             CHANMODES='eIbq,k,flj,CFLMPQScgimnprstz',
         ),
-        loop=None,
         connection=IrcConnection,
     )
 
     def __init__(self, *ini, **config):
-        self.config = utils.Config(dict(self.defaults, *ini, **config))
-        logging.config.dictConfig(self.logging_config)
-        self.log = logging.getLogger('irc3.' + self.nick)
-        self.original_nick = self.nick
-        if config.get('verbose'):
-            logging.getLogger('irc3').setLevel(logging.DEBUG)
-        else:
-            level = config.get('level')
-            if level is not None:
-                level = getattr(logging, str(level), level)
-                self.log.setLevel(level)
-        self.encoding = self.config['encoding']
-
-        self.loop = self.config.loop
-        if self.loop is None:
-            self.loop = asyncio.get_event_loop()
-
-        self.events_re = {'in': [], 'out': []}
-        self.events = {
-            'in': defaultdict(list),
-            'out': defaultdict(list)
-        }
-
-        self.plugins = {}
-        self.includes = set()
-        self.include(*self.config.get('includes', []))
-
+        super(IrcBot, self).__init__(*ini, **config)
         # auto include the autojoins plugin if needed (for backward compat)
         if 'autojoins' in self.config and \
            'irc3.plugins.autojoins' not in self.includes:
             self.include('irc3.plugins.autojoins')
-
         self.recompile()
 
     @property
@@ -178,83 +127,6 @@ class IrcBot(object):
         The real values are only available after the server sent them.
         """
         return self.config.server_config
-
-    def get_plugin(self, ob):
-        if isinstance(ob, str):
-            name = ob
-            ob = utils.maybedotted(ob)
-            if ob not in self.plugins:
-                plugins = [(p.__module__, p.__name__)
-                           for p in self.plugins.keys()]
-                names = ['%s.%s' % p for p in plugins]
-                raise LookupError('Plugin %s not found in %s' % (name, names))
-        if ob not in self.plugins:
-            self.log.info("Register plugin '%s.%s'",
-                          ob.__module__, ob.__name__)
-            for dotted in getattr(ob, 'requires', []):
-                if dotted not in self.includes:
-                    self.include(dotted)
-            plugin = ob(self)
-            self.plugins[ob] = plugin
-        return self.plugins[ob]
-
-    def recompile(self):
-        for iotype in ('in', 'out'):
-            events_re = []
-            for regexp, cregexp in self.events_re[iotype]:
-                e = self.events[iotype][regexp][0]
-                e.compile(self.config)
-                events_re.append((regexp, e.cregexp))
-            self.events_re[iotype] = events_re
-
-    def attach_events(self, *events, **kwargs):
-        """Attach one or more events to the bot instance"""
-        for e in events:
-            e.compile(self.config)
-            regexp = getattr(e.regexp, 're', e.regexp)
-            if regexp not in self.events[e.iotype]:
-                if 'insert' in kwargs:
-                    self.events_re[e.iotype].insert(0, (regexp, e.cregexp))
-                else:
-                    self.events_re[e.iotype].append((regexp, e.cregexp))
-            if 'insert' in kwargs:
-                self.events[e.iotype][regexp].insert(0, e)
-            else:
-                self.events[e.iotype][regexp].append(e)
-
-    def detach_events(self, *events):
-        """Detach one or more events from the bot instance"""
-        for e in events:
-            regexp = getattr(e.regexp, 're', e.regexp)
-            if e in self.events[e.iotype].get(regexp, []):
-                self.events[e.iotype][regexp].remove(e)
-                if not self.events[e.iotype][regexp]:
-                    del self.events[e.iotype][regexp]
-                    events_re = self.events_re[e.iotype]
-                    events_re = [r for r in events_re if r[0] != regexp]
-                    self.events_re[e.iotype] = events_re
-
-    def include(self, *modules, **kwargs):
-        categories = kwargs.get('venusian_categories',
-                                self.venusian_categories)
-        scanner = self.venusian.Scanner(bot=self)
-        for module in modules:
-            if module in self.includes:
-                self.log.warn('%s included twice', module)
-            else:
-                self.includes.add(module)
-                module = utils.maybedotted(module)
-                # we have to manualy check for plugins. venusian no longer
-                # support to attach both a class and methods
-                for klass in module.__dict__.values():
-                    if not isinstance(klass, type):
-                        continue
-                    if klass.__module__ == module.__name__:
-                        if getattr(klass, '__irc3_plugin__', False):
-                            self.get_plugin(klass)
-                        elif getattr(klass, venusian.ATTACH_ATTR, None):
-                            self.get_plugin(klass)
-                scanner.scan(module, categories=categories)
 
     def connection_made(self, f):  # pragma: no cover
         if getattr(self, 'protocol', None):
@@ -272,51 +144,19 @@ class IrcBot(object):
             self.protocol.encoding = self.encoding
             if self.config.get('password'):
                 self._send('PASS {password}'.format(**self.config))
-            self._send((
+            self.send((
                 'USER {realname} {host} {host} :{userinfo}\r\n'
-                'NICK {nick}\r\n').format(**self.config))
+                'NICK {nick}\r\n'
+            ).format(**self.config))
             self.notify('connection_made')
-
-    def notify(self, event, exc=None):
-        for p in self.plugins.values():
-            meth = getattr(p, event, None)
-            if meth is not None:
-                meth()
-
-    def dispatch(self, data, iotype='in'):
-        events = []
-        for regexp, cregexp in self.events_re[iotype]:
-            match = cregexp.search(data)
-            if match is not None:
-                match = match.groupdict()
-                for key, value in match.items():
-                    if value is not None:
-                        match[key] = IrcString(value)
-                for e in self.events[iotype][regexp]:
-                    self.loop.call_soon(e.async_callback, match)
-                    events.append((e, match))
-        return events
 
     def send(self, data):
         """send data to the server"""
         self._send(data)
-        self.dispatch(data, iotype='out')
 
     def _send(self, data):
-        # private method to avoid dispatch()
-        self.log.debug('> %s', data.strip())
         self.protocol.write(data)
-
-    def call_many(self, callback, args):
-        """callback is run with each arg but run a call per second"""
-        if isinstance(callback, string_types):
-            callback = getattr(self, callback)
-        i = 0
-        for i, arg in enumerate(args):
-            self.loop.call_later(i, callback, *arg)
-        f = asyncio.Future()
-        self.loop.call_later(i + 1, f.set_result, True)
-        return f
+        self.dispatch(data, iotype='out')
 
     def privmsg(self, target, message):
         """send a privmsg to target"""
@@ -376,25 +216,6 @@ class IrcBot(object):
 
     nick = property(get_nick, set_nick, doc='nickname get/set')
 
-    def create_connection(self):
-        protocol = utils.maybedotted(self.config.connection)
-
-        if self.config.ssl:
-            context = ssl.SSLContext(ssl.PROTOCOL_SSLv23)
-            # CERT_NONE / CERT_OPTIONAL / CERT_REQUIRED
-            context.verify_mode = self.config.ssl_verify
-        else:
-            context = False
-
-        t = asyncio.Task(
-            self.loop.create_connection(
-                protocol, self.config.host,
-                self.config.port, ssl=context),
-            loop=self.loop)
-
-        t.add_done_callback(self.connection_made)
-        return self.loop
-
     def SIGHUP(self):
         self.quit('HUP')
         time.sleep(1)
@@ -410,69 +231,6 @@ class IrcBot(object):
             time.sleep(1)
         self.loop.stop()
 
-    def run(self, forever=True):
-        """start the bot"""
-        loop = self.create_connection()
-        loop.add_signal_handler(signal.SIGHUP, self.SIGHUP)
-        loop.add_signal_handler(signal.SIGINT, self.SIGINT)
-        if forever:
-            loop.run_forever()
-
 
 def run(argv=None):
-    """
-    Run an irc bot from a config file
-
-    Usage: irc3 [options] <config>...
-
-    Options:
-
-    --logdir DIRECTORY  Log directory to use instead of stderr
-    --logdate           Show datetimes in console output
-    -v,--verbose        Increase verbosity
-    -r,--raw            Show raw irc log on the console
-    -d,--debug          Add some debug commands/utils
-    -i,--interactive    Load a ipython console with a bot instance
-    --help-page         Output a reST page containing commands help
-    """
-    import os
-    import docopt
-    import textwrap
-    args = argv or sys.argv[1:]
-    args = docopt.docopt(textwrap.dedent(run.__doc__), args)
-    cfg = utils.parse_config(*args['<config>'])
-    cfg.update(
-        verbose=args['--verbose'],
-        debug=args['--debug'],
-    )
-    pythonpath = cfg.get('pythonpath', [])
-    pythonpath.append(cfg['here'])
-    for path in pythonpath:
-        sys.path.append(os.path.expanduser(path))
-    if args['--logdir'] or 'logdir' in cfg:
-        logdir = os.path.expanduser(args['--logdir'] or cfg.get('logdir'))
-        IrcBot.logging_config = config.get_file_config(logdir)
-    if args['--logdate']:  # pragma: no cover
-        fmt = IrcBot.logging_config['formatters']['console']
-        fmt['format'] = config.TIMESTAMPED_FMT
-    if args['--help-page']:  # pragma: no cover
-        for v in IrcBot.logging_config['handlers'].values():
-            v['level'] = 'ERROR'
-    if args['--debug']:
-        IrcBot.venusian_categories.append('irc3.debug')
-    if args['--interactive']:  # pragma: no cover
-        import irc3.testing
-        bot = irc3.testing.IrcBot(**cfg)
-    else:
-        bot = IrcBot(**cfg)
-    if args['--raw']:
-        bot.include('irc3.plugins.log', venusian_categories=['irc3.debug'])
-    if args['--help-page']:  # pragma: no cover
-        bot.print_help_page()
-    elif args['--interactive']:  # pragma: no cover
-        import IPython
-        IPython.embed()
-    else:
-        bot.run()
-    if argv:
-        return bot
+    return base.run(argv, klass=IrcBot)

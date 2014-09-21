@@ -17,11 +17,11 @@ class TestBot(BotTestCase):
 
     def test_plugin(self):
         bot = self.callFTU()
-        bot.include('irc3.plugins.log')
-        plugin = bot.get_plugin('irc3.plugins.log.RawLog')
+        bot.include('irc3.plugins.command')
+        plugin = bot.get_plugin('irc3.plugins.command.Commands')
         self.assertTrue(plugin is not None)
         self.assertRaises(LookupError, bot.get_plugin,
-                          'irc3.plugins.command.Commands')
+                          'irc3.plugins.log.RawLog')
 
     def test_message(self):
         bot = self.callFTU()

@@ -104,16 +104,16 @@ def cron(cronline, venusian_category='irc3.plugins.cron'):
     """main decorator"""
     def wrapper(func):
         def callback(context, name, ob):
-            bot = context.bot
-            crons = bot.get_plugin(Crons)
+            obj = context.context
+            crons = obj.get_plugin(Crons)
             if info.scope == 'class':
                 callback = getattr(
-                    bot.get_plugin(ob),
+                    obj.get_plugin(ob),
                     func.__name__)
             else:
                 @functools.wraps(func)
                 def wrapper(**kwargs):
-                    return func(bot, **kwargs)
+                    return func(obj, **kwargs)
                 callback = wrapper
             crons.add_cron(cronline, callback)
         info = venusian.attach(func, callback, category=venusian_category)
