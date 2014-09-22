@@ -14,6 +14,8 @@ def render_attrs(title, attrs, out):
             title = '%s - %s' % (attr, title)
         out.write(title + '\n')
         out.write(len(title)*'-' + '\n\n')
+        if hasattr(attr, 'tpl'):
+            out.write('Format ``%s``\n\n' % attr.tpl.replace('{c.', '{'))
         out.write('Match ``%s``\n\n' % attr.re)
         out.write('Example:\n\n')
         out.write('.. code-block:: python\n\n')

@@ -97,6 +97,7 @@ Available options
     guard = irc3.plugins.command.mask_based_policy
 
 '''
+from irc3.compat import PY3
 from irc3.compat import string_types
 from irc3 import utils
 from collections import defaultdict
@@ -228,9 +229,10 @@ class Commands(dict):
         doc = [nick + ' ' + l.strip('%%')
                for l in doc if l.startswith('%%')]
         doc = 'Usage:' + '\n    ' + '\n    '.join(doc)
+        encoding = self.context.encoding
         if data:
             if not isinstance(data, str):  # pragma: no cover
-                data = data.encode(self.context.encoding)
+                data = data.encode(encoding)
         data = data and data.split() or []
         try:
             args = docopt.docopt(doc, [meth.__name__] + data, help=False)
@@ -243,6 +245,13 @@ class Commands(dict):
                     client if self.context.server else client.nick,
                     "Please be patient and don't flood me")
             else:
+                if not PY3:
+                    # back to unicode
+                    for k, v in args.items():
+                        if isinstance(v, list):
+                            args[k] = [s.decode(encoding) for s in v]
+                        elif v not in (None, True, False):
+                            args[k] = v.decode(encoding)
                 msgs = self.guard(predicates, meth, client, target, args=args)
                 if msgs is not None:
                     def iterator(msgs):

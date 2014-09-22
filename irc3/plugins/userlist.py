@@ -111,7 +111,6 @@ class Userlist(object):
             self.nicks[mask.nick] = client or mask
             if client:
                 self.broadcast(client=client, clients=channel, **kwargs)
-                self.context.NAMES(client=client, **kwargs)
 
     def part(self, nick, mask=None, channel=None, client=None, **kwargs):
         if nick == self.context.nick:
@@ -164,10 +163,10 @@ class Userlist(object):
             self.nicks[nick] = nick
 
     @event(rfc.RPL_WHOREPLY)
-    def who(self, channel=None, nick=None, user=None, host=None, **kw):
+    def who(self, channel=None, nick=None, username=None, server=None, **kw):
         """Set nick mask"""
         self.channels[channel].add(nick)
-        mask = IrcString(nick + '!' + user + '@' + host)
+        mask = IrcString(nick + '!' + username + '@' + server)
         self.nicks[nick] = mask
 
     @event(rfc.MODE)

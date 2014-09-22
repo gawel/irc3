@@ -30,13 +30,13 @@ token_secret=token_secret
 """
 
 
-def ini2config(data):
+def ini2config(data, type='bot'):
     if PY3:
         data = data.encode('utf8')
     with tempfile.NamedTemporaryFile(prefix='irc3-') as fd:
         fd.write(data)
         fd.flush()
-        data = irc3.utils.parse_config('bot', fd.name)
+        data = irc3.utils.parse_config(type, fd.name)
     return data
 
 
@@ -202,7 +202,7 @@ class IrcServer(irc3d.IrcServer):
 
 class ServerTestCase(IrcTestCase):
 
-    config = {'servername': 'irc.example.com',
+    config = {'servername': 'irc.com',
               'includes': ['irc3d.plugins.core']}
 
     def callFTU(self, clients=2, **config):

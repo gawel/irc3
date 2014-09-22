@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 __doc__ = '''
 ==============================================
-:mod:`irc3.plugins.server` Server core plugin
+:mod:`irc3d.plugins.core` Server core plugin
 ==============================================
 
 Provide basic server functionality.
@@ -46,12 +47,12 @@ class Core(object):
         data = client.data
         data.update(kwargs)
         if client.registered:
-            if 'register_time' not in data:
-                data['register_time'] = time.time()
+            if 'signon' not in data:
+                data['signon'] = int(time.time())
                 client.nick = data['nick']
                 self.context.notify('connection_made', client=client)
-                client.fwrite(':{servername} 001 {nick} :Welcome')
-                client.fwrite(':{servername} 004 {nick} :irc3d {version}')
+                client.fwrite(':{c.srv} 001 {c.nick} :Welcome')
+                client.fwrite(':{c.srv} 004 {c.nick} :irc3d {c.version}')
                 self.MOTD(client)
 
     @command
@@ -62,35 +63,16 @@ class Core(object):
         """
         config = self.context.config
         if 'motd_fmt' not in config:
-            config['motd_fmt'] = (
-                ':{servername} 422 {nick} :MOTD File is missing')
+            config['motd_fmt'] = rfc.ERR_NOMOTD
             if not config.testing and os.path.isfile(config.motd):
                 with open(config.motd) as fd:
                     lines = [l.rstrip() for l in fd.readlines()]
-                    data = [(
-                        ':{servername} 375 {nick} :'
-                        '- {servername} Message of the day -'
-                    )] + [
-                        ':{servername} 372 {nick} :' + l for l in lines
-                    ] + [':{servername} 376 {nick} :End of /MOTD command']
+                    data = [rfc.RPL_MOTDSTART] + [
+                        ':{c.srv} 372 {c.nick} :' + l for l in lines
+                    ] + [rfc.RPL_ENDOFMOTD]
                     config['motd_fmt'] = '\r\n'.join(data)
 
-        client.fwrite(config.motd_fmt)
-
-    @irc3d.extend
-    @command
-    def NAMES(self, client=None, args=None, **kwargs):
-        """NAMES
-
-            %%NAMES <channel>
-        """
-        if args:
-            kwargs['channel'] = args['<channel>']
-        channel = self.context.channels[kwargs['channel']]
-        client.fwrite((
-            ':{servername} 353 {nick} @ {channel} :{nicknames}\r\n'
-            ':{servername} 366 {nick} {channel} :End of /NAMES list'),
-            nicknames=' '.join(channel), **kwargs)
+        client.fwrite(config.motd_fmt, server=client.srv)
 
     @command
     def PING(self, client, args):
@@ -98,17 +80,4 @@ class Core(object):
 
             %%PING <data>
         """
-        client.fwrite(':{servername} PONG {servername} :{<data>}', **args)
-
-    @irc3d.event(rfc.PRIVMSG)
-    def privmsg(self, client=None, target=None, **kwargs):
-        """PRIVMSG/NOTICE"""
-        if target.is_channel:
-            clients = self.context.channels[target]
-        else:
-            clients = [target]
-        self.context.broadcast(
-            client=client,
-            broadcast=':{mask} {event} {target} :{data}'.format(
-                mask=client.mask, target=target, **kwargs),
-            clients=clients)
+        client.fwrite(':{c.srv} PONG {c.srv} :{<data>}', **args)

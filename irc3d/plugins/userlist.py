@@ -1,7 +1,24 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+__doc__ = '''
+============================================================
+:mod:`irc3d.plugins.userlist` Nick and channel related stuff
+============================================================
+
+Use :mod:`~irc3.plugins.userlist` to maintain a list of channels/users
+
+API
+===
+
+.. autoclass:: ServerUserlist
+   :members:
+
+'''
 from irc3.plugins import userlist
+from irc3 import utils
 from irc3 import rfc
 import irc3d
+import string
 
 
 @irc3d.plugin
@@ -23,7 +40,7 @@ class ServerUserlist(userlist.Userlist):
         if clients is None:
             clients = self.context.clients.values()
         else:
-            clients = [self.nicks.get(nick) for nick in clients]
+            clients = [self.nicks.get(str(c)) for c in clients]
         for c in clients:
             c.write(kwargs['broadcast'])
 
@@ -38,6 +55,8 @@ class ServerUserlist(userlist.Userlist):
             broadcast=message.format(mask=client.mask, **args),
             channel=args['<channel>'])
         self.join(client.nick, client.mask, client=client, **kwargs)
+        client.channels.add(args['<channel>'])
+        self.NAMES(client=client, **kwargs)
 
     @irc3d.command
     def PART(self, client, args=None, **kwargs):
@@ -54,6 +73,7 @@ class ServerUserlist(userlist.Userlist):
             channel=args.get('<channel>'),
         )
         self.part(client.nick, client.mask, **kwargs)
+        client.channels.remove(args['<channel>'])
 
     @irc3d.command
     def QUIT(self, client, args=None, **kwargs):
@@ -104,10 +124,85 @@ class ServerUserlist(userlist.Userlist):
         else:
             self.context.register(client, nick=new_nick)
 
+    @irc3d.command
+    def PRIVMSG(self, client=None, args=None, event='PRIVMSG', **kwargs):
+        """PRIVMSG
+
+            %%PRIVMSG <target> <:message>...
+        """
+        target = self.nicks.get(args['<target>'], None)
+        if target is not None:
+            clients = [target]
+        else:
+            clients = self.channels.get(args['<target>'], None)
+        if clients is not None:
+            data = ' '.join(args['<:message>'])
+            self.broadcast(
+                client=client,
+                broadcast=':{c.mask} {event} {<target>} {data}'.format(
+                    c=client, target=target, event=event, data=data, **args),
+                clients=clients)
+        else:
+            client.fwrite(rfc.ERR_NOSUCHNICK)
+
     @irc3d.event(rfc.MODE)
-    def mode(self, **kw):
+    def mode(self, target=None, **kw):
         """MODE
 
             %%MODE <channel> <modes> <nicks>...
+            %%MODE <modes> <nick>
         """
-        super(ServerUserlist, self).mode(**kw)
+        if target.is_channel:
+            super(ServerUserlist, self).mode(target=target, **kw)
+        elif kw['data'] is None:
+            client = kw['client']
+            modes = utils.parse_modes(kw['modes'], noargs=string.ascii_letters)
+            for char, mode, tgt in modes:
+                meth = getattr(self.context, 'UMODE_' + mode, None)
+                if meth is not None:
+                    if meth(client, target, char, mode):
+                        if char == '+':
+                            client.modes.add(mode)
+                        elif char in client.modes:
+                            client.modes.remove(mode)
+                else:
+                    client.fwrite(rfc.ERR_UMODEUNKNOWNFLAG)
+        else:
+            client.fwrite(rfc.ERR_NOSUCHCHANNEL, channel=target)
+
+    @irc3d.extend
+    def UMODE_i(self, client, target, char, mode):
+        return client.nick == target
+
+    @irc3d.command
+    def NAMES(self, client=None, args=None, **kwargs):
+        """NAMES
+
+            %%NAMES <channel>
+        """
+        if args:
+            kwargs['channel'] = args['<channel>']
+        channel = self.context.channels[kwargs['channel']]
+        client.fwrite((rfc.RPL_NAMREPLY, rfc.RPL_ENDOFNAMES),
+                      nicknames=' '.join(channel), **kwargs)
+
+    @irc3d.command
+    def WHOIS(self, client=None, args=None, **kwargs):
+        """WHOIS
+
+            %%WHOIS <nick>
+        """
+        try:
+            target = self.nicks[args['<nick>']]
+            kwargs.update(target.data)
+        except:
+            channels = None
+            kwargs['nick'] = args['<nick>']
+            rpl = [rfc.ERR_NOSUCHNICK]
+        else:
+            channels = ' '.join(target.channels)
+            rpl = [rfc.RPL_WHOISUSER]
+            if channels:
+                rpl.append(rfc.RPL_WHOISCHANNELS)
+        rpl.append(rfc.RPL_ENDOFWHOIS)
+        client.fwrite(rpl, channels=channels, **kwargs)

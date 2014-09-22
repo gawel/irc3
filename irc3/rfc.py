@@ -49,9 +49,9 @@ KICK = raw.new(
 
 MODE = raw.new(
     'MODE',
-    (r':(?P<mask>\S+) '
-     r'(?P<event>MODE)\s+(?P<target>\S+)\s+'
-     r'(?P<modes>\S+)(\s+(?P<data>.*)|$)'))
+    (r':(?P<mask>\S+) (?P<event>MODE)\s+'
+     r'(?P<target>\S+)\s+(?P<modes>\S+)(\s+(?P<data>.*)|$)'
+     ))
 
 MY_PRIVMSG = raw.new(
     'MY_PRIVMSG',

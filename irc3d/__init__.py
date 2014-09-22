@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import time
 import venusian
 from os import path
@@ -26,10 +27,13 @@ class IrcClient(asyncio.Protocol):
         self.factory.clients[self.uuid] = self
         self.encoding = self.factory.encoding
         self.data = {}
+        self.modes = set()
+        self.channels = set()
         t = time.time()
         self.data.update(
-            uuid=self.uuid, connection_made=t, data_received=t,
-            servername=self.factory.config.servername,
+            uuid=self.uuid, host=self.uuid[0],
+            connection_made=t, data_received=t,
+            srv=self.factory.config.servername,
             version=self.factory.config.version)
 
     def __getattr__(self, attr):
@@ -70,9 +74,12 @@ class IrcClient(asyncio.Protocol):
             data = data.encode(self.encoding)
         return data
 
-    def fwrite(self, *messages, **kwargs):
-        kwargs.update(self.data)
-        fmt = '\r\n'.join(messages)
+    def fwrite(self, messages, **kwargs):
+        kwargs['c'] = self
+        if not isinstance(messages, (list, tuple)):
+            fmt = getattr(messages, 'tpl', messages)
+        else:
+            fmt = '\r\n'.join([getattr(m, 'tpl', m) for m in messages])
         self.write(fmt.format(**kwargs))
 
     def write(self, data):
@@ -102,11 +109,13 @@ class IrcClient(asyncio.Protocol):
             finally:
                 self.closed = True
 
-    def __repr__(self):
+    def __str__(self):
         if 'nick' in self.data:
             return '{nick}'.format(**self.data)
         else:
             return 'unknown'
+
+    __repr__ = __str__
 
 
 class IrcServer(base.IrcObject):
@@ -166,7 +175,7 @@ class IrcServer(base.IrcObject):
         if client and message:
             messages = utils.split_message(message, self.config.max_length)
             for msg in messages:
-                client.fwrite(':{servername} NOTICE {nick} :{msg}', msg=msg)
+                client.fwrite(':{c.srv} NOTICE {c.nick} :{msg}', msg=msg)
 
     privmsg = notice
 
