@@ -233,4 +233,4 @@ class IrcBot(base.IrcObject):
 
 
 def run(argv=None):
-    return base.run(argv, klass=IrcBot)
+    return IrcBot.from_argv(argv)

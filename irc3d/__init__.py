@@ -187,4 +187,4 @@ class IrcServer(base.IrcObject):
 
 
 def run(argv=None):
-    return base.run(argv, klass=IrcServer)
+    return IrcServer.from_argv(argv)

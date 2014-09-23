@@ -232,67 +232,68 @@ class IrcObject(object):
         if forever:
             loop.run_forever()
 
+    @classmethod
+    def from_argv(cls, argv=None, **kwargs):
+        prog = cls.server and 'irc3d' or 'irc3'
+        doc = """
+        Run an {prog} instance from a config file
 
-def run(argv=None, klass=None):
-    prog = klass.server and 'irc3d' or 'irc3'
-    doc = """
-    Run an {prog} instance from a config file
+        Usage: {prog} [options] <config>...
 
-    Usage: {prog} [options] <config>...
+        Options:
 
-    Options:
-
-    --logdir DIRECTORY  Log directory to use instead of stderr
-    --logdate           Show datetimes in console output
-    -v,--verbose        Increase verbosity
-    -r,--raw            Show raw irc log on the console
-    -d,--debug          Add some debug commands/utils
-    -i,--interactive    Load a ipython console with a bot instance
-    """.format(prog=prog)
-    if not klass.server:
-        doc += """
-        --help-page         Output a reST page containing commands help
-        """.strip()
-    import os
-    import docopt
-    import textwrap
-    args = argv or sys.argv[1:]
-    args = docopt.docopt(textwrap.dedent(doc), args)
-    cfg = utils.parse_config(
-        klass.server and 'server' or 'bot', *args['<config>'])
-    cfg.update(
-        verbose=args['--verbose'],
-        debug=args['--debug'],
-    )
-    pythonpath = cfg.get('pythonpath', [])
-    pythonpath.append(cfg['here'])
-    for path in pythonpath:
-        sys.path.append(os.path.expanduser(path))
-    if args['--logdir'] or 'logdir' in cfg:
-        logdir = os.path.expanduser(args['--logdir'] or cfg.get('logdir'))
-        klass.logging_config = config.get_file_config(logdir)
-    if args['--logdate']:  # pragma: no cover
-        fmt = klass.logging_config['formatters']['console']
-        fmt['format'] = config.TIMESTAMPED_FMT
-    if args.get('--help-page'):  # pragma: no cover
-        for v in klass.logging_config['handlers'].values():
-            v['level'] = 'ERROR'
-    if args['--debug']:
-        klass.venusian_categories.append(prog + '.debug')
-    if args['--interactive']:  # pragma: no cover
-        import irc3.testing
-        context = getattr(irc3.testing, klass.__name__)(**cfg)
-    else:
-        context = klass(**cfg)
-    if args['--raw']:
-        context.include('irc3.plugins.log',
-                        venusian_categories=[prog + '.debug'])
-    if args.get('--help-page'):  # pragma: no cover
-        context.print_help_page()
-    elif args['--interactive']:  # pragma: no cover
-        import IPython
-        IPython.embed()
-    else:
-        context.run()
-    if argv:
-        return context
+        --logdir DIRECTORY  Log directory to use instead of stderr
+        --logdate           Show datetimes in console output
+        -v,--verbose        Increase verbosity
+        -r,--raw            Show raw irc log on the console
+        -d,--debug          Add some debug commands/utils
+        -i,--interactive    Load a ipython console with a bot instance
+        """.format(prog=prog)
+        if not cls.server:
+            doc += """
+            --help-page         Output a reST page containing commands help
+            """.strip()
+        import os
+        import docopt
+        import textwrap
+        args = argv or sys.argv[1:]
+        args = docopt.docopt(textwrap.dedent(doc), args)
+        cfg = utils.parse_config(
+            cls.server and 'server' or 'bot', *args['<config>'])
+        cfg.update(kwargs)
+        cfg.update(
+            verbose=args['--verbose'],
+            debug=args['--debug'],
+        )
+        pythonpath = cfg.get('pythonpath', [])
+        pythonpath.append(cfg['here'])
+        for path in pythonpath:
+            sys.path.append(os.path.expanduser(path))
+        if args['--logdir'] or 'logdir' in cfg:
+            logdir = os.path.expanduser(args['--logdir'] or cfg.get('logdir'))
+            cls.logging_config = config.get_file_config(logdir)
+        if args['--logdate']:  # pragma: no cover
+            fmt = cls.logging_config['formatters']['console']
+            fmt['format'] = config.TIMESTAMPED_FMT
+        if args.get('--help-page'):  # pragma: no cover
+            for v in cls.logging_config['handlers'].values():
+                v['level'] = 'ERROR'
+        if args['--debug']:
+            cls.venusian_categories.append(prog + '.debug')
+        if args['--interactive']:  # pragma: no cover
+            import irc3.testing
+            context = getattr(irc3.testing, cls.__name__)(**cfg)
+        else:
+            context = cls(**cfg)
+        if args['--raw']:
+            context.include('irc3.plugins.log',
+                            venusian_categories=[prog + '.debug'])
+        if args.get('--help-page'):  # pragma: no cover
+            context.print_help_page()
+        elif args['--interactive']:  # pragma: no cover
+            import IPython
+            IPython.embed()
+        else:
+            context.run(forever=not bool(kwargs))
+        if argv:
+            return context
