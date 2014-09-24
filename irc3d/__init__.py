@@ -168,7 +168,7 @@ class IrcServer(base.IrcObject):
             self.log.exception(e)
             self.loop.call_later(3, self.create_connection)
         else:
-            self.log.info('Connected')
+            self.log.info('Started')
 
     def notice(self, client, message):
         """send a notice to client"""

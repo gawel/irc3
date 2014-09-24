@@ -91,7 +91,7 @@ class IrcBot(base.IrcObject):
         nick='irc3',
         realname='irc3',
         userinfo='Irc bot based on irc3 http://irc3.readthedocs.org',
-        host='irc.freenode.net',
+        host='localhost',
         url='https://irc3.readthedocs.org/',
         ctcp=dict(
             version='irc3 {version} - {url}',
@@ -137,7 +137,7 @@ class IrcBot(base.IrcObject):
             self.log.exception(e)
             self.loop.call_later(3, self.create_connection)
         else:
-            self.log.info('Connected')
+            self.log.debug('Connected')
             self.protocol = protocol
             self.protocol.queue = Queue(loop=self.loop)
             self.protocol.factory = self

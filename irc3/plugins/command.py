@@ -167,7 +167,7 @@ def attach_command(func, depth=2, **predicates):
         plugin = obj.get_plugin(utils.maybedotted(commands))
         predicates.update(module=func.__module__)
         plugin[func.__name__] = (predicates, callback)
-        obj.log.info('Register command %r', func.__name__)
+        obj.log.debug('Register command %r', func.__name__)
     info = venusian.attach(func, callback,
                            category=category, depth=depth)
 

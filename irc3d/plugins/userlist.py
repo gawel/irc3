@@ -89,6 +89,7 @@ class ServerUserlist(userlist.Userlist):
             broadcast=message.format(mask=client.mask, **args),
         )
         self.quit(client.nick, client.mask, **kwargs)
+        client.close()
 
     @irc3d.command
     def KICK(self, client, args=None, **kwargs):
@@ -156,7 +157,10 @@ class ServerUserlist(userlist.Userlist):
             super(ServerUserlist, self).mode(target=target, **kw)
         elif kw['data'] is None:
             client = kw['client']
-            modes = utils.parse_modes(kw['modes'], noargs=string.ascii_letters)
+            modes = kw['modes']
+            if not modes.startswith(('+', '-')):
+                modes = '+' + modes
+            modes = utils.parse_modes(modes, noargs=string.ascii_letters)
             for char, mode, tgt in modes:
                 meth = getattr(self.context, 'UMODE_' + mode, None)
                 if meth is not None:

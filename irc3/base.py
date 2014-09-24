@@ -87,8 +87,8 @@ class IrcObject(object):
                 names = ['%s.%s' % p for p in plugins]
                 raise LookupError('Plugin %s not found in %s' % (name, names))
         if ob not in self.plugins:
-            self.log.info("Register plugin '%s.%s'",
-                          ob.__module__, ob.__name__)
+            self.log.debug("Register plugin '%s.%s'",
+                           ob.__module__, ob.__name__)
             for dotted in getattr(ob, 'requires', []):
                 if dotted not in self.includes:
                     self.include(dotted)
@@ -211,10 +211,10 @@ class IrcObject(object):
         protocol = utils.maybedotted(self.config.connection)
         protocol = type(protocol.__name__, (protocol,), {'factory': self})
         if self.server:  # pragma: no cover
-            self.log.info('Starting {servername}...'.format(**self.config))
+            self.log.debug('Starting {servername}...'.format(**self.config))
             factory = self.loop.create_server
         else:
-            self.log.info('Starting {nick}...'.format(**self.config))
+            self.log.debug('Starting {nick}...'.format(**self.config))
             factory = self.loop.create_connection
         t = asyncio.Task(
             factory(
@@ -293,7 +293,8 @@ class IrcObject(object):
         elif args['--interactive']:  # pragma: no cover
             import IPython
             IPython.embed()
+            sys.exit(0)
         else:
             context.run(forever=not bool(kwargs))
-        if argv:
+        if argv or kwargs:
             return context

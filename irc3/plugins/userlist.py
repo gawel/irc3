@@ -179,6 +179,8 @@ class Userlist(object):
         noargs = self.context.server_config['CHANMODES'].split(',')[-1]
         if not isinstance(data, list):
             data = [d for d in data.split(' ') if d]
+        if not modes.startswith(('+', '-')):
+            modes = '+' + modes
         modes = utils.parse_modes(modes, data, noargs)
         prefix = self.context.server_config['PREFIX']
         prefix = dict(zip(*prefix.strip('(').split(')')))
