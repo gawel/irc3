@@ -35,18 +35,17 @@ class Plugin(object):
 def main():
     loop = asyncio.get_event_loop()
 
-    objs = {}
+    server = IrcServer.from_argv(loop=loop)
+    bot = irc3.IrcBot.from_argv(loop=loop)
 
-    objs[0] = IrcServer.from_argv(loop=loop)
+    def factory(i):
+        irc3.IrcBot.from_argv(
+            loop=loop, i=i,
+            nick=bot.nick + str(i),
+            realname=bot.config.realname + str(i),
+        )
 
-    def bots():
-        bot = irc3.IrcBot.from_argv(loop=loop)
-        for i in range(1, 400):
-            objs[i] = irc3.IrcBot.from_argv(
-                loop=loop, i=i,
-                nick=bot.nick + str(i),
-                realname=bot.config.realname + str(i),
-                )
+    for i in range(1, server.config.client_amount):
+        loop.call_later(.1 * i, factory, i)
 
-    loop.call_later(2, bots)
     loop.run_forever()
