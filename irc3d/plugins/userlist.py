@@ -196,6 +196,9 @@ class ServerUserlist(userlist.Userlist):
         if args:
             kwargs['channel'] = args['<channel>']
         channel = self.context.channels[kwargs['channel']]
+        if self.context.config.testing:
+            # easyer to test
+            channel = sorted(channel)
         client.fwrite((rfc.RPL_NAMREPLY, rfc.RPL_ENDOFNAMES),
                       nicknames=' '.join(channel), **kwargs)
 
