@@ -40,7 +40,10 @@ class Core(object):
         '(?P<servername>\S+) :(?P<realname>.*)'))
     def user(self, client=None, **kwargs):
         """User connection"""
-        self.register(client, **kwargs)
+        if client.registered:
+            client.fwrite(rfc.ERR_ALREADYREGISTRED)
+        else:
+            self.register(client, **kwargs)
 
     @irc3d.extend
     def register(self, client, **kwargs):

@@ -173,6 +173,11 @@ class IrcClient(irc3d.IrcClient):
         super(IrcClient, self).write(data)
         self.sent.extend(data.split('\r\n'))
 
+    def reset(self, data=False):
+        self.sent = []
+        if data:
+            self.data = []
+
 
 class IrcServer(irc3d.IrcServer):
 

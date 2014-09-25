@@ -116,10 +116,7 @@ class free_policy(object):
         self.context = bot
 
     def __call__(self, predicates, meth, client, target, args, **kwargs):
-        if self.context.server:
-            return meth(client, args)
-        else:
-            return meth(client, target, args)
+        return meth(client, target, args)
 
 
 class mask_based_policy(object):
@@ -190,11 +187,13 @@ class Commands(dict):
     requires = [
         __name__.replace('command', 'core'),
     ]
+    default_policy = free_policy
 
     def __init__(self, context):
         self.context = context
-        self.config = config = context.config.get(__name__, {})
-        self.log = logging.getLogger(__name__)
+        module = self.__class__.__module__
+        self.config = config = context.config.get(module, {})
+        self.log = logging.getLogger(module)
         self.log.debug('Config: %r', config)
 
         if 'cmd' in context.config:  # in case of
@@ -203,7 +202,7 @@ class Commands(dict):
 
         self.antiflood = self.config.get('antiflood', False)
 
-        guard = utils.maybedotted(config.get('guard', free_policy))
+        guard = utils.maybedotted(config.get('guard', self.default_policy))
         self.log.debug('Guard: %s', guard.__name__)
         self.guard = guard(context)
 

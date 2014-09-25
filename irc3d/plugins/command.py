@@ -14,8 +14,45 @@ from irc3.plugins.command import Commands
 from irc3.plugins.command import attach_command
 
 
+class server_policy(object):
+    """Default server policy"""
+    def __init__(self, context):
+        self.context = context
+        self.opers = context.config.get('opers', {})
+
+    def check_oper_credentials(self, user, password):
+        """return True if credential matches"""
+        return self.opers.get(user, None) == password
+
+    def __call__(self, predicates, meth, client, target, args, **kwargs):
+        perm = predicates.get('permission', 'registered')
+        if perm is not None and not client.registered:
+            client.fwrite(rfc.ERR_NOTREGISTERED)
+        elif str(perm).lower() == 'oper' and 'o' not in client.modes:
+            client.fwrite(rfc.ERR_NOPRIVILEGES)
+        else:
+            return meth(client, args)
+
+
+def command(*func, **predicates):
+    predicates.setdefault('commands', __name__ + '.ServerCommands')
+    predicates.setdefault('venusian_category', __name__)
+    if func:
+        func = func[0]
+        attach_command(func, **predicates)
+        return func
+    else:
+        def wrapper(func):
+            attach_command(func, **predicates)
+            return func
+        return wrapper
+
+
 @plugin
 class ServerCommands(Commands):
+
+    requires = ['irc3d.plugins.userlist']
+    default_policy = server_policy
 
     @event(r'^(?P<cmd>\w+)(\s(?P<data>\S.*)|$)')
     def on_command(self, cmd, mask=None, target=None, client=None, **kw):
@@ -26,17 +63,37 @@ class ServerCommands(Commands):
         elif cmd not in ('MODE', 'USER', 'PRIVMSG', 'NOTICE'):
             client.fwrite(rfc.ERR_UNKNOWNCOMMAND, cmd=cmd)
 
+    @command
+    def OPER(self, client=None, args=None, **kwargs):
+        """OPER
 
-def command(*func, **predicates):
-    predicates.setdefault('commands', ServerCommands)
-    predicates.setdefault('venusian_category',
-                          'irc3d.plugins.command')
-    if func:
-        func = func[0]
-        attach_command(func, **predicates)
-        return func
-    else:
-        def wrapper(func):
-            attach_command(func, **predicates)
-            return func
-        return wrapper
+            %%OPER <user> <password>
+        """
+        user = args['<user>']
+        passwd = args['<password>']
+        if self.guard.check_oper_credentials(user, passwd):
+            self.context.log.warn('%r is now oper (%s)', client, user)
+            client.modes.add('o')
+            client.fwrite(rfc.RPL_YOUREOPER)
+        else:
+            self.context.log.warn('%r tried to be oper (%s)', client, user)
+            client.fwrite(rfc.ERR_PASSWDMISMATCH)
+
+    @command(permission='oper')
+    def DIE(self, client=None, args=None, **kwargs):
+        """DIE
+
+            %%DIE
+        """
+        self.context.SIGINT()
+
+    @command(permission='oper')
+    def WALLOPS(self, client=None, args=None, **kwargs):
+        """WALLOPS
+
+            %%WALLOPS <message>...
+        """
+        kw = dict(mask=client.mask, message=' '.join(args['<message>']))
+        for c in self.context.nicks.values():
+            if client is not c and 'w' in c.modes:
+                c.fwrite(':{mask} NOTICE {c.nick} :{message}', **kw)

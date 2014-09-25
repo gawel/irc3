@@ -35,12 +35,17 @@ class ServerUserlist(userlist.Userlist):
                 self.QUIT(client,
                           {'<:reason>': 'Connection reset by peer'})
 
+    def get_client(self, nick_or_client):
+        if isinstance(nick_or_client, irc3d.IrcClient):
+            return nick_or_client
+        return self.nicks.get(nick_or_client)
+
     @irc3d.extend
     def broadcast(self, client=None, clients=None, **kwargs):
         if clients is None:
             clients = self.context.clients.values()
         else:
-            clients = [self.nicks.get(str(c)) for c in clients]
+            clients = [self.get_client(c) for c in clients]
         for c in clients:
             c.write(kwargs['broadcast'])
 
@@ -107,7 +112,7 @@ class ServerUserlist(userlist.Userlist):
         )
         self.part(args['<target>'], client.mask, **kwargs)
 
-    @irc3d.command
+    @irc3d.command(permission=None)
     def NICK(self, client, args=None, **kwargs):
         """NICK
 
@@ -122,7 +127,7 @@ class ServerUserlist(userlist.Userlist):
             client.nick = new_nick
             super(ServerUserlist, self).new_nick(
                 nick, new_nick, client=client, **kwargs)
-        else:
+        else:  # pragma: no cover
             self.context.register(client, nick=new_nick)
 
     @irc3d.command
@@ -144,7 +149,7 @@ class ServerUserlist(userlist.Userlist):
                     c=client, target=target, event=event, data=data, **args),
                 clients=clients)
         else:
-            client.fwrite(rfc.ERR_NOSUCHNICK)
+            client.fwrite(rfc.ERR_NOSUCHNICK, nick=target)
 
     @irc3d.event(rfc.MODE)
     def mode(self, target=None, **kw):
@@ -167,7 +172,7 @@ class ServerUserlist(userlist.Userlist):
                     if meth(client, target, char, mode):
                         if char == '+':
                             client.modes.add(mode)
-                        elif char in client.modes:
+                        elif mode in client.modes:
                             client.modes.remove(mode)
                 else:
                     client.fwrite(rfc.ERR_UMODEUNKNOWNFLAG)
@@ -176,6 +181,10 @@ class ServerUserlist(userlist.Userlist):
 
     @irc3d.extend
     def UMODE_i(self, client, target, char, mode):
+        return client.nick == target
+
+    @irc3d.extend
+    def UMODE_w(self, client, target, char, mode):
         return client.nick == target
 
     @irc3d.command

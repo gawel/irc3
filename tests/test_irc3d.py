@@ -33,11 +33,17 @@ class TestServer(testing.ServerTestCase):
     def test_unknow_command(self):
         s = self.callFTU(clients=1)
         s.client1.dispatch('EHLO')
+        self.assertSent(
+            s.client1, ':irc.com 421 client1 EHLO :Unknown command')
 
     def test_server_notice(self):
         s = self.callFTU(clients=1)
         s.notice(s.client1, 'test')
         self.assertSent(s.client1, ':irc.com NOTICE client1 :test')
+
+    def test_broadcast(self):
+        s = self.callFTU(clients=1)
+        s.broadcast(s.client1, broadcast='Hi')
 
     def test_ping(self):
         s = self.callFTU(clients=1)
@@ -58,3 +64,7 @@ class TestServer(testing.ServerTestCase):
             s.client2, ':{mask} PRIVMSG #irc3 :Hello #irc3!', s.client1)
         self.assertNotSent(
             s.client3, ':{mask} PRIVMSG #irc3 :Hello #irc3!', s.client1)
+
+        s.client1.dispatch('PRIVMSG #irc5 :Hello #irc5!')
+        self.assertSent(
+            s.client1, ':irc.com 401 client1 None :No such nick/channel')

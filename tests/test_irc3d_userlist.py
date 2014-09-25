@@ -21,8 +21,13 @@ class TestServerUserList(testing.ServerTestCase):
 
     def test_user_modes(self):
         s = self.callFTU(clients=1)
-        s.client1.dispatch('MODE client1 +i')
-        self.assertIn('i', s.client1.modes)
+
+        for mode in 'iw':
+            s.client1.dispatch('MODE client1 +' + mode)
+            self.assertIn(mode, s.client1.modes)
+            s.client1.dispatch('MODE client1 -' + mode)
+            self.assertNotIn(mode, s.client1.modes)
+
         s.client1.dispatch('MODE client1 +s')
         self.assertSent(s.client1, ':irc.com 501 client1 :Unknown MODE flag')
 
@@ -60,6 +65,12 @@ class TestServerUserList(testing.ServerTestCase):
         s.client1.dispatch('NICK client1')
         self.assertSent(s.client2, ':irc3!uclient1@127.0.0.1 NICK client1')
         self.assertSent(s.client3, ':irc3!uclient1@127.0.0.1 NICK client1')
+
+        s.client1.reset()
+        s.client1.dispatch('NAMES #irc')
+        self.assertSent(s.client1, ':irc.com 353 client1 :client1 client3')
+        s.client1.dispatch('WHOIS client2')
+        self.assertSent(s.client1, ':irc.com 319 client1 :#irc3')
 
         s.client3.dispatch('PART #irc :Bye')
         self.assertSent(s.client1, ':{mask} PART #irc :Bye', s.client3)
