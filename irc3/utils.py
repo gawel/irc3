@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+from .compat import configparser
 import logging
 import os
-import configparser
 
 try:
     BaseString = unicode
