@@ -23,53 +23,53 @@ class raw(str):
 CONNECTED = raw.new('CONNECTED',
                     r'^:(?P<srv>\S+) (376|422) (?P<me>\S+) :(?P<data>.*)')
 
-PING = raw.new('PING', r'PING :?(?P<data>.*)')
+PING = raw.new('PING', r'^PING :?(?P<data>.*)')
 PONG = raw.new(
     'PONG',
-    r':(?P<server>\S+) PONG (?P=server) :?(?P<data>.*)')
+    r'^:(?P<server>\S+) PONG (?P=server) :?(?P<data>.*)')
 
-NEW_NICK = raw.new('NEW_NICK', r':(?P<nick>\S+) NICK :?(?P<new_nick>\S+)')
+NEW_NICK = raw.new('NEW_NICK', r'^:(?P<nick>\S+) NICK :?(?P<new_nick>\S+)')
 
-JOIN = raw.new('JOIN', r':(?P<mask>\S+) JOIN :?(?P<channel>\S+)')
+JOIN = raw.new('JOIN', r'^:(?P<mask>\S+) JOIN :?(?P<channel>\S+)')
 PART = raw.new('PART',
-               r':(?P<mask>\S+) PART (?P<channel>\S+)(\s+:(?P<data>.*)|$)')
+               r'^:(?P<mask>\S+) PART (?P<channel>\S+)(\s+:(?P<data>.*)|$)')
 QUIT = raw.new('QUIT',
-               r':(?P<mask>\S+) QUIT(\s+:(?P<data>.*)|$)')
+               r'^:(?P<mask>\S+) QUIT(\s+:(?P<data>.*)|$)')
 
 JOIN_PART_QUIT = raw.new(
     'JOIN_PART_QUIT',
-    (r':(?P<mask>\S+) '
+    (r'^:(?P<mask>\S+) '
      r'(?P<event>JOIN|PART|QUIT)\s*:*(?P<channel>\S*)(\s+:(?P<data>.*)|$)'))
 
 KICK = raw.new(
     'KICK',
-    (r':(?P<mask>\S+) '
+    (r'^:(?P<mask>\S+) '
      r'(?P<event>KICK)\s+(?P<channel>\S+)\s*(?P<target>\S+)'
      r'(\s+:(?P<data>.*)|$)'))
 
 MODE = raw.new(
     'MODE',
-    (r':(?P<mask>\S+) (?P<event>MODE)\s+'
+    (r'^:(?P<mask>\S+) (?P<event>MODE)\s+'
      r'(?P<target>\S+)\s+(?P<modes>\S+)(\s+(?P<data>.*)|$)'
      ))
 
 MY_PRIVMSG = raw.new(
     'MY_PRIVMSG',
-    (r':(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) '
+    (r'^:(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) '
         r'(?P<target>(#\S+|{nick})) :{nick}[:,\s]\s*'
         r'(?P<data>\S+.*)$'))
 
 PRIVMSG = raw.new(
     'PRIVMSG',
-    (r':(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) '
+    (r'^:(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) '
      r'(?P<target>\S+) :\s*(?P<data>\S+.*)$'))
 
 CTCP = raw.new(
     'CTCP',
-    (':(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) '
+    ('^:(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) '
      '{nick} :\x01(?P<ctcp>\S+.*)\x01$'))
 
 ERR_NICK = raw.new(
     'ERR_NICK',
-    ":(?P<srv>\S+) (?P<retcode>(432|433|436)) (?P<me>\S+) "
+    "^:(?P<srv>\S+) (?P<retcode>(432|433|436)) (?P<me>\S+) "
     "(?P<nick>\S+) :(?P<data>.*)")

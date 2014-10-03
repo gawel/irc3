@@ -11,6 +11,27 @@ class TestCommands(testing.ServerTestCase):
         self.assertSent(
             s.client1, ':irc.com 451 None :You have not registered')
 
+    def test_help(self):
+        s = self.callFTU(clients=1)
+        p = s.get_plugin('irc3d.plugins.command.ServerCommands')
+        s.client1.dispatch('HELP')
+        self.assertSent(
+            s.client1,
+            'irc.com 704 client1 index :Help topics available to users:')
+        self.assertSent(
+            s.client1, 'irc.com 706 client1 index :End of /HELP')
+        sent = ''.join(s.client1.sent)
+        for cmd in p.keys():
+            self.assertIn(cmd, sent)
+
+    def test_help_cmd(self):
+        s = self.callFTU(clients=1)
+        s.client1.dispatch('HELP join')
+        self.assertSent(
+            s.client1, 'irc.com 704 client1 index :JOIN <channel>')
+        self.assertSent(
+            s.client1, 'irc.com 706 client1 index :End of /HELP')
+
     def test_die(self):
         s = self.callFTU(clients=3, opers={'superman': 'passwd'})
         s.client1.dispatch('OPER superman passwd')

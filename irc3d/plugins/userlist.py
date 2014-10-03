@@ -140,9 +140,13 @@ class ServerUserlist(userlist.Userlist):
         if target is not None:
             clients = [target]
         else:
-            clients = self.channels.get(args['<target>'], None)
-        if clients is not None:
+            clients = self.channels.get(args['<target>'], set())
+            # do not send to sender
+            clients = clients.difference({client})
+        if clients:
             data = ' '.join(args['<:message>'])
+            if not data.startswith(':'):
+                data = ':' + data
             self.broadcast(
                 client=client,
                 broadcast=':{c.mask} {event} {<target>} {data}'.format(
@@ -150,6 +154,14 @@ class ServerUserlist(userlist.Userlist):
                 clients=clients)
         else:
             client.fwrite(rfc.ERR_NOSUCHNICK, nick=target)
+
+    @irc3d.command
+    def NOTICE(self, client=None, args=None, event='PRIVMSG', **kwargs):
+        """NOTICE
+
+            %%NOTICE <target> <:message>...
+        """
+        self.PRIVMSG(client, args, event='NOTICE', **kwargs)
 
     @irc3d.event(rfc.MODE)
     def mode(self, target=None, **kw):

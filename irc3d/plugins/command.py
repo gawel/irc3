@@ -97,3 +97,40 @@ class ServerCommands(Commands):
         for c in self.context.nicks.values():
             if client is not c and 'w' in c.modes:
                 c.fwrite(':{mask} NOTICE {c.nick} :{message}', **kw)
+
+    @command
+    def HELP(self, client=None, args=None, **kwargs):
+        """HELP
+
+            %%HELP [<cmd>]
+        """
+        index = '{c.srv} 705 {c.nick} index :'
+        msgs = []
+        if args['<cmd>']:
+            args['<cmd>'] = args['<cmd>'].upper()
+            predicates, meth = self.get(args['<cmd>'], (None, None))
+            if meth is not None:
+                doc = meth.__doc__ or ''
+                doc = [l.strip() for l in doc.split('\n') if l.strip()]
+                for line in doc:
+                    if '%%' in line:
+                        line = line.strip('%')
+                        msgs.insert(
+                            0, '{c.srv} 704 {c.nick} index :' + line)
+                    else:
+                        msgs.append(index + line)
+                msgs.append('{c.srv} 706 {c.nick} index :End of /HELP')
+                print(msgs)
+        else:
+            msgs.append(
+                '{c.srv} 704 {c.nick} index :Help topics available to users:')
+            cmds = []
+            for cmd in sorted(self.keys()):
+                cmds.append('{0:<16}'.format(cmd))
+                if len(cmds) == 3:
+                    msgs.append(index + ''.join(cmds).strip())
+                    cmds = []
+            if cmds:
+                msgs.append(index + ''.join(cmds).strip())
+            msgs.append('{c.srv} 706 {c.nick} index :End of /HELP')
+        client.fwrite(msgs)
