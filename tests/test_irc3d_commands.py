@@ -28,9 +28,9 @@ class TestCommands(testing.ServerTestCase):
         s = self.callFTU(clients=1)
         s.client1.dispatch('HELP join')
         self.assertSent(
-            s.client1, 'irc.com 704 client1 index :JOIN <channel>')
+            s.client1, 'irc.com 704 client1 join :JOIN <channel>')
         self.assertSent(
-            s.client1, 'irc.com 706 client1 index :End of /HELP')
+            s.client1, 'irc.com 706 client1 join :End of /HELP')
 
     def test_die(self):
         s = self.callFTU(clients=3, opers={'superman': 'passwd'})

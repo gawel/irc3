@@ -5,6 +5,14 @@ from irc3 import testing
 
 class TestServerUserList(testing.ServerTestCase):
 
+    def test_ison(self):
+        s = self.callFTU(clients=2)
+        s.client1.dispatch('ISON client2 client4')
+        self.assertSent(
+            s.client1,
+            ':irc.com 303 client1 :client2'
+        )
+
     def test_whois(self):
         s = self.callFTU(clients=2)
         s.client1.dispatch('WHOIS client2')

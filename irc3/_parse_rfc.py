@@ -93,9 +93,11 @@ class retcode(int):
                 params.append(v)
                 return '{%s}' % v
 
-            if item['num'] == '319':
+            if item['num'] == '303':
+                omask = ':<nicknames>'
+            elif item['num'] == '319':
                 omask = ':<channels>'
-            if item['num'] == '353':
+            elif item['num'] == '353':
                 omask = ':<nicknames>'
 
             tpl = _re_sub.sub(tsub, omask)

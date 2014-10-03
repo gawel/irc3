@@ -65,7 +65,12 @@ class ServerCommands(Commands):
 
     @command
     def OPER(self, client=None, args=None, **kwargs):
-        """OPER
+        """ The OPER command requires two arguments to be given. The first
+        argument is the name of the operator as specified in the configuration
+        file. The second argument is the password for the operator matching the
+        name and host.
+
+        The operator privileges are shown on a successful OPER.
 
             %%OPER <user> <password>
         """
@@ -100,28 +105,31 @@ class ServerCommands(Commands):
 
     @command
     def HELP(self, client=None, args=None, **kwargs):
-        """HELP
+        """HELP displays the contents of the help file for topic requested.
+        If no topic is requested, it will perform the equivalent to HELP index.
 
             %%HELP [<cmd>]
         """
-        index = '{c.srv} 705 {c.nick} index :'
         msgs = []
-        if args['<cmd>']:
-            args['<cmd>'] = args['<cmd>'].upper()
-            predicates, meth = self.get(args['<cmd>'], (None, None))
+        cmd = (args['<cmd>'] or '').upper()
+        if cmd and cmd != 'INDEX':
+            predicates, meth = self.get(cmd, (None, None))
             if meth is not None:
+                cmd = cmd.lower()
+                index = '{c.srv} 705 {c.nick} ' + cmd + ':'
                 doc = meth.__doc__ or ''
                 doc = [l.strip() for l in doc.split('\n') if l.strip()]
                 for line in doc:
                     if '%%' in line:
                         line = line.strip('%')
                         msgs.insert(
-                            0, '{c.srv} 704 {c.nick} index :' + line)
+                            0, '{c.srv} 704 {c.nick} ' + cmd + ' :' + line)
                     else:
                         msgs.append(index + line)
-                msgs.append('{c.srv} 706 {c.nick} index :End of /HELP')
+                msgs.append('{c.srv} 706 {c.nick} ' + cmd + ' :End of /HELP')
                 print(msgs)
         else:
+            index = '{c.srv} 705 {c.nick} index :'
             msgs.append(
                 '{c.srv} 704 {c.nick} index :Help topics available to users:')
             cmds = []

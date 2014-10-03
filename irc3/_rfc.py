@@ -353,7 +353,7 @@ RPL_ISON.re = (
     ":(?P<data>.*)")
 RPL_ISON.tpl = (
     ':{c.srv} 303 {c.nick} '
-    ':[{nick} {{space}{nick}}]')
+    ':{nicknames}')
 RPL_ISON.params = ['srv', 'me', 'data']
 
 RPL_UNAWAY = retcode(305)

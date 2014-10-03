@@ -50,8 +50,25 @@ class ServerUserlist(userlist.Userlist):
             c.write(kwargs['broadcast'])
 
     @irc3d.command
+    def ISON(self, client, args=None, **kwargs):
+        """ISON will return a list of users who are present on the network from
+        the list that was passed in.
+        This command is rarely used directly.
+
+            %%ISON <nicks>...
+        """
+        nicks = [n for n in args['<nicks>'] or [] if n in self.nicks]
+        client.fwrite(rfc.RPL_ISON, nicknames=' '.join(nicks))
+
+    @irc3d.command
     def JOIN(self, client, args=None, **kwargs):
-        """JOIN
+        """ The JOIN command allows you to enter a public chat area known as a
+        channel. Network wide channels are proceeded by a '#', while a local
+        server channel is proceeded by an '&'. More than one channel may be
+        specified, separated with commas (no spaces).
+
+        If the channel has a key set, the 2nd argument must be given to enter.
+        This allows channels to be password protected.
 
             %%JOIN <channel>
         """
@@ -65,7 +82,11 @@ class ServerUserlist(userlist.Userlist):
 
     @irc3d.command
     def PART(self, client, args=None, **kwargs):
-        """PART
+        """ PART requires at least a channel argument to be given. It will exit
+        the client from the specified channel. More than one channel may be
+        specified, separated with commas (no spaces).
+
+        An optional part message may be given to be displayed to the channel.
 
             %%PART <channel> [<:reason>...]
         """
@@ -82,7 +103,9 @@ class ServerUserlist(userlist.Userlist):
 
     @irc3d.command
     def QUIT(self, client, args=None, **kwargs):
-        """QUIT
+        """QUIT sends a message to the IRC server letting it know you would
+        like to disconnect.  The quit message will be displayed to the users in
+        the channels you were in when you are disconnected.
 
             %%QUIT [<:reason>...]
         """
@@ -98,7 +121,9 @@ class ServerUserlist(userlist.Userlist):
 
     @irc3d.command
     def KICK(self, client, args=None, **kwargs):
-        """KICK
+        """The KICK command will remove the specified user from the specified
+        channel, using the optional kick message.  You must be a channel
+        operator to use this command.
 
             %%KICK <channel> <target> [<:reason>...]
         """
@@ -114,7 +139,11 @@ class ServerUserlist(userlist.Userlist):
 
     @irc3d.command(permission=None)
     def NICK(self, client, args=None, **kwargs):
-        """NICK
+        """When first connected to the IRC server, NICK is required to set the
+        client's nickname.
+
+        NICK will also change the client's nickname once a connection has been
+        established.
 
             %%NICK <nick>
         """
@@ -132,7 +161,20 @@ class ServerUserlist(userlist.Userlist):
 
     @irc3d.command
     def PRIVMSG(self, client=None, args=None, event='PRIVMSG', **kwargs):
-        """PRIVMSG
+        """ PRIVMSG will send a standard message to the user or channel
+        specified.
+
+        PRIVMSG supports the following prefixes for sending messages to
+        specific clients in a channel:
+
+        @ - channel operators only
+        + - channel operators and voiced users
+
+        The nick can be extended to fit into the following syntax:
+
+        username@servername
+
+        This syntax is used to securely send a message to a service or a bot.
 
             %%PRIVMSG <target> <:message>...
         """
@@ -157,7 +199,19 @@ class ServerUserlist(userlist.Userlist):
 
     @irc3d.command
     def NOTICE(self, client=None, args=None, event='PRIVMSG', **kwargs):
-        """NOTICE
+        """NOTICE will send a notice message to the user or channel specified.
+
+        NOTICE supports the following prefixes for sending messages to specific
+        clients in a channel:
+
+        @ - channel operators only
+        + - channel operators and voiced users
+
+        The nick can be extended to fit into the following syntax:
+
+        username@servername
+
+        This syntax is used to securely send a notice to a service or a bot.
 
             %%NOTICE <target> <:message>...
         """
@@ -201,7 +255,13 @@ class ServerUserlist(userlist.Userlist):
 
     @irc3d.command
     def NAMES(self, client=None, args=None, **kwargs):
-        """NAMES
+        """ With no channel argument, NAMES shows the names (nicks) of all
+        clients logged in to the network that do not have +i flag.
+
+        With the #channel argument, it displays the nicks on that channel, also
+        respecting the +i flag of each client. If the channel specified is a
+        channel that the issuing client is currently in, all nicks are listed
+        in similar fashion to when the user first joins a channel.
 
             %%NAMES <channel>
         """
@@ -216,7 +276,10 @@ class ServerUserlist(userlist.Userlist):
 
     @irc3d.command
     def WHOIS(self, client=None, args=None, **kwargs):
-        """WHOIS
+        """WHOIS will display detailed user information for the specified nick.
+        If the first parameter is specified, WHOIS will display information
+        from the specified server, or the server that the user is on.  This is
+        how to remotely see idle time and away status.
 
             %%WHOIS <nick>
         """
