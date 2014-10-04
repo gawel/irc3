@@ -84,9 +84,26 @@ class Core(object):
                     data = [rfc.RPL_MOTDSTART] + [
                         ':{c.srv} 372 {c.nick} :' + l for l in lines
                     ] + [rfc.RPL_ENDOFMOTD]
-                    config['motd_fmt'] = '\r\n'.join(data)
+                    config['motd_fmt'] = data
 
-        client.fwrite(config.motd_fmt, server=client.srv)
+        client.fwrite(config.motd_fmt,
+                      server=client.srv, version=client.version)
+
+    @command
+    def AWAY(self, client, args):
+        """AWAY
+
+            %%AWAY [<:reason>...]
+        """
+        reason = ' '.join(args['<:reason>']).lstrip(':')
+        if not reason:
+            client.data.pop('away', None)
+            client.data.pop('away_message', None)
+            client.fwrite(rfc.RPL_UNAWAY)
+        elif reason:
+            client.data['away'] = self.context.loop.time()
+            client.data['away_message'] = reason
+            client.fwrite(rfc.RPL_NOWAWAY)
 
     @command
     def PING(self, client, args):

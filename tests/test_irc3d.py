@@ -68,3 +68,30 @@ class TestServer(testing.ServerTestCase):
         s.client1.dispatch('PRIVMSG #irc5 :Hello #irc5!')
         self.assertSent(
             s.client1, ':irc.com 401 client1 None :No such nick/channel')
+
+    def test_motd(self):
+        s = self.callFTU(clients=1)
+        s.config['testing'] = False
+        del s.config['motd_fmt']
+        s.client1.reset()
+        s.client1.dispatch('MOTD')
+        self.assertSent(
+            s.client1, ':irc.com 375 client1 :- irc.com Message of the day -')
+
+    def test_away(self):
+        s = self.callFTU(clients=2)
+        s.client1.dispatch('AWAY :away from keyboard')
+        self.assertSent(
+            s.client1,
+            ':irc.com 306 client1 :You have been marked as being away')
+        self.assertIn('away_message', s.client1.data)
+        s.client2.dispatch('WHOIS client1')
+        self.assertSent(
+            s.client2, ':irc.com 301 client2 client1 :away from keyboard')
+
+    def test_no_away(self):
+        s = self.callFTU(clients=2)
+        s.client1.dispatch('AWAY')
+        self.assertSent(
+            s.client1,
+            ':irc.com 305 client1 :You are no longer marked as being away')

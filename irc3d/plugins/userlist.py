@@ -293,6 +293,8 @@ class ServerUserlist(userlist.Userlist):
         else:
             channels = ' '.join(target.channels)
             rpl = [rfc.RPL_WHOISUSER]
+            if 'away_message' in target.data:
+                rpl.append(rfc.RPL_AWAY)
             if channels:
                 rpl.append(rfc.RPL_WHOISCHANNELS)
         rpl.append(rfc.RPL_ENDOFWHOIS)
