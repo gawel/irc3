@@ -35,15 +35,18 @@ class Core(object):
     def __init__(self, context):
         self.context = context
 
-    @irc3d.event((
-        'USER (?P<username>\S+) (?P<hostname>\S+) '
-        '(?P<servername>\S+) :(?P<realname>.*)'))
-    def user(self, client=None, **kwargs):
-        """User connection"""
+    @command(permission=None)
+    def USER(self, client, args=None):
+        """USER
+
+            %%USER <username> <hostname> <servername> <:realname>...
+        """
         if client.registered:
             client.fwrite(rfc.ERR_ALREADYREGISTRED)
         else:
-            self.register(client, **kwargs)
+            self.register(client,
+                          username=args['<username>'],
+                          realname=' '.join(args['<:realname>']).lstrip(':'))
 
     @irc3d.extend
     def register(self, client, **kwargs):
@@ -55,8 +58,16 @@ class Core(object):
                 client.nick = data['nick']
                 self.context.notify('connection_made', client=client)
                 client.fwrite(':{c.srv} 001 {c.nick} :Welcome')
-                client.fwrite(':{c.srv} 004 {c.nick} :irc3d {c.version}')
+                self.VERSION(client)
                 self.MOTD(client)
+
+    @command
+    def VERSION(self, client, args=None):
+        """VERSION
+
+            %%VERSION
+        """
+        client.fwrite(':{c.srv} 004 {c.nick} :irc3d {c.version}')
 
     @command
     def MOTD(self, client, args=None):
