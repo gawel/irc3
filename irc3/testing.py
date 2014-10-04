@@ -190,6 +190,7 @@ class IrcServer(irc3d.IrcServer):
         config.update(testing=True, async=False, level=1000,
                       loop=loop)
         super(IrcServer, self).__init__(**config)
+        print(self.clients)
 
     def add_clients(self, amount=2):
         for i in range(1, amount + 1):

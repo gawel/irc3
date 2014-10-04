@@ -13,6 +13,7 @@ class TestServer(testing.ServerTestCase):
 
     def test_mock(self):
         s = self.callFTU(clients=2)
+        print(s.clients)
         self.assertEqual(len(s.clients), 2)
 
     def test_connection_lost(self):

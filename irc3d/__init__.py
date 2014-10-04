@@ -157,7 +157,9 @@ class IrcServer(base.IrcObject):
         servername='localhost',
     )
 
-    clients = defaultdict(dict)
+    def __init__(self, *args, **kwargs):
+        self.clients = defaultdict(dict)
+        super(IrcServer, self).__init__(*args, **kwargs)
 
     def connection_made(self, f):  # pragma: no cover
         if getattr(self, 'protocol', None):
