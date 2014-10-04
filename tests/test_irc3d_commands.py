@@ -32,11 +32,6 @@ class TestCommands(testing.ServerTestCase):
         self.assertSent(
             s.client1, 'irc.com 706 client1 join :End of /HELP')
 
-    def test_die(self):
-        s = self.callFTU(clients=3, opers={'superman': 'passwd'})
-        s.client1.dispatch('OPER superman passwd')
-        s.client1.dispatch('DIE')
-
     def test_oper(self):
         s = self.callFTU(clients=3, opers={'superman': 'passwd'})
         s.client2.modes.add('w')

@@ -84,25 +84,6 @@ class ServerCommands(Commands):
             self.context.log.warn('%r tried to be oper (%s)', client, user)
             client.fwrite(rfc.ERR_PASSWDMISMATCH)
 
-    @command(permission='oper')
-    def DIE(self, client=None, args=None, **kwargs):
-        """DIE
-
-            %%DIE
-        """
-        self.context.SIGINT()
-
-    @command(permission='oper')
-    def WALLOPS(self, client=None, args=None, **kwargs):
-        """WALLOPS
-
-            %%WALLOPS <message>...
-        """
-        kw = dict(mask=client.mask, message=' '.join(args['<message>']))
-        for c in self.context.nicks.values():
-            if client is not c and 'w' in c.modes:
-                c.fwrite(':{mask} NOTICE {c.nick} :{message}', **kw)
-
     @command
     def HELP(self, client=None, args=None, **kwargs):
         """HELP displays the contents of the help file for topic requested.
@@ -116,7 +97,7 @@ class ServerCommands(Commands):
             predicates, meth = self.get(cmd, (None, None))
             if meth is not None:
                 cmd = cmd.lower()
-                index = '{c.srv} 705 {c.nick} ' + cmd + ':'
+                index = '{c.srv} 705 {c.nick} ' + cmd + ' :'
                 doc = meth.__doc__ or ''
                 doc = [l.strip() for l in doc.split('\n') if l.strip()]
                 for line in doc:
@@ -127,7 +108,6 @@ class ServerCommands(Commands):
                     else:
                         msgs.append(index + line)
                 msgs.append('{c.srv} 706 {c.nick} ' + cmd + ' :End of /HELP')
-                print(msgs)
         else:
             index = '{c.srv} 705 {c.nick} index :'
             msgs.append(

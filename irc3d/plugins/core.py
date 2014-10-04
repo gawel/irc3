@@ -90,6 +90,34 @@ class Core(object):
                       server=client.srv, version=client.version)
 
     @command
+    def PING(self, client, args):
+        """PING
+
+            %%PING <data>
+        """
+        client.fwrite(':{c.srv} PONG {c.srv} :{<data>}', **args)
+
+    @command(permission='oper')
+    def DIE(self, client=None, args=None, **kwargs):
+        """DIE
+
+            %%DIE
+        """
+        self.context.log.warn('%r killed me', client)
+        self.context.SIGINT()
+
+    @command(permission='oper')
+    def WALLOPS(self, client=None, args=None, **kwargs):
+        """WALLOPS
+
+            %%WALLOPS <message>...
+        """
+        kw = dict(mask=client.mask, message=' '.join(args['<message>']))
+        for c in self.context.nicks.values():
+            if client is not c and 'w' in c.modes:
+                c.fwrite(':{mask} NOTICE {c.nick} :{message}', **kw)
+
+    @command
     def AWAY(self, client, args):
         """AWAY
 
@@ -104,11 +132,3 @@ class Core(object):
             client.data['away'] = self.context.loop.time()
             client.data['away_message'] = reason
             client.fwrite(rfc.RPL_NOWAWAY)
-
-    @command
-    def PING(self, client, args):
-        """PING
-
-            %%PING <data>
-        """
-        client.fwrite(':{c.srv} PONG {c.srv} :{<data>}', **args)

@@ -45,11 +45,6 @@ class TestServer(testing.ServerTestCase):
         s = self.callFTU(clients=1)
         s.broadcast(s.client1, broadcast='Hi')
 
-    def test_ping(self):
-        s = self.callFTU(clients=1)
-        s.client1.dispatch('PING xx')
-        self.assertSent(s.client1, ':irc.com PONG irc.com :xx')
-
     def test_privmsg(self):
         s = self.callFTU(clients=3)
         s.client1.dispatch('JOIN #irc3')
@@ -78,6 +73,11 @@ class TestServer(testing.ServerTestCase):
         self.assertSent(
             s.client1, ':irc.com 375 client1 :- irc.com Message of the day -')
 
+    def test_ping(self):
+        s = self.callFTU(clients=1)
+        s.client1.dispatch('PING xx')
+        self.assertSent(s.client1, ':irc.com PONG irc.com :xx')
+
     def test_away(self):
         s = self.callFTU(clients=2)
         s.client1.dispatch('AWAY :away from keyboard')
@@ -95,3 +95,8 @@ class TestServer(testing.ServerTestCase):
         self.assertSent(
             s.client1,
             ':irc.com 305 client1 :You are no longer marked as being away')
+
+    def test_die(self):
+        s = self.callFTU(clients=3, opers={'superman': 'passwd'})
+        s.client1.dispatch('OPER superman passwd')
+        s.client1.dispatch('DIE')
