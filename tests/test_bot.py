@@ -23,6 +23,11 @@ class TestBot(BotTestCase):
         self.assertRaises(LookupError, bot.get_plugin,
                           'irc3.plugins.log.RawLog')
 
+    def test_join(self):
+        bot = self.callFTU(passwords=dict(foo='bar'))
+        bot.join('#foo')
+        self.assertSent(['JOIN #foo bar'])
+
     def test_message(self):
         bot = self.callFTU()
         bot.privmsg('gawel', 'Youhou!')

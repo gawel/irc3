@@ -93,6 +93,7 @@ class IrcBot(base.IrcObject):
         userinfo='Irc bot based on irc3 http://irc3.readthedocs.org',
         host='localhost',
         url='https://irc3.readthedocs.org/',
+        passwords={},
         ctcp=dict(
             version='irc3 {version} - {url}',
             userinfo='{userinfo}',
@@ -188,6 +189,10 @@ class IrcBot(base.IrcObject):
 
     def join(self, target):
         """join a channel"""
+        password = self.config.passwords.get(
+            target.strip(self.server_config['CHANTYPES']))
+        if password:
+            target += ' ' + password
         self.send('JOIN %s' % target)
 
     def part(self, target, reason=None):
