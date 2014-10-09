@@ -48,6 +48,11 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': False,
         },
+        'trollius': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
         'requests': {
             'handlers': ['console'],
             'level': 'ERROR',
