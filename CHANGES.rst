@@ -1,7 +1,11 @@
 0.5.2 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Basic irc3d server
+
+- Modules reorganisation
+
+- Add S3 logger
 
 
 0.5.1 (2014-07-21)
