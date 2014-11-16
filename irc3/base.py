@@ -194,17 +194,22 @@ class IrcObject(object):
 
     def get_ssl_context(self):
         if self.config.ssl:  # pragma: no cover
-            if self.server:
-                context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
+            try:
+                create_default_context = ssl.create_default_context
+            except AttributeError:  # py < 2.7.9
+                return True
             else:
-                context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-            verify_mode = self.config.ssl_verify
-            if verify_mode is not False:
-                if not isinstance(verify_mode, int):
-                    # CERT_NONE / CERT_OPTIONAL / CERT_REQUIRED
-                    verify_mode = getattr(ssl, verify_mode.upper())
-                context.verify_mode = verify_mode
-            return context
+                if self.server:
+                    context = create_default_context(ssl.Purpose.SERVER_AUTH)
+                else:
+                    context = create_default_context(ssl.Purpose.CLIENT_AUTH)
+                verify_mode = self.config.ssl_verify
+                if verify_mode is not False:
+                    if not isinstance(verify_mode, int):
+                        # CERT_NONE / CERT_OPTIONAL / CERT_REQUIRED
+                        verify_mode = getattr(ssl, verify_mode.upper())
+                    context.verify_mode = verify_mode
+                return context
         return None
 
     def create_connection(self):
