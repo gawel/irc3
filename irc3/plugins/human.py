@@ -9,7 +9,7 @@ Store public message addressed to the bot in a file and reply a random message
 extracted from this file.
 
 ..
-    >>> from testing import IrcBot
+    >>> from irc3.testing import IrcBot
     >>> with open('/tmp/human.db', 'wb') as fd:
     ...     s = fd.write(b'Yo!\\nYo!\\nYo!\\nYo!\\n')
 

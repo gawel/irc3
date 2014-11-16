@@ -17,7 +17,7 @@ Create a python module with some crons:
 ..
     >>> import sys
     >>> sys.path.append('examples')
-    >>> from testing import IrcBot
+    >>> from irc3.testing import IrcBot
 
 And register it::
 

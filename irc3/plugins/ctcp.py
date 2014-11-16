@@ -6,8 +6,8 @@ __doc__ = '''
 ==============================================
 
 ..
-    >>> from testing import IrcBot
-    >>> from testing import ini2config
+    >>> from irc3.testing import IrcBot
+    >>> from irc3.testing import ini2config
 
 Usage::
 

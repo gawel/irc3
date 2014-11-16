@@ -20,8 +20,8 @@ Create a python module with some commands:
 ..
     >>> import sys
     >>> sys.path.append('examples')
-    >>> from testing import IrcBot
-    >>> from testing import ini2config
+    >>> from irc3.testing import IrcBot
+    >>> from irc3.testing import ini2config
 
 And register it::
 

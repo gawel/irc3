@@ -9,9 +9,9 @@ version = '0.5.2.dev0'
 
 install_requires = ['venusian>=1.0a8', 'docopt']
 test_requires = [
-    'nose', 'coverage',
+    'coverage',
     'feedparser', 'requests',
-    'twitter', 'panoramisk',
+    'twitter',
     'python-dateutil',
     'transmissionrpc',
     'croniter',

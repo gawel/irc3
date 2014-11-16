@@ -11,7 +11,7 @@ Core events
    :members:
 
 ..
-    >>> from testing import IrcBot
+    >>> from irc3.testing import IrcBot
 
 Usage::
 

@@ -8,7 +8,7 @@ __doc__ = '''
 This plugin maintain a known user list and a channel list.
 
 ..
-    >>> from testing import IrcBot
+    >>> from irc3.testing import IrcBot
 
 Usage::
 

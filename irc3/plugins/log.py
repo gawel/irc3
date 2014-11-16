@@ -8,7 +8,7 @@ __doc__ = '''
 Logging / debuging plugin
 
 ..
-    >>> from testing import IrcBot
+    >>> from irc3.testing import IrcBot
 
 Usage::
 

@@ -10,8 +10,8 @@ Notify a channel when a torrent is done downloading
 Add a ``torrent`` command to list downloading file and add new url/magnet
 
 ..
-    >>> from testing import IrcBot
-    >>> from testing import patch
+    >>> from irc3.testing import IrcBot
+    >>> from irc3.testing import patch
     >>> patcher = patch('transmissionrpc.client.Client')
     >>> patched = patcher.start()
 
