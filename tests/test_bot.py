@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from irc3.compat import u
 from irc3.testing import BotTestCase
 from irc3.testing import patch
 import logging
@@ -18,6 +19,8 @@ class TestBot(BotTestCase):
     def test_plugin(self):
         bot = self.callFTU()
         bot.include('irc3.plugins.command')
+        plugin = bot.get_plugin(u('irc3.plugins.command.Commands'))
+        self.assertTrue(plugin is not None)
         plugin = bot.get_plugin('irc3.plugins.command.Commands')
         self.assertTrue(plugin is not None)
         self.assertRaises(LookupError, bot.get_plugin,

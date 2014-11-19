@@ -78,7 +78,7 @@ class IrcObject(object):
         self.recompile()
 
     def get_plugin(self, ob):
-        if isinstance(ob, str):
+        if isinstance(ob, string_types):
             name = ob
             ob = utils.maybedotted(ob)
             if ob not in self.plugins:
