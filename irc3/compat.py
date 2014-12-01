@@ -19,7 +19,7 @@ else:  # pragma: no cover
 if PY3:  # pragma: no cover
     import configparser
 else:  # pragma: no cover
-    from backports import configparser  # NOQA
+    import ConfigParser as configparser  # NOQA
 
 try:  # pragma: no cover
     import asyncio

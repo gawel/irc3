@@ -23,7 +23,6 @@ if py_ver < (3, 0):
     install_requires.extend([
         'trollius',
         'futures',
-        'configparser',
     ])
     test_requires.extend(['mock'])
 elif py_ver < (3, 3):
