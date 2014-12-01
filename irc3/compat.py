@@ -16,10 +16,7 @@ else:  # pragma: no cover
     text_type = unicode
     string_types = basestring
 
-if PY3:  # pragma: no cover
-    import configparser
-else:  # pragma: no cover
-    from backports import configparser  # NOQA
+import configparser
 
 try:  # pragma: no cover
     import asyncio
