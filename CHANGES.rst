@@ -1,4 +1,4 @@
-0.5.3 (unreleased)
+0.5.3 (2014-12-09)
 ==================
 
 - Bugfix release. Fixed #27 and #30
