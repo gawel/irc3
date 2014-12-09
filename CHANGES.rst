@@ -1,7 +1,7 @@
 0.5.3 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Bugfix release. Fixed #27 and #30
 
 
 0.5.2 (2014-11-16)
