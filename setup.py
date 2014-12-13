@@ -16,6 +16,7 @@ test_requires = [
     'transmissionrpc',
     'croniter',
     'freezegun',
+    'redis',
 ]
 
 py_ver = sys.version_info[:2]

@@ -52,6 +52,17 @@ You can also use shelve::
 ..
     >>> bot.db.SIGINT()
 
+Or redis::
+
+    >>> config = ini2config("""
+    ... [bot]
+    ... includes =
+    ...     irc3.plugins.storage
+    ... storage = redis://localhost:6379/1
+    ... """)
+    >>> bot = IrcBot(**config)
+
+
 '''
 import os
 import json
@@ -105,8 +116,10 @@ class JSON(object):
 
 
 def redis_backend(uri):
+    ConnectionPool = irc3.utils.maybedotted('redis.connection.ConnectionPool')
+    pool = ConnectionPool.from_url(uri)
     StrictRedis = irc3.utils.maybedotted('redis.client.StrictRedis')
-    return StrictRedis.from_uri(uri)
+    return StrictRedis(connection_pool=pool)
 
 
 @irc3.plugin
@@ -115,7 +128,9 @@ class Storage(object):
     backends = {
         'shelve': Shelve,
         'json': JSON,
+        'unix': redis_backend,
         'redis': redis_backend,
+        'rediss': redis_backend,
     }
 
     def __init__(self, context):
