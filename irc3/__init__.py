@@ -153,7 +153,7 @@ class IrcBot(base.IrcObject):
 
     def send_line(self, data):
         """send a line to the server. replace CR by spaces"""
-        self.send(data.replace('\n', ' '))
+        self.send(data.replace('\n', ' ').replace('\r', ' '))
 
     def send(self, data):
         """send data to the server"""
