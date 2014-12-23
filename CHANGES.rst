@@ -1,7 +1,7 @@
 0.5.4 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Fixed #34 Avoid newline injection.
 
 
 0.5.3 (2014-12-09)

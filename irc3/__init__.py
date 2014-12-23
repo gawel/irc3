@@ -151,6 +151,10 @@ class IrcBot(base.IrcObject):
             ).format(**self.config))
             self.notify('connection_made')
 
+    def send_line(self, data):
+        """send a line to the server. replace CR by spaces"""
+        self.send(data.replace('\n', ' '))
+
     def send(self, data):
         """send data to the server"""
         self._send(data)
@@ -164,28 +168,32 @@ class IrcBot(base.IrcObject):
         if target and message:
             messages = utils.split_message(message, self.config.max_length)
             for message in messages:
-                self.send('PRIVMSG %s :%s' % (target, message))
+                self.send_line('PRIVMSG %s :%s' % (target, message))
 
     def notice(self, target, message):
         """send a notice to target"""
         if target and message:
             messages = utils.split_message(message, self.config.max_length)
             for message in messages:
-                self.send('NOTICE %s :%s' % (target, message))
+                self.send_line('NOTICE %s :%s' % (target, message))
 
     def ctcp(self, target, message):
         """send a ctcp to target"""
         if target and message:
-            self.send('PRIVMSG %s :\x01%s\x01' % (target, message))
+            messages = utils.split_message(message, self.config.max_length)
+            for message in messages:
+                self.send_line('PRIVMSG %s :\x01%s\x01' % (target, message))
 
     def ctcp_reply(self, target, message):
         """send a ctcp reply to target"""
         if target and message:
-            self.send('NOTICE %s :\x01%s\x01' % (target, message))
+            messages = utils.split_message(message, self.config.max_length)
+            for message in messages:
+                self.send_line('NOTICE %s :\x01%s\x01' % (target, message))
 
     def mode(self, target, *data):
         """set user or channel mode"""
-        self.send('MODE %s %s' % (target, ' '.join(data)))
+        self.send_line('MODE %s %s' % (target, ' '.join(data)))
 
     def join(self, target):
         """join a channel"""
@@ -193,31 +201,33 @@ class IrcBot(base.IrcObject):
             target.strip(self.server_config['CHANTYPES']))
         if password:
             target += ' ' + password
-        self.send('JOIN %s' % target)
+        self.send_line('JOIN %s' % target)
 
     def part(self, target, reason=None):
         """quit a channel"""
         if reason:
             target += ' :' + reason
-        self.send('PART %s' % target)
+        self.send_line('PART %s' % target)
 
     def kick(self, channel, target, reason=None):
         """kick target from channel"""
         if reason:
             target += ' :' + reason
-        self.send('KICK %s %s' % (channel, target))
+        self.send_line('KICK %s %s' % (channel, target))
 
     def quit(self, reason=None):
         """disconnect"""
         if not reason:
             reason = 'bye'
-        self.send('QUIT :%s' % reason)
+        else:
+            reason = reason
+        self.send_line('QUIT :%s' % reason)
 
     def get_nick(self):
         return self.config.nick
 
     def set_nick(self, nick):
-        self.send('NICK ' + nick)
+        self.send_line('NICK ' + nick)
 
     nick = property(get_nick, set_nick, doc='nickname get/set')
 
