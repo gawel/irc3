@@ -13,7 +13,6 @@ test_requires = [
     'feedparser', 'requests',
     'twitter',
     'python-dateutil',
-    'transmissionrpc',
     'croniter',
     'freezegun',
     'redis',
