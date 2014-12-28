@@ -17,4 +17,4 @@ bot event
 bot extend
 ==========
 
-.. autoclass:: extend
+.. autofunction:: extend
