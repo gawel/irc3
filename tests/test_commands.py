@@ -8,7 +8,7 @@ import codecs
 import os
 
 
-@command.command(permission='myperm')
+@command.command(permission='myperm', options_first=True)
 def cmd(bot, *args):
     """Test command
         %%cmd

@@ -233,8 +233,11 @@ class Commands(dict):
             if not isinstance(data, str):  # pragma: no cover
                 data = data.encode(encoding)
         data = data and data.split() or []
+        docopt_args = dict(help=False)
+        if "options_first" in predicates:
+            docopt_args.update(options_first=predicates["options_first"])
         try:
-            args = docopt.docopt(doc, [meth.__name__] + data, help=False)
+            args = docopt.docopt(doc, [meth.__name__] + data, **docopt_args)
         except docopt.DocoptExit:
             self.context.privmsg(to, 'Invalid arguments.')
         else:
