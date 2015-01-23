@@ -55,15 +55,17 @@ class TestCron(BotTestCase):
         plugin.call_cron(plugin[0])
         self.assertTrue(bot.loop.call_at.call_count, 1)
 
-    def test_add_cron(self):
+    def test_add_remove_cron(self):
         bot = self.callFTU(includes=['irc3.plugins.cron'])
         plugin = bot.get_plugin(cron.Crons)
         callback = MagicMock()
-        bot.add_cron('* * * * *', callback)
+        c = bot.add_cron('* * * * *', callback)
         self.assertEqual(len(plugin), 1, plugin)
         self.assertFalse(callback.called)
         plugin.started = True
+        bot.remove_cron(uuid=c.uuid)
         bot.loop = MagicMock()
-        bot.add_cron('* * * * *', callback)
+        c = bot.add_cron('* * * * *', callback)
         self.assertEqual(len(plugin), 2, plugin)
         self.assertTrue(bot.loop.call_at.called)
+        bot.remove_cron(c)

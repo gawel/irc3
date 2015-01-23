@@ -25,6 +25,7 @@ And register it::
     >>> bot.include('mycrons')    # register your crons
 
 '''
+from uuid import uuid4
 import functools
 import venusian
 import logging
@@ -34,12 +35,13 @@ import irc3
 
 class Cron(object):
 
-    def __init__(self, cronline, callback, time=time.time()):
+    def __init__(self, cronline, callback, time=time.time(), uuid=None):
         self.cronline = cronline
         self.croniter = irc3.utils.maybedotted(
             'croniter.croniter.croniter'
         )(cronline, time)
         self.callback = callback
+        self.uuid = uuid or str(uuid4())
 
     def get_next(self):
         return self.croniter.get_next(float)
@@ -61,17 +63,27 @@ class Crons(list):
         self.started = False
         self.time = time.time()
         self.loop_time = self.bot.loop.time()
+        self.handles = {}
 
     def connection_made(self):
         if not self.started:
             self.start()
 
     @irc3.extend
-    def add_cron(self, cronline, callback):
-        cron = Cron(cronline, callback, self.time)
+    def add_cron(self, cronline, callback, uuid=None):
+        cron = Cron(cronline, callback, self.time, uuid=uuid)
         self.append(cron)
         if self.started:
             self.start_cron(cron)
+        return cron
+
+    @irc3.extend
+    def remove_cron(self, cron=None, uuid=None):
+        if uuid is None:
+            uuid = cron.uuid
+        if uuid in self.handles:
+            handle = self.handles.pop(uuid)
+            handle.cancel()
 
     def start(self):
         self.started = True
@@ -80,9 +92,10 @@ class Crons(list):
 
     def start_cron(self, cron):
         self.log.debug('Starting {0}'.format(cron))
-        self.bot.loop.call_at(
+        handle = self.bot.loop.call_at(
             self.loop_time + (cron.get_next() - self.time),
             self.call_cron, cron)
+        self.handles[cron.uuid] = handle
 
     def call_cron(self, cron):
         try:
@@ -92,9 +105,10 @@ class Crons(list):
             self.bot.log.exception(e)
         else:
             self.log.debug(cron)
-        self.bot.loop.call_at(
+        handle = self.bot.loop.call_at(
             self.loop_time + (cron.get_next() - self.time),
             self.call_cron, cron)
+        self.handles[cron.uuid] = handle
 
     def __repr__(self):
         return '<Crons ({})>'.format(len(self))
