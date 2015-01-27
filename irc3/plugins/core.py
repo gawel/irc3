@@ -30,6 +30,7 @@ class Core(object):
         self.max_lag = int(self.bot.config.get('max_lag'))
         self.reconn_handle = None
         self.ping_handle = None
+        self.nick_handle = None
         self.before_connect_events = [
             event(rfc.CONNECTED, self.connected),
             event(r"^:\S+ 005 \S+ (?P<data>.+) :\S+.*",
@@ -103,7 +104,8 @@ class Core(object):
         if me == '*':
             self.bot.set_nick(self.bot.nick + '_')
         self.bot.log.debug('Trying to regain nickname in 30s...')
-        self.bot.loop.call_later(30, self.bot.set_nick, self.bot.original_nick)
+        self.nick_handle = self.bot.loop.call_later(
+            30, self.bot.set_nick, self.bot.original_nick)
 
     def set_config(self, data=None, **kwargs):
         """Store server config"""
