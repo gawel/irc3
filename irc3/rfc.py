@@ -69,6 +69,11 @@ CTCP = raw.new(
     ('^:(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) '
      '{nick} :\x01(?P<ctcp>\S+.*)\x01$'))
 
+INVITE = raw.new(
+    'INVITE',
+    (r':(?P<mask>\S+!\S+@\S+) INVITE {nick} :?(?P<channel>\S+)')
+)
+
 ERR_NICK = raw.new(
     'ERR_NICK',
     "^:(?P<srv>\S+) (?P<retcode>(432|433|436)) (?P<me>\S+) "
