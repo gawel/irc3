@@ -71,8 +71,7 @@ CTCP = raw.new(
 
 INVITE = raw.new(
     'INVITE',
-    (r':(?P<mask>\S+!\S+@\S+) INVITE {nick} :?(?P<channel>\S+)')
-)
+    (r'^:(?P<mask>\S+!\S+@\S+) INVITE {nick} :?(?P<channel>\S+)$'))
 
 ERR_NICK = raw.new(
     'ERR_NICK',
