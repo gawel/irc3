@@ -121,11 +121,23 @@ class free_policy(object):
 
 class mask_based_policy(object):
     """Allow only valid masks. Able to take care or permissions"""
+
+    key = __name__ + '.masks'
+
     def __init__(self, bot):
         self.context = bot
         self.log = logging.getLogger(__name__)
-        self.masks = bot.config[__name__ + '.masks']
         self.log.debug('Masks: %r', self.masks)
+
+    @property
+    def masks(self):
+        masks = self.context.config[self.key]
+        if hasattr(self.context, 'db'):
+            # update config with storage values
+            value = self.context.db[self.key]
+            if isinstance(value, dict):
+                masks.update(value)
+        return masks
 
     def has_permission(self, mask, permission):
         for pattern in self.masks:

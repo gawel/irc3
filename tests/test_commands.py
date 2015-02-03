@@ -121,7 +121,11 @@ class TestCommands(BotTestCase):
         self.assertSent(['PRIVMSG bar :Invalid arguments.'])
 
     def test_permissions(self):
+        tmp = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, tmp)
+
         bot = self.callFTU(**{
+            'storage': 'json://%s/storage.json' % tmp,
             self.name: dict(guard=self.guard),
             self.masks: {
                 'adm!*': 'all_permissions',
@@ -144,4 +148,11 @@ class TestCommands(BotTestCase):
         self.assertSent(['PRIVMSG #chan :Done'])
 
         bot.dispatch(':local_adm!user@host PRIVMSG #chan :!cmd_view')
+        self.assertSent(['PRIVMSG #chan :Done'])
+
+        bot.include('irc3.plugins.storage')
+        bot.db[self.masks] = {
+            'nobody!*': 'myperm view'
+        }
+        bot.dispatch(':nobody!user@host PRIVMSG #chan :!cmd')
         self.assertSent(['PRIVMSG #chan :Done'])
