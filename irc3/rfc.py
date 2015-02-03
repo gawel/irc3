@@ -73,6 +73,10 @@ INVITE = raw.new(
     'INVITE',
     (r'^:(?P<mask>\S+!\S+@\S+) INVITE {nick} :?(?P<channel>\S+)$'))
 
+TOPIC = raw.new(
+    'TOPIC',
+    (r'^:(?P<mask>\S+!\S+@\S+) TOPIC (?P<channel>\S+) :(?P<data>\S+.*)$'))
+
 ERR_NICK = raw.new(
     'ERR_NICK',
     "^:(?P<srv>\S+) (?P<retcode>(432|433|436)) (?P<me>\S+) "

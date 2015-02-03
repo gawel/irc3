@@ -219,6 +219,12 @@ class IrcBot(base.IrcObject):
         """invite target to a channel"""
         self.send_line('INVITE %s %s' % (target, channel))
 
+    def topic(self, channel, topic=None):
+        """change or request the topic of a channel"""
+        if topic:
+            channel += ' :' + topic
+        self.send_line('TOPIC %s' % channel)
+
     def quit(self, reason=None):
         """disconnect"""
         if not reason:
