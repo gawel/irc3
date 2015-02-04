@@ -74,7 +74,7 @@ def fetch(args):
     session = args['session']
     for feed, filename in zip(args['feeds'], args['filenames']):
         try:
-            resp = session.get(feed)
+            resp = session.get(feed, timeout=5)
             content = resp.content
         except:  # pragma: no cover
             pass
