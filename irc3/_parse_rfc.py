@@ -121,6 +121,8 @@ class retcode(int):
                 return '(?P<%s>\S+)' % v
 
             mask = _re_sub.sub(msub, omask)
+            if ' * ' in mask:
+                mask = mask.replace(' * ', r' . ')
             if ':' in mask:
                 mask = mask.split(':', 1)[0]
                 mask += ':(?P<data>.*)'
