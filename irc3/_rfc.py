@@ -120,7 +120,7 @@ RPL_STATSCLINE = retcode(213)
 RPL_STATSCLINE.name = "RPL_STATSCLINE"
 RPL_STATSCLINE.re = (
     "^:(?P<srv>\S+) 213 (?P<me>\S+) "
-    "C (?P<host>\S+) * (?P<nick>\S+) (?P<port>\S+) (?P<class>\S+)")
+    "C (?P<host>\S+) \* (?P<nick>\S+) (?P<port>\S+) (?P<class>\S+)")
 RPL_STATSCLINE.tpl = (
     ':{c.srv} 213 {c.nick} '
     'C {host} * {nick} {port} {class}')
@@ -130,7 +130,7 @@ RPL_STATSNLINE = retcode(214)
 RPL_STATSNLINE.name = "RPL_STATSNLINE"
 RPL_STATSNLINE.re = (
     "^:(?P<srv>\S+) 214 (?P<me>\S+) "
-    "N (?P<host>\S+) * (?P<nick>\S+) (?P<port>\S+) (?P<class>\S+)")
+    "N (?P<host>\S+) \* (?P<nick>\S+) (?P<port>\S+) (?P<class>\S+)")
 RPL_STATSNLINE.tpl = (
     ':{c.srv} 214 {c.nick} '
     'N {host} * {nick} {port} {class}')
@@ -140,7 +140,7 @@ RPL_STATSILINE = retcode(215)
 RPL_STATSILINE.name = "RPL_STATSILINE"
 RPL_STATSILINE.re = (
     "^:(?P<srv>\S+) 215 (?P<me>\S+) "
-    "I (?P<host>\S+) * (?P<host>\S+) (?P<port>\S+) (?P<class>\S+)")
+    "I (?P<host>\S+) \* (?P<host>\S+) (?P<port>\S+) (?P<class>\S+)")
 RPL_STATSILINE.tpl = (
     ':{c.srv} 215 {c.nick} '
     'I {host} * {host} {port} {class}')
@@ -150,7 +150,7 @@ RPL_STATSKLINE = retcode(216)
 RPL_STATSKLINE.name = "RPL_STATSKLINE"
 RPL_STATSKLINE.re = (
     "^:(?P<srv>\S+) 216 (?P<me>\S+) "
-    "K (?P<host>\S+) * (?P<username>\S+) (?P<port>\S+) (?P<class>\S+)")
+    "K (?P<host>\S+) \* (?P<username>\S+) (?P<port>\S+) (?P<class>\S+)")
 RPL_STATSKLINE.tpl = (
     ':{c.srv} 216 {c.nick} '
     'K {host} * {username} {port} {class}')
@@ -190,7 +190,7 @@ RPL_STATSLLINE = retcode(241)
 RPL_STATSLLINE.name = "RPL_STATSLLINE"
 RPL_STATSLLINE.re = (
     "^:(?P<srv>\S+) 241 (?P<me>\S+) "
-    "L (?P<hostmask>\S+) * (?P<servername>\S+) (?P<maxdepth>\S+)")
+    "L (?P<hostmask>\S+) \* (?P<servername>\S+) (?P<maxdepth>\S+)")
 RPL_STATSLLINE.tpl = (
     ':{c.srv} 241 {c.nick} '
     'L {hostmask} * {servername} {maxdepth}')
@@ -210,7 +210,7 @@ RPL_STATSOLINE = retcode(243)
 RPL_STATSOLINE.name = "RPL_STATSOLINE"
 RPL_STATSOLINE.re = (
     "^:(?P<srv>\S+) 243 (?P<me>\S+) "
-    "O (?P<hostmask>\S+) * (?P<nick>\S+)")
+    "O (?P<hostmask>\S+) \* (?P<nick>\S+)")
 RPL_STATSOLINE.tpl = (
     ':{c.srv} 243 {c.nick} '
     'O {hostmask} * {nick}')
@@ -220,7 +220,7 @@ RPL_STATSHLINE = retcode(244)
 RPL_STATSHLINE.name = "RPL_STATSHLINE"
 RPL_STATSHLINE.re = (
     "^:(?P<srv>\S+) 244 (?P<me>\S+) "
-    "H (?P<hostmask>\S+) * (?P<servername>\S+)")
+    "H (?P<hostmask>\S+) \* (?P<servername>\S+)")
 RPL_STATSHLINE.tpl = (
     ':{c.srv} 244 {c.nick} '
     'H {hostmask} * {servername}')
@@ -380,7 +380,7 @@ RPL_WHOISUSER = retcode(311)
 RPL_WHOISUSER.name = "RPL_WHOISUSER"
 RPL_WHOISUSER.re = (
     "^:(?P<srv>\S+) 311 (?P<me>\S+) "
-    "(?P<nick>\S+) (?P<username>\S+) (?P<host>\S+) * :(?P<data>.*)")
+    "(?P<nick>\S+) (?P<username>\S+) (?P<host>\S+) \* :(?P<data>.*)")
 RPL_WHOISUSER.tpl = (
     ':{c.srv} 311 {c.nick} '
     '{nick} {username} {host} * :{realname}')
@@ -411,7 +411,7 @@ RPL_WHOWASUSER = retcode(314)
 RPL_WHOWASUSER.name = "RPL_WHOWASUSER"
 RPL_WHOWASUSER.re = (
     "^:(?P<srv>\S+) 314 (?P<me>\S+) "
-    "(?P<nick>\S+) (?P<username>\S+) (?P<host>\S+) * :(?P<data>.*)")
+    "(?P<nick>\S+) (?P<username>\S+) (?P<host>\S+) \* :(?P<data>.*)")
 RPL_WHOWASUSER.tpl = (
     ':{c.srv} 314 {c.nick} '
     '{nick} {username} {host} * :{realname}')
