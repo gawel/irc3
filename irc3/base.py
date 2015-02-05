@@ -7,6 +7,7 @@ import logging.config
 from . import utils
 from . import config
 from .compat import asyncio
+from .compat import reload_module
 from .compat import string_types
 from collections import defaultdict
 
@@ -60,14 +61,8 @@ class IrcObject(object):
         if self.loop is None:
             self.loop = asyncio.get_event_loop()
 
-        self.events_re = {'in': [], 'out': []}
-        self.events = {
-            'in': defaultdict(list),
-            'out': defaultdict(list)
-        }
+        self.reset()
 
-        self.plugins = {}
-        self.includes = set()
         self.include(*self.config.get('includes', []))
 
         # auto include the autojoins plugin if needed (for backward compat)
@@ -77,24 +72,47 @@ class IrcObject(object):
 
         self.recompile()
 
+    def reset(self, reloading=False):
+        self.events_re = {'in': [], 'out': []}
+        self.events = {
+            'in': defaultdict(list),
+            'out': defaultdict(list)
+        }
+
+        self.scanned = []
+        self.includes = set()
+
+        if reloading:
+            self.reloading = self.plugins.copy()
+        else:
+            self.reloading = {}
+            self.plugins = {}
+
     def get_plugin(self, ob):
         if isinstance(ob, string_types):
-            name = ob
-            ob = utils.maybedotted(ob)
-            if ob not in self.plugins:
-                plugins = [(p.__module__, p.__name__)
-                           for p in self.plugins.keys()]
-                names = ['%s.%s' % p for p in plugins]
-                raise LookupError('Plugin %s not found in %s' % (name, names))
-        if ob not in self.plugins:
-            self.log.debug("Register plugin '%s.%s'",
-                           ob.__module__, ob.__name__)
+            ob_name = ob
+            ob = utils.maybedotted(ob_name)
+            if ob_name not in self.plugins:
+                names = list(self.plugins)
+                raise LookupError(
+                    'Plugin %s not found in %s' % (ob_name, names))
+        else:
+            ob_name = ob.__module__ + '.' + ob.__name__
+        if ob_name not in self.plugins:
+            self.log.debug("Register plugin '%s'", ob_name)
             for dotted in getattr(ob, 'requires', []):
                 if dotted not in self.includes:
                     self.include(dotted)
-            plugin = ob(self)
-            self.plugins[ob] = plugin
-        return self.plugins[ob]
+            self.plugins[ob_name] = ob(self)
+        elif ob_name in self.reloading and hasattr(ob, 'reload'):
+                instance = self.reloading.pop(ob_name)
+                if instance.__class__ is not ob:
+                    self.log.debug("Reloading plugin '%s'", ob_name)
+                    if hasattr(ob, 'reload'):
+                        self.plugins[ob_name] = ob.reload(instance)
+                    else:
+                        self.plugins[ob_name] = ob(self)
+        return self.plugins[ob_name]
 
     def recompile(self):
         for iotype in ('in', 'out'):
@@ -153,7 +171,41 @@ class IrcObject(object):
                     if klass.__module__ == module.__name__:
                         if getattr(klass, plugin_category, False) is True:
                             self.get_plugin(klass)
+                self.scanned.append((module.__name__, categories))
                 scanner.scan(module, categories=categories)
+
+    def reload(self, *modules):
+        self.notify('before_reload')
+
+        if 'configfiles' in self.config:
+            # reload configfiles
+            self.log.info('Reloading configuration...')
+            cfg = utils.parse_config(
+                self.server and 'server' or 'bot', *self.config['configfiles'])
+            self.config.update(cfg)
+
+        self.log.info('Reloading python code...')
+        if not modules:
+            modules = self.includes
+        scanned = list(reversed(self.scanned))
+
+        # reset includes and events
+        self.reset(reloading=True)
+
+        to_scan = []
+        for module, categories in scanned:
+            if module in modules:
+                module = utils.maybedotted(module)
+                module = reload_module(module)
+            to_scan.append((module, categories))
+
+        # rescan all modules
+        for module, categories in to_scan:
+            self.include(module, venusian_categories=categories)
+
+        self.reloading = {}
+
+        self.notify('after_reload')
 
     def notify(self, event, exc=None, client=None):
         for p in self.plugins.values():

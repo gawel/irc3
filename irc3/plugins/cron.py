@@ -21,8 +21,8 @@ Create a python module with some crons:
 
 And register it::
 
-    >>> bot = IrcBot()
-    >>> bot.include('mycrons')    # register your crons
+    >>> context = IrcBot()
+    >>> context.include('mycrons')    # register your crons
 
 '''
 from uuid import uuid4
@@ -56,18 +56,26 @@ class Cron(object):
 @irc3.plugin
 class Crons(list):
 
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self, context):
+        self.context = context
         self.log = logging.getLogger(__name__)
         self.debug = self.log.getEffectiveLevel() == logging.DEBUG
         self.started = False
         self.time = time.time()
-        self.loop_time = self.bot.loop.time()
+        self.loop_time = self.context.loop.time()
         self.handles = {}
 
     def connection_made(self):
         if not self.started:
             self.start()
+
+    def before_reload(self):
+        while self:
+            self.pop(0)
+        self.stop()
+
+    def after_reload(self):
+        self.start()
 
     @irc3.extend
     def add_cron(self, cronline, callback, uuid=None):
@@ -90,9 +98,15 @@ class Crons(list):
         for cron in self:
             self.start_cron(cron)
 
+    def stop(self):
+        self.context.log.info('Stoping existing crons...')
+        self.started = False
+        for v in list(self.handles.values()):
+            self.remove_cron(v)
+
     def start_cron(self, cron):
         self.log.debug('Starting {0}'.format(cron))
-        handle = self.bot.loop.call_at(
+        handle = self.context.loop.call_at(
             self.loop_time + (cron.get_next() - self.time),
             self.call_cron, cron)
         self.handles[cron.uuid] = handle
@@ -102,16 +116,16 @@ class Crons(list):
             cron()
         except Exception as e:
             self.log.error(cron)
-            self.bot.log.exception(e)
+            self.context.log.exception(e)
         else:
             self.log.debug(cron)
-        handle = self.bot.loop.call_at(
+        handle = self.context.loop.call_at(
             self.loop_time + (cron.get_next() - self.time),
             self.call_cron, cron)
         self.handles[cron.uuid] = handle
 
     def __repr__(self):
-        return '<Crons ({})>'.format(len(self))
+        return '<Crons ({0}) at {1}>'.format(len(self), id(self))
 
 
 def cron(cronline, venusian_category='irc3.plugins.cron'):

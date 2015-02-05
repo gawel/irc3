@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from .compat import configparser
+import importlib
 import logging
 import os
 
@@ -250,7 +251,7 @@ def maybedotted(name):
             'Not able to resolve %s' % name)
     if not hasattr(name, '__name__'):
         try:
-            mod = __import__(name, globals(), locals(), [''])
+            mod = importlib.import_module(name)
         except ImportError:
             attr = None
             if '.' in name:

@@ -196,6 +196,8 @@ def command(*func, **predicates):
 @irc3.plugin
 class Commands(dict):
 
+    __reloadable__ = False
+
     requires = [
         __name__.replace('command', 'core'),
     ]

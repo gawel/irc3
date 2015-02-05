@@ -143,9 +143,6 @@ class TestBot(BotTestCase):
         self.assertTrue(sleep.called)
         self.assertTrue(bot.loop.stop.called)
 
-    @patch('time.sleep')
-    def test_SIGHUP(self, sleep):
+    def test_SIGHUP(self):
         bot = self.callFTU()
         bot.SIGHUP()
-        self.assertTrue(sleep.called)
-        self.assertTrue(bot.protocol.transport.close.called)

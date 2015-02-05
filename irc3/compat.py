@@ -16,7 +16,12 @@ else:  # pragma: no cover
     text_type = unicode
     string_types = basestring
 
-import configparser
+import configparser  # NOQA
+
+try:
+    from importlib import reload as reload_module
+except ImportError:
+    from imp import reload as reload_module  # NOQA
 
 try:  # pragma: no cover
     import asyncio

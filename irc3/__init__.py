@@ -253,12 +253,7 @@ class IrcBot(base.IrcObject):
     nick = property(get_nick, set_nick, doc='nickname get/set')
 
     def SIGHUP(self):
-        self.quit('HUP')
-        time.sleep(1)
-        try:
-            self.protocol.transport.close()
-        finally:
-            pass
+        self.reload()
 
     def SIGINT(self):
         self.notify('SIGINT')
