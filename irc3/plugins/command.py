@@ -152,10 +152,10 @@ class mask_based_policy(object):
     def __call__(self, predicates, meth, client, target, args, **kwargs):
         if self.has_permission(client, predicates.get('permission')):
             return meth(client, target, args)
+        cmd_name = predicates.get('name', meth.__name__)
         self.context.privmsg(
             client.nick,
-            'You are not allowed to use the %r command' % meth.__name__
-        )
+            'You are not allowed to use the %r command' % cmd_name)
 
 
 def attach_command(func, depth=2, **predicates):
@@ -175,8 +175,9 @@ def attach_command(func, depth=2, **predicates):
             callback = wrapper
         plugin = obj.get_plugin(utils.maybedotted(commands))
         predicates.update(module=func.__module__)
-        plugin[func.__name__] = (predicates, callback)
-        obj.log.debug('Register command %r', func.__name__)
+        cmd_name = predicates.get('name', func.__name__)
+        plugin[cmd_name] = (predicates, callback)
+        obj.log.debug('Register command %r', cmd_name)
     info = venusian.attach(func, callback,
                            category=category, depth=depth)
 
@@ -250,12 +251,13 @@ class Commands(dict):
         docopt_args = dict(help=False)
         if "options_first" in predicates:
             docopt_args.update(options_first=predicates["options_first"])
+        cmd_name = predicates.get('name', meth.__name__)
         try:
-            args = docopt.docopt(doc, [meth.__name__] + data, **docopt_args)
+            args = docopt.docopt(doc, [cmd_name] + data, **docopt_args)
         except docopt.DocoptExit:
             self.context.privmsg(to, 'Invalid arguments.')
         else:
-            uid = (meth.__name__, to)
+            uid = (cmd_name, to)
             if not self.handles[uid].done() and self.antiflood:
                 self.context.notice(
                     client if self.context.server else client.nick,
