@@ -1,6 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from __future__ import print_function
+from irc3.compat import PY3
+from irc3.compat import string_types
+from irc3 import utils
+from collections import defaultdict
+import functools
+import venusian
+import fnmatch
+import logging
+import docopt
+import irc3
+import sys
 __doc__ = '''
 ==========================================
 :mod:`irc3.plugins.command` Command plugin
@@ -97,17 +108,6 @@ Available options
     guard = irc3.plugins.command.mask_based_policy
 
 '''
-from irc3.compat import PY3
-from irc3.compat import string_types
-from irc3 import utils
-from collections import defaultdict
-import functools
-import venusian
-import fnmatch
-import logging
-import docopt
-import irc3
-import sys
 
 
 class free_policy(object):

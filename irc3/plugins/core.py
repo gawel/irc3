@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from irc3 import event
+from irc3 import rfc
 __doc__ = '''
 ==============================================
 :mod:`irc3.plugins.core` Core plugin
@@ -18,8 +20,6 @@ Usage::
     >>> bot = IrcBot()
     >>> bot.include('irc3.plugins.core')
 '''
-from irc3 import event
-from irc3 import rfc
 
 
 class Core(object):

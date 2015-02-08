@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from irc3.plugins import userlist
+from irc3 import utils
+from irc3 import rfc
+import irc3d
+import string
 __doc__ = '''
 ============================================================
 :mod:`irc3d.plugins.userlist` Nick and channel related stuff
@@ -14,11 +19,6 @@ API
    :members:
 
 '''
-from irc3.plugins import userlist
-from irc3 import utils
-from irc3 import rfc
-import irc3d
-import string
 
 
 @irc3d.plugin

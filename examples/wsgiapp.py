@@ -11,9 +11,10 @@ class Webapp:
     requires = ['irc3.plugins.userlist']
 
     def __init__(self, bot):
+        def server():
+            return wsgi.WSGIServerHttpProtocol(self.wsgi)
         self.bot = bot
         loop = asyncio.get_event_loop()
-        server = lambda: wsgi.WSGIServerHttpProtocol(self.wsgi)
         self.bot.log.info('Starting webapp')
         asyncio.Task(loop.create_server(
             server, '127.0.0.1', 5000))

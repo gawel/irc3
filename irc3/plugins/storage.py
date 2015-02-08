@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+import os
+import json
+import irc3
+import shelve
 __doc__ = '''
 ==========================================
 :mod:`irc3.plugins.storage` Cron plugin
@@ -64,10 +68,6 @@ Or redis::
 
 
 '''
-import os
-import json
-import irc3
-import shelve
 
 
 class Shelve(object):

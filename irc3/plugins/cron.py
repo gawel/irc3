@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+from uuid import uuid4
+import functools
+import venusian
+import logging
+import time
+import irc3
 __doc__ = '''
 ==========================================
 :mod:`irc3.plugins.cron` Cron plugin
@@ -25,12 +31,6 @@ And register it::
     >>> context.include('mycrons')    # register your crons
 
 '''
-from uuid import uuid4
-import functools
-import venusian
-import logging
-import time
-import irc3
 
 
 class Cron(object):

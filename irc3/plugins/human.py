@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import os
+import irc3
+import stat
+import codecs
+import random
+import subprocess
 __doc__ = '''
 ==========================================
 :mod:`irc3.plugins.human` Human plugin
@@ -30,12 +36,6 @@ And it should work::
     >>> bot.test(':foo!m@h PRIVMSG #chan :!ping')
 
 '''
-import os
-import irc3
-import stat
-import codecs
-import random
-import subprocess
 
 
 @irc3.plugin

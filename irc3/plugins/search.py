@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from irc3.plugins.command import command
+import irc3
 __doc__ = '''
 ==============================================
 :mod:`irc3.plugins.search` Search plugin
@@ -7,8 +9,6 @@ __doc__ = '''
 
 .. autoclass:: Search
 '''
-from irc3.plugins.command import command
-import irc3
 
 
 @irc3.plugin

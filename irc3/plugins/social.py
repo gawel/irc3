@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from irc3.plugins.command import command
+import irc3
+import json
 __doc__ = '''
 ==============================================
 :mod:`irc3.plugins.social` Social networking
@@ -28,9 +31,6 @@ Api:
    :members:
 
 '''
-from irc3.plugins.command import command
-import irc3
-import json
 
 
 class TwitterAdapter(object):

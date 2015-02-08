@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from irc3 import rfc
+from irc3d.dec import event
+from irc3d.dec import plugin
+from irc3.plugins.command import Commands
+from irc3.plugins.command import attach_command
 __doc__ = '''
 ==============================================
 :mod:`irc3d.plugins.command` Server commands
@@ -7,11 +12,6 @@ __doc__ = '''
 
 Same as :mod:`~irc3.plugins.command` but for servers
 '''
-from irc3 import rfc
-from irc3d.dec import event
-from irc3d.dec import plugin
-from irc3.plugins.command import Commands
-from irc3.plugins.command import attach_command
 
 
 class server_policy(object):

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import irc3
+from irc3 import utils
 __doc__ = '''
 ==============================================
 :mod:`irc3.plugins.autojoins` Auto join plugin
@@ -15,8 +17,6 @@ Usage::
     >>> bot = IrcBot(autojoins=['#chan1', '#chan2'])
     >>> bot.include('irc3.plugins.autojoins')
 '''
-import irc3
-from irc3 import utils
 
 
 @irc3.plugin

@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from irc3 import plugin
+from irc3 import utils
+from irc3 import rfc
+from irc3.dec import event
+from irc3.utils import IrcString
+from collections import defaultdict
 __doc__ = '''
 ==============================================
 :mod:`irc3.plugins.userlist` User list plugin
@@ -32,12 +38,6 @@ Api
 .. autoclass:: Channel
 
 '''
-from irc3 import plugin
-from irc3 import utils
-from irc3 import rfc
-from irc3.dec import event
-from irc3.utils import IrcString
-from collections import defaultdict
 
 
 class Channel(set):

@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from irc3.plugins.command import command
+import time
+import irc3
 __doc__ = '''
 ==============================================
 :mod:`irc3.plugins.uptime` Uptime plugin
@@ -11,9 +14,6 @@ Add an ``uptime`` command.
    :members:
 
 '''
-from irc3.plugins.command import command
-import time
-import irc3
 
 
 @irc3.plugin

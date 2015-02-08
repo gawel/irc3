@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from datetime import datetime
+from irc3.compat import Queue
+from irc3.compat import QueueFull
+import irc3
 __doc__ = '''
 ==============================================
 :mod:`irc3.plugins.ctcp` CTCP replies
@@ -27,10 +31,6 @@ Try to send a ``CTCP FOO``::
     >>> print(bot.sent[0].replace('\x01', '01'))
     NOTICE gawel :01FOO bar01
 '''
-from datetime import datetime
-from irc3.compat import Queue
-from irc3.compat import QueueFull
-import irc3
 
 
 @irc3.plugin

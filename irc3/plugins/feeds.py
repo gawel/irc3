@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import os
+import time
+import irc3
+import datetime
+from concurrent.futures import ThreadPoolExecutor
+from operator import itemgetter
 __doc__ = '''
 ==========================================
 :mod:`irc3.plugins.feeds` Feeds plugin
@@ -56,12 +62,6 @@ Here is a more complete hook used on freenode#irc3:
    :pyobject: FeedsHook
 
 '''
-import os
-import time
-import irc3
-import datetime
-from concurrent.futures import ThreadPoolExecutor
-from operator import itemgetter
 
 
 def default_hook(entries):

@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import os
+import irc3
+import logging
+from datetime import datetime
 __doc__ = '''
 ================================================
 :mod:`irc3.plugins.logger` Channel logger plugin
@@ -24,10 +28,6 @@ Available handlers:
 
 .. autoclass:: file_handler
 '''
-import os
-import irc3
-import logging
-from datetime import datetime
 
 
 class file_handler(object):

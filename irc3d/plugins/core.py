@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+import os
+import time
+from irc3 import rfc
+from .command import command
+import irc3d
 __doc__ = '''
 ==============================================
 :mod:`irc3d.plugins.core` Server core plugin
@@ -17,11 +22,6 @@ API
 
     .. autoattribute:: requires
 '''
-import os
-import time
-from irc3 import rfc
-from .command import command
-import irc3d
 
 
 @irc3d.plugin
