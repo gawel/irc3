@@ -66,13 +66,22 @@ class TestCommands(BotTestCase):
             self.assertIn('Available Commands', fd.read())
 
     def test_command_char(self):
-        bot = self.callFTU(**{'irc3.plugins.command': {'cmd': '\$'}})
+        bot = self.callFTU(**{'irc3.plugins.command': {'cmd': '$'}})
         bot.dispatch(':bar!user@host PRIVMSG foo :$ping')
         self.assertSent(['NOTICE bar :PONG bar!'])
 
-        bot = self.callFTU(**{'cmd': '\$'})
+        bot = self.callFTU(**{'cmd': '$'})
         bot.dispatch(':bar!user@host PRIVMSG foo :$ping')
         self.assertSent(['NOTICE bar :PONG bar!'])
+
+    def test_weird_chars(self):
+        bot = self.callFTU(nick='foo', **{
+            'irc3.plugins.command': dict(cmd='|')})
+        plugin = bot.get_plugin(command.Commands)
+        self.assertEqual(len(plugin), 2, plugin)
+        bot.dispatch(':bar!user@host PRIVMSG foo :|help')
+        self.assertSent(
+            ['PRIVMSG bar :Available commands: |help, |ping'])
 
     def test_private_command(self):
         bot = self.callFTU()

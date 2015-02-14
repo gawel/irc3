@@ -109,6 +109,8 @@ Available options
 
 '''
 
+WEIRD_CHARS = '$^|.*?'
+
 
 class free_policy(object):
     """Default policy"""
@@ -214,6 +216,10 @@ class Commands(dict):
         if 'cmd' in context.config:  # in case of
             config['cmd'] = context.config['cmd']
         context.config['cmd'] = self.cmd = config.get('cmd', '!')
+        if self.cmd in WEIRD_CHARS:
+            context.config['re_cmd'] = r'\%s' % self.cmd
+        else:
+            context.config['re_cmd'] = self.cmd
 
         self.antiflood = self.config.get('antiflood', False)
 
@@ -224,7 +230,7 @@ class Commands(dict):
         self.handles = defaultdict(Done)
 
     @irc3.event((r':(?P<mask>\S+) PRIVMSG (?P<target>\S+) '
-                 r':{cmd}(?P<cmd>\w+)(\s(?P<data>\S.*)|$)'))
+                 r':{re_cmd}(?P<cmd>\w+)(\s(?P<data>\S.*)|$)'))
     def on_command(self, cmd, mask=None, target=None, client=None, **kw):
         predicates, meth = self.get(cmd, (None, None))
         if meth is not None:
