@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
 PY3 = bool(sys.version_info[0] == 3)
+PY34 = bool(sys.version_info[0:2] >= (3, 4))
 
 
 def u(value):

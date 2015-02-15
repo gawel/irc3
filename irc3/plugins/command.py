@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 from irc3.compat import PY3
 from irc3.compat import string_types
+from irc3.compat import asyncio
 from irc3 import utils
 from collections import defaultdict
 import functools
@@ -96,6 +97,13 @@ gawel is allowed::
 
     >>> bot.test(':gawel!u@h PRIVMSG nono :!ping')
     NOTICE gawel :PONG gawel!
+
+Async commands
+==============
+
+Commands can be coroutines:
+
+.. literalinclude:: ../../examples/async_command.py
 
 Available options
 =================
@@ -228,6 +236,7 @@ class Commands(dict):
         self.guard = guard(context)
 
         self.handles = defaultdict(Done)
+        self.tasks = defaultdict(Done)
 
     @irc3.event((r':(?P<mask>\S+) PRIVMSG (?P<target>\S+) '
                  r':{re_cmd}(?P<cmd>\w+)(\s(?P<data>\S.*)|$)'))
@@ -239,7 +248,7 @@ class Commands(dict):
                     mask.nick,
                     'You can only use the %r command in private.' % str(cmd))
             else:
-                self.do_command(predicates, meth, mask, target, **kw)
+                return self.do_command(predicates, meth, mask, target, **kw)
 
     def do_command(self, predicates, meth, client, target, data=None, **kw):
         nick = self.context.nick or '-'
@@ -264,7 +273,12 @@ class Commands(dict):
             self.context.privmsg(to, 'Invalid arguments.')
         else:
             uid = (cmd_name, to)
-            if not self.handles[uid].done() and self.antiflood:
+            if not self.tasks[uid].done():
+                self.context.notice(
+                    client if self.context.server else client.nick,
+                    "Another task is already running. "
+                    "Please be patient and don't flood me")
+            elif not self.handles[uid].done() and self.antiflood:
                 self.context.notice(
                     client if self.context.server else client.nick,
                     "Please be patient and don't flood me")
@@ -276,15 +290,32 @@ class Commands(dict):
                             args[k] = [s.decode(encoding) for s in v]
                         elif v not in (None, True, False):
                             args[k] = v.decode(encoding)
-                msgs = self.guard(predicates, meth, client, target, args=args)
-                if msgs is not None:
-                    def iterator(msgs):
-                        for msg in msgs:
-                            yield to, msg
-                    if isinstance(msgs, string_types):
-                        msgs = [msgs]
-                    handle = self.context.call_many('privmsg', iterator(msgs))
-                    self.handles[uid] = handle
+                # get command result
+                res = self.guard(predicates, meth, client, target, args=args)
+
+                callback = functools.partial(self.command_callback, uid, to)
+                if res is not None:
+                    if asyncio.iscoroutinefunction(meth):
+                        task = asyncio.Task(res, loop=self.context.loop)
+                        # use a callback if command is a coroutine
+                        task.add_done_callback(callback)
+                        self.tasks[uid] = task
+                        return task
+                    else:
+                        # no callback needed
+                        callback(res)
+
+    def command_callback(self, uid, to, msgs):
+        if isinstance(msgs, asyncio.Future):  # pragma: no cover
+            msgs = msgs.result()
+        if msgs is not None:
+            def iterator(msgs):
+                for msg in msgs:
+                    yield to, msg
+            if isinstance(msgs, string_types):
+                msgs = [msgs]
+            handle = self.context.call_many('privmsg', iterator(msgs))
+            self.handles[uid] = handle
 
     @command
     def help(self, mask, target, args):

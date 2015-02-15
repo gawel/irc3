@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 from irc3.testing import BotTestCase
 from irc3.plugins import command
+from irc3.compat import asyncio
+from irc3.compat import PY34
 from irc3.compat import u
+from irc3 import utils
 import tempfile
+import unittest
 import shutil
 import codecs
 import os
@@ -18,7 +22,7 @@ def cmd(bot, *args):
 
 @command.command
 def cmd_view(bot, *args):
-    """Test command
+    """test command
         %%cmd_view
     """
     return 'Done'
@@ -31,6 +35,17 @@ class TestCommands(BotTestCase):
     masks = 'irc3.plugins.command.masks'
 
     config = dict(includes=[name])
+
+    @unittest.skipIf(not PY34, 'Only test async on PY3')
+    def test_async_command(self):
+        bot = self.callFTU(nick='foo')
+        bot.include('async_command')
+        plugin = bot.get_plugin(command.Commands)
+        mask = utils.IrcString('a@a.com')
+        res = plugin.on_command('get', mask, mask.nick, data='')
+        assert isinstance(res, asyncio.Task)
+        res = plugin.on_command('get', mask, mask.nick, data='')
+        assert res is None
 
     def test_help(self):
         bot = self.callFTU(nick='foo')
