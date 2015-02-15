@@ -1,5 +1,9 @@
-0.5.4 (unreleased)
+0.6.0 (unreleased)
 ==================
+
+- Allow to reload modules/plugins
+
+- Add storage plugin
 
 - Fixed #34 Avoid newline injection.
 
