@@ -6,7 +6,7 @@ import shelve
 from ..compat import PY3
 __doc__ = '''
 ==========================================
-:mod:`irc3.plugins.storage` Cron plugin
+:mod:`irc3.plugins.storage` Storage plugin
 ==========================================
 
 Add a ``db`` attribute to the bot

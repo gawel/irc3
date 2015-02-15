@@ -10,6 +10,7 @@ IrcBot
 
 .. autoclass:: IrcBot
    :members:
+   :inherited-members:
 
     .. autoattribute:: defaults
 

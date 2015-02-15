@@ -172,6 +172,7 @@ class IrcObject(object):
                 scanner.scan(module, categories=categories)
 
     def reload(self, *modules):
+        """Reload one or more plugins"""
         self.notify('before_reload')
 
         if 'configfiles' in self.config:

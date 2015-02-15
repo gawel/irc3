@@ -38,6 +38,7 @@ Contents
    dec
    utils
    rfc
+   reloadable
    plugins/*
 
 

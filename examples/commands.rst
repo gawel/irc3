@@ -14,7 +14,6 @@ Show help
 
     ``!help [<cmd>]``
 
-*Require view permission.*
 
 ping
 ----
@@ -46,7 +45,7 @@ retweet
 
 Retweet
 
-    ``!retweet [--net=<network>] <url_or_id>``
+    ``!retweet [--id=<id>] <url_or_id>``
 
 *Require edit permission.*
 
@@ -55,7 +54,7 @@ tweet
 
 Post to social networks
 
-    ``!tweet [--net=<network>] <message>...``
+    ``!tweet [--id=<id>] <message>...``
 
 *Require edit permission.*
 
