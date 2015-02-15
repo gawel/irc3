@@ -36,6 +36,9 @@ Then use it::
     >>> bot.db['mykey'] = dict(key='value')
     >>> bot.db['mykey']
     {'key': 'value'}
+    >>> del bot.db['mykey']
+    >>> bot.db['mykey']
+    {}
 
 ..
     >>> bot.db.SIGINT()
@@ -52,6 +55,9 @@ You can also use shelve::
     >>> bot.db['mykey'] = dict(key='value')
     >>> bot.db['mykey']
     {'key': 'value'}
+    >>> del bot.db['mykey']
+    >>> bot.db['mykey']
+    {}
 
 ..
     >>> bot.db.SIGINT()
@@ -62,9 +68,21 @@ Or redis::
     ... [bot]
     ... includes =
     ...     irc3.plugins.storage
-    ... storage = redis://localhost:6379/1
+    ... storage = redis://localhost:6379/10
     ... """)
     >>> bot = IrcBot(**config)
+
+..
+    >>> bot.db.backend.flushdb()
+
+Then use it::
+    >>> bot.db.SIGINT()
+    >>> bot.db['mykey'] = dict(key='value')
+    >>> bot.db['mykey']
+    {'key': 'value'}
+    >>> del bot.db['mykey']
+    >>> bot.db['mykey']
+    {}
 
 
 '''
@@ -76,15 +94,24 @@ class Shelve(object):
         self.filename = uri[9:]
         self.db = shelve.open(self.filename)
 
-    def hmset(self, key, value):
+    def set(self, key, value):
         self.db[key] = value
         self.db.sync()
 
-    def hmget(self, key):
+    def get(self, key):
         return self.db[key]
+
+    def delete(self, key):
+        del self.db[key]
+        self.sync()
 
     def sync(self):
         self.db.sync()
+
+    def flushdb(self):
+        self.db.close()
+        os.remove(self.filename)
+        self.db = shelve.open(self.filename)
 
     def close(self):
         self.db.close()
@@ -100,26 +127,62 @@ class JSON(object):
         else:
             self.db = {}
 
-    def hmset(self, key, value):
+    def set(self, key, value):
         self.db[key] = value
         self.sync()
 
-    def hmget(self, key):
+    def get(self, key):
         return self.db[key]
+
+    def delete(self, key):
+        del self.db[key]
+        self.sync()
 
     def sync(self):
         with open(self.filename, 'w') as fd:
             json.dump(self.db, fd, indent=2, sort_keys=True)
 
+    def flushdb(self):
+        os.remove(self.filename)
+        self.db = {}
+
     def close(self):
         self.sync()
 
 
-def redis_backend(uri):
-    ConnectionPool = irc3.utils.maybedotted('redis.connection.ConnectionPool')
-    pool = ConnectionPool.from_url(uri)
-    StrictRedis = irc3.utils.maybedotted('redis.client.StrictRedis')
-    return StrictRedis(connection_pool=pool)
+class Redis(object):
+
+    def __init__(self, uri=None, **kwargs):
+        ConnectionPool = irc3.utils.maybedotted(
+            'redis.connection.ConnectionPool')
+        pool = ConnectionPool.from_url(uri)
+        StrictRedis = irc3.utils.maybedotted('redis.client.StrictRedis')
+        self.db = StrictRedis(connection_pool=pool)
+
+    def set(self, key, value):
+        self.db.hmset(key, value)
+
+    def get(self, key):
+        keys = self.db.hkeys(key)
+        if not keys:
+            raise KeyError()
+        values = self.db.hmget(key, keys)
+        keys = [k.decode('utf8') for k in keys]
+        values = [v.decode('utf8') for v in values]
+        values = dict(zip(keys, values))
+        return values
+
+    def delete(self, key):
+        self.db.delete(key)
+
+    def flushdb(self):
+        self.db.flushdb()
+
+    def sync(self):
+        self.db.save()
+
+    def close(self):
+        pass
 
 
 @irc3.plugin
@@ -128,9 +191,9 @@ class Storage(object):
     backends = {
         'shelve': Shelve,
         'json': JSON,
-        'unix': redis_backend,
-        'redis': redis_backend,
-        'rediss': redis_backend,
+        'unix': Redis,
+        'redis': Redis,
+        'rediss': Redis,
     }
 
     def __init__(self, context):
@@ -147,11 +210,27 @@ class Storage(object):
     def __setitem__(self, key, value):
         if not isinstance(value, dict):
             raise TypeError('value must be a dict')
-        return self.backend.hmset(key, value)
+        try:
+            return self.backend.set(key, value)
+        except Exception as e:
+            self.bot.log.exception(e)
+            raise
 
     def __getitem__(self, key):
-        return self.backend.hmget(key)
+        try:
+            return self.backend.get(key)
+        except KeyError:
+            return {}
+        except Exception as e:
+            self.bot.log.exception(e)
+            raise
+
+    def __delitem__(self, key):
+        try:
+            self.backend.delete(key)
+        except Exception as e:
+            self.bot.log.exception(e)
+            raise
 
     def SIGINT(self):
-        if hasattr(self.backend, 'close'):
-            self.backend.close()
+        self.backend.close()
