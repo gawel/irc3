@@ -3,6 +3,7 @@ import os
 import json
 import irc3
 import shelve
+from ..compat import PY3
 __doc__ = '''
 ==========================================
 :mod:`irc3.plugins.storage` Cron plugin
@@ -62,6 +63,7 @@ You can also use shelve::
 ..
     >>> bot.db.SIGINT()
 
+
 Or redis::
 
     >>> config = ini2config("""
@@ -108,11 +110,6 @@ class Shelve(object):
     def sync(self):
         self.db.sync()
 
-    def flushdb(self):
-        self.db.close()
-        os.remove(self.filename)
-        self.db = shelve.open(self.filename)
-
     def close(self):
         self.db.close()
 
@@ -121,7 +118,7 @@ class JSON(object):
 
     def __init__(self, uri=None, **kwargs):
         self.filename = uri[7:]
-        if os.path.isfile(self.filename):
+        if os.path.isfile(self.filename):  # pragma: no cover
             with open(self.filename) as fd:
                 self.db = json.load(fd)
         else:
@@ -141,10 +138,6 @@ class JSON(object):
     def sync(self):
         with open(self.filename, 'w') as fd:
             json.dump(self.db, fd, indent=2, sort_keys=True)
-
-    def flushdb(self):
-        os.remove(self.filename)
-        self.db = {}
 
     def close(self):
         self.sync()
@@ -167,8 +160,9 @@ class Redis(object):
         if not keys:
             raise KeyError()
         values = self.db.hmget(key, keys)
-        keys = [k.decode('utf8') for k in keys]
-        values = [v.decode('utf8') for v in values]
+        if PY3:
+            keys = [k.decode('utf8') for k in keys]
+            values = [v.decode('utf8') for v in values]
         values = dict(zip(keys, values))
         return values
 
@@ -182,7 +176,7 @@ class Redis(object):
         self.db.save()
 
     def close(self):
-        pass
+        self.sync()
 
 
 @irc3.plugin
@@ -201,18 +195,18 @@ class Storage(object):
         name = uri.split('://', 1)[0]
         try:
             factory = self.backends[name]
-        except KeyError:
+        except KeyError:  # pragma: no cover
             raise LookupError('No such backend %' % name)
         self.backend = factory(uri)
         self.context = context
         self.context.db = self
 
     def __setitem__(self, key, value):
-        if not isinstance(value, dict):
+        if not isinstance(value, dict):  # pragma: no cover
             raise TypeError('value must be a dict')
         try:
             return self.backend.set(key, value)
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             self.bot.log.exception(e)
             raise
 
@@ -221,14 +215,14 @@ class Storage(object):
             return self.backend.get(key)
         except KeyError:
             return {}
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             self.bot.log.exception(e)
             raise
 
     def __delitem__(self, key):
         try:
             self.backend.delete(key)
-        except Exception as e:
+        except Exception as e:  # pragma: no cover
             self.bot.log.exception(e)
             raise
 
