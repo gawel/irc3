@@ -1,4 +1,4 @@
-0.6.0 (unreleased)
+0.6.0 (2015-02-15)
 ==================
 
 - Allow to reload modules/plugins
