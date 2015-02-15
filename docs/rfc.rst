@@ -293,7 +293,7 @@ Example:
 303 - RPL_ISON
 --------------
 
-Format ``:{srv} 303 {nick} :[{nick} {{space}{nick}}]``
+Format ``:{srv} 303 {nick} :{nicknames}``
 
 Match ``^:(?P<srv>\S+) 303 (?P<me>\S+) :(?P<data>.*)``
 
@@ -550,7 +550,7 @@ Example:
 
 Format ``:{srv} 213 {nick} C {host} * {nick} {port} {class}``
 
-Match ``^:(?P<srv>\S+) 213 (?P<me>\S+) C (?P<host>\S+) * (?P<nick>\S+) (?P<port>\S+) (?P<class>\S+)``
+Match ``^:(?P<srv>\S+) 213 (?P<me>\S+) C (?P<host>\S+) . (?P<nick>\S+) (?P<port>\S+) (?P<class>\S+)``
 
 Example:
 
@@ -580,7 +580,7 @@ Example:
 
 Format ``:{srv} 244 {nick} H {hostmask} * {servername}``
 
-Match ``^:(?P<srv>\S+) 244 (?P<me>\S+) H (?P<hostmask>\S+) * (?P<servername>\S+)``
+Match ``^:(?P<srv>\S+) 244 (?P<me>\S+) H (?P<hostmask>\S+) . (?P<servername>\S+)``
 
 Example:
 
@@ -595,7 +595,7 @@ Example:
 
 Format ``:{srv} 215 {nick} I {host} * {host} {port} {class}``
 
-Match ``^:(?P<srv>\S+) 215 (?P<me>\S+) I (?P<host>\S+) * (?P<host>\S+) (?P<port>\S+) (?P<class>\S+)``
+Match ``^:(?P<srv>\S+) 215 (?P<me>\S+) I (?P<host>\S+) . (?P<host>\S+) (?P<port>\S+) (?P<class>\S+)``
 
 Example:
 
@@ -610,7 +610,7 @@ Example:
 
 Format ``:{srv} 216 {nick} K {host} * {username} {port} {class}``
 
-Match ``^:(?P<srv>\S+) 216 (?P<me>\S+) K (?P<host>\S+) * (?P<username>\S+) (?P<port>\S+) (?P<class>\S+)``
+Match ``^:(?P<srv>\S+) 216 (?P<me>\S+) K (?P<host>\S+) . (?P<username>\S+) (?P<port>\S+) (?P<class>\S+)``
 
 Example:
 
@@ -640,7 +640,7 @@ Example:
 
 Format ``:{srv} 241 {nick} L {hostmask} * {servername} {maxdepth}``
 
-Match ``^:(?P<srv>\S+) 241 (?P<me>\S+) L (?P<hostmask>\S+) * (?P<servername>\S+) (?P<maxdepth>\S+)``
+Match ``^:(?P<srv>\S+) 241 (?P<me>\S+) L (?P<hostmask>\S+) . (?P<servername>\S+) (?P<maxdepth>\S+)``
 
 Example:
 
@@ -655,7 +655,7 @@ Example:
 
 Format ``:{srv} 214 {nick} N {host} * {nick} {port} {class}``
 
-Match ``^:(?P<srv>\S+) 214 (?P<me>\S+) N (?P<host>\S+) * (?P<nick>\S+) (?P<port>\S+) (?P<class>\S+)``
+Match ``^:(?P<srv>\S+) 214 (?P<me>\S+) N (?P<host>\S+) . (?P<nick>\S+) (?P<port>\S+) (?P<class>\S+)``
 
 Example:
 
@@ -670,7 +670,7 @@ Example:
 
 Format ``:{srv} 243 {nick} O {hostmask} * {nick}``
 
-Match ``^:(?P<srv>\S+) 243 (?P<me>\S+) O (?P<hostmask>\S+) * (?P<nick>\S+)``
+Match ``^:(?P<srv>\S+) 243 (?P<me>\S+) O (?P<hostmask>\S+) . (?P<nick>\S+)``
 
 Example:
 
@@ -1045,7 +1045,7 @@ Example:
 
 Format ``:{srv} 311 {nick} {nick} {username} {host} * :{realname}``
 
-Match ``^:(?P<srv>\S+) 311 (?P<me>\S+) (?P<nick>\S+) (?P<username>\S+) (?P<host>\S+) * :(?P<data>.*)``
+Match ``^:(?P<srv>\S+) 311 (?P<me>\S+) (?P<nick>\S+) (?P<username>\S+) (?P<host>\S+) . :(?P<data>.*)``
 
 Example:
 
@@ -1075,7 +1075,7 @@ Example:
 
 Format ``:{srv} 314 {nick} {nick} {username} {host} * :{realname}``
 
-Match ``^:(?P<srv>\S+) 314 (?P<me>\S+) (?P<nick>\S+) (?P<username>\S+) (?P<host>\S+) * :(?P<data>.*)``
+Match ``^:(?P<srv>\S+) 314 (?P<me>\S+) (?P<nick>\S+) (?P<username>\S+) (?P<host>\S+) . :(?P<data>.*)``
 
 Example:
 
@@ -1271,7 +1271,7 @@ Example:
 ERR_NICK
 --------
 
-Match ``:(?P<srv>\S+) (?P<retcode>(432|433|436)) (?P<me>\S+) (?P<nick>\S+) :(?P<data>.*)``
+Match ``^:(?P<srv>\S+) (?P<retcode>(432|433|436)) (?P<me>\S+) (?P<nick>\S+) :(?P<data>.*)``
 
 Example:
 
@@ -1780,7 +1780,7 @@ Example:
 CTCP
 ----
 
-Match ``:(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) {nick} :(?P<ctcp>\S+.*)$``
+Match ``^:(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) {nick} :(?P<ctcp>\S+.*)$``
 
 Example:
 
@@ -1790,10 +1790,23 @@ Example:
     def myevent(bot):
         # do something
 
+INVITE
+------
+
+Match ``^:(?P<mask>\S+!\S+@\S+) INVITE {nick} :?(?P<channel>\S+)$``
+
+Example:
+
+.. code-block:: python
+
+    @irc3.event(rfc.INVITE)
+    def myevent(bot):
+        # do something
+
 JOIN
 ----
 
-Match ``:(?P<mask>\S+) JOIN :?(?P<channel>\S+)``
+Match ``^:(?P<mask>\S+) JOIN :?(?P<channel>\S+)``
 
 Example:
 
@@ -1806,7 +1819,7 @@ Example:
 JOIN_PART_QUIT
 --------------
 
-Match ``:(?P<mask>\S+) (?P<event>JOIN|PART|QUIT)\s*:*(?P<channel>\S*)(\s+:(?P<data>.*)|$)``
+Match ``^:(?P<mask>\S+) (?P<event>JOIN|PART|QUIT)\s*:*(?P<channel>\S*)(\s+:(?P<data>.*)|$)``
 
 Example:
 
@@ -1819,7 +1832,7 @@ Example:
 KICK
 ----
 
-Match ``:(?P<mask>\S+) (?P<event>KICK)\s+(?P<channel>\S+)\s*(?P<target>\S+)(\s+:(?P<data>.*)|$)``
+Match ``^:(?P<mask>\S+) (?P<event>KICK)\s+(?P<channel>\S+)\s*(?P<target>\S+)(\s+:(?P<data>.*)|$)``
 
 Example:
 
@@ -1832,7 +1845,7 @@ Example:
 MODE
 ----
 
-Match ``:(?P<mask>\S+) (?P<event>MODE)\s+(?P<target>\S+)\s+(?P<modes>\S+)(\s+(?P<data>.*)|$)``
+Match ``^:(?P<mask>\S+) (?P<event>MODE)\s+(?P<target>\S+)\s+(?P<modes>\S+)(\s+(?P<data>.*)|$)``
 
 Example:
 
@@ -1845,7 +1858,7 @@ Example:
 MY_PRIVMSG
 ----------
 
-Match ``:(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) (?P<target>(#\S+|{nick})) :{nick}[:,\s]\s*(?P<data>\S+.*)$``
+Match ``^:(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) (?P<target>(#\S+|{nick})) :{nick}[:,\s]\s*(?P<data>\S+.*)$``
 
 Example:
 
@@ -1858,7 +1871,7 @@ Example:
 NEW_NICK
 --------
 
-Match ``:(?P<nick>\S+) NICK :?(?P<new_nick>\S+)``
+Match ``^:(?P<nick>\S+) NICK :?(?P<new_nick>\S+)``
 
 Example:
 
@@ -1871,7 +1884,7 @@ Example:
 PART
 ----
 
-Match ``:(?P<mask>\S+) PART (?P<channel>\S+)(\s+:(?P<data>.*)|$)``
+Match ``^:(?P<mask>\S+) PART (?P<channel>\S+)(\s+:(?P<data>.*)|$)``
 
 Example:
 
@@ -1884,7 +1897,7 @@ Example:
 PING
 ----
 
-Match ``PING :?(?P<data>.*)``
+Match ``^PING :?(?P<data>.*)``
 
 Example:
 
@@ -1897,7 +1910,7 @@ Example:
 PONG
 ----
 
-Match ``:(?P<server>\S+) PONG (?P=server) :?(?P<data>.*)``
+Match ``^:(?P<server>\S+) PONG (?P=server) :?(?P<data>.*)``
 
 Example:
 
@@ -1910,7 +1923,7 @@ Example:
 PRIVMSG
 -------
 
-Match ``:(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) (?P<target>\S+) :\s*(?P<data>\S+.*)$``
+Match ``^:(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) (?P<target>\S+) :\s*(?P<data>\S+.*)$``
 
 Example:
 
@@ -1923,13 +1936,26 @@ Example:
 QUIT
 ----
 
-Match ``:(?P<mask>\S+) QUIT(\s+:(?P<data>.*)|$)``
+Match ``^:(?P<mask>\S+) QUIT(\s+:(?P<data>.*)|$)``
 
 Example:
 
 .. code-block:: python
 
     @irc3.event(rfc.QUIT)
+    def myevent(bot):
+        # do something
+
+TOPIC
+-----
+
+Match ``^:(?P<mask>\S+!\S+@\S+) TOPIC (?P<channel>\S+) :(?P<data>\S+.*)$``
+
+Example:
+
+.. code-block:: python
+
+    @irc3.event(rfc.TOPIC)
     def myevent(bot):
         # do something
 
