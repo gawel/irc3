@@ -37,7 +37,7 @@ class TestCommands(BotTestCase):
     config = dict(includes=[name])
 
     @unittest.skipIf(not PY34, 'Only test async on PY3')
-    def test_async_command(self):
+    def test_async_plugin(self):
         bot = self.callFTU(nick='foo')
         bot.include('async_command')
         plugin = bot.get_plugin(command.Commands)

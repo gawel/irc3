@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from irc3.compat import asyncio
 import functools
 import venusian
 import re
@@ -48,7 +49,10 @@ class event(object):
         self.venusian_category = venusian_category
 
     def async_callback(self, kwargs):  # pragma: no cover
-        return self.callback(**kwargs)
+        if asyncio.iscoroutinefunction(self.callback):
+            return asyncio.async(self.callback(**kwargs))
+        else:
+            return self.callback(**kwargs)
 
     def compile(self, config):
         regexp = getattr(self.regexp, 're', self.regexp)
