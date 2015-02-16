@@ -282,7 +282,11 @@ class IrcObject(object):
     def run(self, forever=True):
         """start the bot"""
         loop = self.create_connection()
-        loop.add_signal_handler(signal.SIGHUP, self.SIGHUP)
+        try:
+            loop.add_signal_handler(signal.SIGHUP, self.SIGHUP)
+        except AttributeError:
+            # windows
+            pass
         loop.add_signal_handler(signal.SIGINT, self.SIGINT)
         if forever:
             loop.run_forever()
