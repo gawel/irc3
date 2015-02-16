@@ -287,7 +287,11 @@ class IrcObject(object):
         except AttributeError:
             # windows
             pass
-        loop.add_signal_handler(signal.SIGINT, self.SIGINT)
+        try:
+            loop.add_signal_handler(signal.SIGINT, self.SIGINT)
+        except NotImplementedError:
+            # annaconda
+            pass
         if forever:
             loop.run_forever()
 
