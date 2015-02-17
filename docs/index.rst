@@ -40,6 +40,7 @@ Contents
    rfc
    reloadable
    plugins/*
+   hack
 
 
 
