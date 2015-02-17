@@ -8,6 +8,7 @@ _re_mask = re.compile('^\s{24,25}(?P<_>("(<|:).*|\S.*"$))')
 
 
 def main():
+    print('Parsing rfc file...')
     item = None
     items = []
 
@@ -152,3 +153,6 @@ class retcode(int):
         if i in valids:
             out.write('    %(num)s: %(name)s,\n' % item)
     out.write('}\n')
+
+if __name__ == '__main__':
+    main()
