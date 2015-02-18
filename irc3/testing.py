@@ -59,11 +59,10 @@ class IrcBot(irc3.IrcBot):
 
     def __init__(self, **config):
         self.check_required()
-        loop = MagicMock()
+        loop = mock.create_autospec(asyncio.new_event_loop(), spec_set=True)
         loop.create_task = create_task
         loop.call_later = call_later
         loop.call_soon = call_soon
-        loop.time = MagicMock()
         loop.time.return_value = 10
         config.update(testing=True, async=False, level=1000,
                       loop=loop)
