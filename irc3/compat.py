@@ -19,9 +19,9 @@ else:  # pragma: no cover
 
 import configparser  # NOQA
 
-try:
+try:  # pragma: no cover
     from importlib import reload as reload_module
-except ImportError:
+except ImportError:  # pragma: no cover
     from imp import reload as reload_module  # NOQA
 
 try:  # pragma: no cover

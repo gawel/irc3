@@ -283,7 +283,7 @@ class Commands(dict):
                     client if self.context.server else client.nick,
                     "Please be patient and don't flood me")
             else:
-                if not PY3:
+                if not PY3:  # pragma: no cover
                     # back to unicode
                     for k, v in args.items():
                         if isinstance(v, list):

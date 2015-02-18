@@ -38,14 +38,17 @@ class TestCommands(BotTestCase):
 
     @unittest.skipIf(not PY34, 'Only test async on PY3')
     def test_async_plugin(self):
-        bot = self.callFTU(nick='foo')
+        bot = self.callFTU(nick='foo', loop=asyncio.get_event_loop())
         bot.include('async_command')
         plugin = bot.get_plugin(command.Commands)
         mask = utils.IrcString('a@a.com')
         res = plugin.on_command('get', mask, mask.nick, data='')
         assert isinstance(res, asyncio.Task)
-        res = plugin.on_command('get', mask, mask.nick, data='')
-        assert res is None
+        res2 = plugin.on_command('get', mask, mask.nick, data='')
+        assert res2 is None
+        plugin.on_command('put', mask, mask.nick, data='xx yy')
+        bot.loop.run_until_complete(res)
+        assert res.result() == ['xx', 'yy']
 
     def test_help(self):
         bot = self.callFTU(nick='foo')

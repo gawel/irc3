@@ -11,7 +11,7 @@ import os
 
 try:
     from unittest import mock
-except ImportError:
+except ImportError:  # pragma: no cover
     import mock
 
 MagicMock = mock.MagicMock
@@ -40,7 +40,7 @@ def ini2config(data, type='bot'):
     return data
 
 
-def create_task(coro):
+def create_task(coro):  # pragma: no cover
     return asyncio.Task(coro)
 
 
@@ -59,13 +59,17 @@ class IrcBot(irc3.IrcBot):
 
     def __init__(self, **config):
         self.check_required()
-        loop = mock.create_autospec(asyncio.new_event_loop(), spec_set=True)
-        loop.create_task = create_task
-        loop.call_later = call_later
-        loop.call_soon = call_soon
-        loop.time.return_value = 10
-        config.update(testing=True, async=False, level=1000,
-                      loop=loop)
+        if 'loop' not in config:
+            loop = asyncio.new_event_loop()
+            loop = mock.create_autospec(loop, spec_set=True)
+            loop.create_task = create_task
+            loop.call_later = call_later
+            loop.call_soon = call_soon
+            loop.time.return_value = 10
+            config.update(testing=True, async=False, level=1000,
+                          loop=loop)
+        else:
+            config.update(testing=True, level=1000)
         super(IrcBot, self).__init__(**config)
         self.protocol = irc3.IrcConnection()
         self.protocol.closed = False
@@ -73,7 +77,7 @@ class IrcBot(irc3.IrcBot):
         self.protocol.transport = MagicMock()
         self.protocol.write = MagicMock()
 
-    def check_required(self):
+    def check_required(self):  # pragma: no cover
         dirname = os.path.expanduser('~/.irc3')
         if not os.path.isdir(dirname):
             os.makedirs(dirname)
@@ -85,7 +89,7 @@ class IrcBot(irc3.IrcBot):
     def test(self, data, show=True):
         self.dispatch(data)
         if show:
-            for line in self.sent:
+            for line in self.sent:  # pragma: no cover
                 if PY3:
                     print(line)
                 else:
@@ -95,7 +99,7 @@ class IrcBot(irc3.IrcBot):
     def sent(self):
         values = [tuple(c)[0][0] for c in self.protocol.write.call_args_list]
         self.protocol.write.reset_mock()
-        if not PY3:
+        if not PY3:  # pragma: no cover
             return [v.encode('utf8') for v in values]
         return values
 
@@ -149,7 +153,7 @@ class BotTestCase(IrcTestCase):
         if not self.bot.loop.called:
             self.bot.protocol.write.assert_has_calls(
                 [call(l) for l in lines])
-        else:
+        else:  # pragma: no cover
             self.bot.loop.call_later.assert_has_calls(
                 [call(l) for l in lines])
         self.reset_mock()
@@ -179,7 +183,7 @@ class IrcClient(irc3d.IrcClient):
 
     def reset(self, data=False):
         self.sent = []
-        if data:
+        if data:  # pragma: no cover
             self.data = []
 
 
