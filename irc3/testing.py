@@ -40,6 +40,10 @@ def ini2config(data, type='bot'):
     return data
 
 
+def create_task(coro):
+    return asyncio.Task(coro)
+
+
 def call_later(i, func, *args):
     if func.__name__ in dir(IrcBot):
         func(*args)
@@ -56,6 +60,7 @@ class IrcBot(irc3.IrcBot):
     def __init__(self, **config):
         self.check_required()
         loop = MagicMock()
+        loop.create_task = create_task
         loop.call_later = call_later
         loop.call_soon = call_soon
         loop.time = MagicMock()
