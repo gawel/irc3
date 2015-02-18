@@ -162,7 +162,7 @@ class IrcObject(object):
                 module = utils.maybedotted(module)
                 # we have to manualy check for plugins. venusian no longer
                 # support to attach both a class and methods
-                for klass in module.__dict__.values():
+                for klass in list(module.__dict__.values()):
                     if not isinstance(klass, type):
                         continue
                     if klass.__module__ == module.__name__:
