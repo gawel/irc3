@@ -24,7 +24,7 @@ that you have'nt broke anything by running tox::
 
     $ tox -e py34
 
-The :mod:`irc3.rfc` is auto generated from `irc3/rfc1459.txt`. If you want to
+The `irc3.rfc` module is auto generated from `irc3/rfc1459.txt`. If you want to
 hack this file, you need to hack the parser in `irc3/_parse_rfc.py` (warning,
 it's ugly)
 
@@ -39,3 +39,10 @@ You can also build the docs with::
 And check the result::
 
     $ firefox .tox/docs/tmp/html/index.html
+
+The project is `buildout <https://github.com/buildout/buildout>`_ ready. You
+can generate binaries using it instead of virtualenv::
+
+    $ python bootstrap.py
+    $ bin/buildout
+    $ bin/irc3 -h
