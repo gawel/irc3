@@ -53,3 +53,5 @@ class TestSplit(TestCase):
         # nonbreaking space
         messages = ['allo http://' * 80]
         self.assertEqual(messages, self.callFTU(messages))
+        messages = ['\x1d \x1f']
+        self.assertEqual(messages, self.callFTU(messages))

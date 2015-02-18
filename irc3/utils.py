@@ -93,6 +93,9 @@ class IrcString(BaseString):
         return not (self.is_server or self.is_channel)
 
 
+STRIPPED_CHARS = '\t '
+
+
 def split_message(message, max_length):
     """Split long messages"""
     if len(message) >= max_length:
@@ -101,12 +104,13 @@ def split_message(message, max_length):
         while messages:
             buf = messages.pop(0)
             if len(message) + len(buf) > max_length:
-                if message.strip():
-                    yield message.strip()
+                if message.strip(STRIPPED_CHARS):
+                    yield message.strip(STRIPPED_CHARS)
                 message = ''
             message += ' ' + buf
-    if message.strip():
-        yield message.strip()
+    message = message.strip(STRIPPED_CHARS)
+    if message:
+        yield message
 
 
 class Config(dict):
