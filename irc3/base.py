@@ -279,19 +279,23 @@ class IrcObject(object):
         t.add_done_callback(self.connection_made)
         return self.loop
 
-    def run(self, forever=True):
-        """start the bot"""
-        loop = self.create_connection()
+    def add_signal_handlers(self):
+        """Register handlers for UNIX signals (SIGHUP/SIGINT)"""
         try:
-            loop.add_signal_handler(signal.SIGHUP, self.SIGHUP)
+            self.loop.add_signal_handler(signal.SIGHUP, self.SIGHUP)
         except AttributeError:
             # windows
             pass
         try:
-            loop.add_signal_handler(signal.SIGINT, self.SIGINT)
+            self.loop.add_signal_handler(signal.SIGINT, self.SIGINT)
         except NotImplementedError:
             # annaconda
             pass
+
+    def run(self, forever=True):
+        """start the bot"""
+        loop = self.create_connection()
+        self.add_signal_handlers()
         if forever:
             loop.run_forever()
 
