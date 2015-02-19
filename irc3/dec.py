@@ -58,7 +58,7 @@ class event(object):
         regexp = getattr(self.regexp, 're', self.regexp)
         if config:
             regexp = regexp.format(**config)
-        self.cregexp = re.compile(regexp)
+        self.cregexp = re.compile(regexp).match
 
     def __call__(self, wrapped):
         def callback(context, name, ob):

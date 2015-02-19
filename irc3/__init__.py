@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from collections import deque
 from .dec import event
 from .dec import extend
 from .dec import plugin
@@ -9,7 +10,6 @@ from . import rfc
 from . import base
 from .compat import text_type
 from .compat import asyncio
-from .compat import Queue
 import venusian
 import time
 
@@ -20,7 +20,7 @@ class IrcConnection(asyncio.Protocol):
     def connection_made(self, transport):
         self.transport = transport
         self.closed = False
-        self.queue = Queue()
+        self.queue = deque()
 
     def decode(self, data):
         """Decode data with bot's encoding"""
@@ -29,10 +29,10 @@ class IrcConnection(asyncio.Protocol):
 
     def data_received(self, data):
         data = self.decode(data)
-        if not self.queue.empty():
-            data = self.queue.get_nowait() + data
+        if self.queue:
+            data = self.queue.popleft() + data
         lines = data.split('\r\n')
-        self.queue.put_nowait(lines.pop(-1))
+        self.queue.append(lines.pop(-1))
         for line in lines:
             self.factory.dispatch(line)
 
@@ -140,7 +140,7 @@ class IrcBot(base.IrcObject):
         else:
             self.log.debug('Connected')
             self.protocol = protocol
-            self.protocol.queue = Queue(loop=self.loop)
+            self.protocol.queue = deque()
             self.protocol.factory = self
             self.protocol.encoding = self.encoding
             if self.config.get('password'):

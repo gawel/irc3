@@ -215,31 +215,31 @@ class IrcObject(object):
                     meth()
 
     def dispatch(self, data, iotype='in', client=None):
-        events = []
+        str = utils.IrcString
+        call_soon = self.loop.call_soon
         for regexp, cregexp in self.events_re[iotype]:
-            match = cregexp.search(data)
+            match = cregexp(data)
             if match is not None:
                 match = match.groupdict()
                 for key, value in match.items():
                     if value is not None:
-                        match[key] = utils.IrcString(value)
+                        match[key] = str(value)
                 if client is not None:
                     # server
                     match['client'] = client
                 for e in self.events[iotype][regexp]:
-                    self.loop.call_soon(e.async_callback, match)
-                    events.append((e, match))
-        return events
+                    call_soon(e.async_callback, match)
 
     def call_many(self, callback, args):
         """callback is run with each arg but run a call per second"""
         if isinstance(callback, string_types):
             callback = getattr(self, callback)
+        call_later = self.loop.call_later
         i = 0
         for i, arg in enumerate(args):
-            self.loop.call_later(i, callback, *arg)
+            call_later(i, callback, *arg)
         f = asyncio.Future()
-        self.loop.call_later(i + 1, f.set_result, True)
+        call_later(i + 1, f.set_result, True)
         return f
 
     def get_ssl_context(self):
