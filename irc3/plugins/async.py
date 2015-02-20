@@ -17,8 +17,8 @@ You'll have to define a subclass of :class:`~irc3.async.AsyncEvents`:
 .. literalinclude:: ../../irc3/plugins/async.py
   :pyobject: Whois
 
-Notice that the regexp contain some `{nick}`. This will be substitued later by
-the keyword arguments passed to the instance.
+Notice that regexps and send_line contains some `{nick}`. This will be
+substitued later with the keyword arguments passed to the instance.
 
 Then you're able to use it in a plugin:
 
@@ -31,7 +31,6 @@ Then you're able to use it in a plugin:
             self.whois = Whois(context)
 
         def do_whois(self):
-            self.bot.send_line('WHOIS gawel gawel')
             # remember {nick} in the regexp? Here it is
             whois = yield from self.whois(nick='gawel')
             if int(whois['idle']) / 60 > 10:
@@ -64,26 +63,32 @@ API
 
 
 class Whois(AsyncEvents):
-    """Catch whois related events"""
 
     # the command will fail if we do not have a result after 30s
     timeout = 30
 
-    # when those events occurs, we can set/return the result list
-    # (?i) is for IGNORECASE. This will match either NicK or nick
-    events = [r"(?i)^:\S+ (?P<retcode>(318|401)) \S+ (?P<nick>{nick}) :.*"]
+    # send this line before listening to events
+    send_line = 'WHOIS {nick} {nick}'
 
-    # when those events occurs, we add then to the future result list
-    extra_events = [
-        "(?i)^:\S+ 301 \S+ {nick} :(?P<away>.*)",
-        "(?i)^:\S+ 311 \S+ {nick} (?P<username>\S+) (?P<host>\S+) . "
-        ":(?P<realname>.*)(?i)",
-        "(?i)^:\S+ 317 \S+ {nick} (?P<idle>[0-9]+).*",
-        "(?i)^:\S+ 319 \S+ {nick} :(?P<channels>.*)",
-    ]
+    # when those events occurs, we can add them to the result list
+    events = (
+      # (?i) is for IGNORECASE. This will match either NicK or nick
+      {'match': "(?i)^:\S+ 301 \S+ {nick} :(?P<away>.*)",
+       },
+      {'match': "(?i)^:\S+ 311 \S+ {nick} (?P<username>\S+) (?P<host>\S+) . "
+                ":(?P<realname>.*)(?i)",
+       },
+      {'match': "(?i)^:\S+ 317 \S+ {nick} (?P<idle>[0-9]+).*",
+       },
+      {'match': "(?i)^:\S+ 319 \S+ {nick} :(?P<channels>.*)",
+       },
+      # if final=True then a result is returned when the event occurs
+      {'match': "(?i)^:\S+ (?P<retcode>(318|401)) \S+ (?P<nick>{nick}) :.*",
+       'final': True},
+    )
 
     def process_results(self, results=None, **value):
-        """take result list of all events and put them in a dict"""
+        """take results list of all events and put them in a dict"""
         channels = []
         for res in results:
             channels.extend(res.pop('channels', '').split())
@@ -95,7 +100,10 @@ class Whois(AsyncEvents):
 
 class IsOn(AsyncEvents):
 
-    events = ["(?i)^:\S+ 303 \S+ :(?P<nicknames>({nicknames}.*|$))"]
+    events = (
+      {"match": "(?i)^:\S+ 303 \S+ :(?P<nicknames>({nicknames}.*|$))",
+       "final": True},
+    )
 
     def process_results(self, results=None, **value):
         nicknames = []
@@ -114,29 +122,29 @@ class Async(object):
 
     def __init__(self, context):
         self.context = context
-        self.ison = IsOn(context)
-        self.whois = Whois(context)
+        self.context.async = self
+        self.async_ison = IsOn(context)
+        self.async_whois = Whois(context)
 
     @dec.extend
-    def async_whois(self, nick, timeout=20):
+    def whois(self, nick, timeout=20):
         """Send a WHOIS and return a Future which will contain recieved data:
 
         .. code-block:: py
 
-            result = yield from bot.async_whois('gawel')
+            result = yield from bot.async.whois('gawel')
         """
-        self.context.send_line('WHOIS {0} {0}'.format(nick))
-        return self.whois(nick=nick.lower(), timeout=timeout)
+        return self.async_whois(nick=nick.lower(), timeout=timeout)
 
     @dec.extend
-    def async_ison(self, *nicknames, **kwargs):
+    def ison(self, *nicknames, **kwargs):
         """Send a ISON and return a Future which will contain recieved data:
 
         .. code-block:: py
 
-            result = yield from bot.async_ison('gawel')
+            result = yield from bot.async.ison('gawel', 'irc3')
         """
-        timeout = kwargs.get('timeout')
+        nicknames = [n.lower() for n in nicknames]
         self.context.send_line('ISON :{0}'.format(' '.join(nicknames)))
-        return self.ison(nicknames='(%s)' % '|'.join(nicknames),
-                         timeout=timeout)
+        return self.async_ison(nicknames='(%s)' % '|'.join(nicknames),
+                               timeout=kwargs.get('timeout'))
