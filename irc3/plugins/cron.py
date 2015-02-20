@@ -4,6 +4,7 @@ import functools
 import venusian
 import logging
 import time
+from irc3.compat import asyncio
 import irc3
 __doc__ = '''
 ==========================================
@@ -46,8 +47,11 @@ class Cron(object):
     def get_next(self):
         return self.croniter.get_next(float)
 
-    def __call__(self):
-        return self.callback()
+    def __call__(self, loop):
+        if asyncio.iscoroutinefunction(self.callback):
+            return asyncio.async(self.callback(), loop=loop)
+        else:
+            return self.callback()
 
     def __str__(self):
         return '{0.cronline} {0.callback}'.format(self)
@@ -101,8 +105,8 @@ class Crons(list):
     def stop(self):
         self.context.log.info('Stoping existing crons...')
         self.started = False
-        for v in list(self.handles.values()):
-            self.remove_cron(v)
+        for uuid in list(self.handles):
+            self.remove_cron(uuid=uuid)
 
     def start_cron(self, cron):
         self.log.debug('Starting {0}'.format(cron))
@@ -113,7 +117,7 @@ class Crons(list):
 
     def call_cron(self, cron):
         try:
-            cron()
+            cron(self.context.loop)
         except Exception as e:
             self.log.error(cron)
             self.context.log.exception(e)

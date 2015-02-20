@@ -1,7 +1,7 @@
-0.6.1 (unreleased)
+0.7.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Add `irc3.plugins.async`; Allow to `yield from bot.whois('gawel')`
 
 
 0.6.0 (2015-02-15)
