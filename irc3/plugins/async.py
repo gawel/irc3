@@ -65,7 +65,7 @@ API
 class Whois(AsyncEvents):
 
     # the command will fail if we do not have a result after 30s
-    timeout = 30
+    timeout = 20
 
     # send this line before listening to events
     send_line = 'WHOIS {nick} {nick}'
@@ -94,6 +94,50 @@ class Whois(AsyncEvents):
         return value
 
 
+class WhoChannel(AsyncEvents):
+
+    send_line = 'WHO {channel}'
+
+    events = (
+      {"match": "(?i)^:\S+ 352 \S+ {channel} (?P<user>\S+) "
+                "(?P<host>\S+) (?P<server>\S+) (?P<nick>\S+) "
+                "(?P<modes>\S+) :(?P<hopcount>\S+) (?P<realname>.*)",
+       "multi": True},
+      {"match": "(?i)^:\S+ (?P<retcode>(315|401)) \S+ {channel} :.*",
+       "final": True},
+    )
+
+    def process_results(self, results=None, **value):
+        users = []
+        for res in results:
+            if 'retcode' in res:
+                value.update(res)
+            else:
+                users.append(res)
+        value['users'] = users
+        value['success'] = value.get('retcode') == '315'
+        return value
+
+
+class WhoNick(AsyncEvents):
+
+    send_line = 'WHO {nick}'
+
+    events = (
+      {"match": "(?i)^:\S+ 352 \S+ (?P<channel>\S+) (?P<user>\S+) "
+                "(?P<host>\S+) (?P<server>\S+) (?P<nick>{nick}) "
+                "(?P<modes>\S+) :(?P<hopcount>\S+)\s*(?P<realname>.*)"},
+      {"match": "(?i)^:\S+ (?P<retcode>(315|401)) \S+ {nick} :.*",
+       "final": True},
+    )
+
+    def process_results(self, results=None, **value):
+        for res in results:
+            value.update(res)
+        value['success'] = value.get('retcode') == '315'
+        return value
+
+
 class IsOn(AsyncEvents):
 
     events = (
@@ -105,7 +149,26 @@ class IsOn(AsyncEvents):
         nicknames = []
         for res in results:
             nicknames.extend(res.pop('nicknames', '').split())
-        value['nicknames'] = nicknames
+        value['names'] = nicknames
+        return value
+
+
+class Names(AsyncEvents):
+
+    send_line = 'NAMES {channel}'
+
+    events = (
+      {"match": "(?i)^:\S+ 353 .*{channel} :(?P<nicknames>.*)", 'multi': True},
+      {'match': "(?i)^:\S+ (?P<retcode>(366|401)) \S+ {channel} :.*",
+       'final': True},
+    )
+
+    def process_results(self, results=None, **value):
+        nicknames = []
+        for res in results:
+            nicknames.extend(res.pop('nicknames', '').split())
+        value['names'] = nicknames
+        value['success'] = value.get('retcode') == '366'
         return value
 
 
@@ -119,8 +182,11 @@ class Async(object):
     def __init__(self, context):
         self.context = context
         self.context.async = self
-        self.async_ison = IsOn(context)
         self.async_whois = Whois(context)
+        self.async_who_channel = WhoChannel(context)
+        self.async_who_nick = WhoNick(context)
+        self.async_ison = IsOn(context)
+        self.async_names = Names(context)
 
     @dec.extend
     def whois(self, nick, timeout=20):
@@ -131,6 +197,21 @@ class Async(object):
             result = yield from bot.async.whois('gawel')
         """
         return self.async_whois(nick=nick.lower(), timeout=timeout)
+
+    @dec.extend
+    def who(self, target, timeout=20):
+        """Send a WHO and return a Future which will contain recieved data:
+
+        .. code-block:: py
+
+            result = yield from bot.async.who('gawel')
+            result = yield from bot.async.who('#irc3')
+        """
+        target = target.lower()
+        if target.startswith('#'):
+            return self.async_who_channel(channel=target, timeout=timeout)
+        else:
+            return self.async_who_nick(nick=target, timeout=timeout)
 
     @dec.extend
     def ison(self, *nicknames, **kwargs):
@@ -144,3 +225,13 @@ class Async(object):
         self.context.send_line('ISON :{0}'.format(' '.join(nicknames)))
         return self.async_ison(nicknames='(%s)' % '|'.join(nicknames),
                                timeout=kwargs.get('timeout'))
+
+    @dec.extend
+    def names(self, channel, timeout=20):
+        """Send a NAMES and return a Future which will contain recieved data:
+
+        .. code-block:: py
+
+            result = yield from bot.async.names('#irc3')
+        """
+        return self.async_names(channel=channel.lower(), timeout=timeout)

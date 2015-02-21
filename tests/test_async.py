@@ -44,6 +44,35 @@ class TestAsync(BotTestCase):
         result = task.result()
         assert result['timeout'] is True
 
+    def test_who_channel(self):
+        bot = self.callFTU()
+        assert len(bot.events_re['in']) == 0
+        task = bot.async.who('#irc3')
+        assert len(bot.events_re['in']) == 2
+        bot.dispatch(
+            ':card.freenode.net 352 nick #irc3 ~irc3 host1 srv1 irc3 H :0 bot')
+        bot.dispatch(
+            ':card.freenode.net 352 nick #irc3 ~gael host2 srv2 gawel H@ :1 g')
+        bot.dispatch(':card.freenode.net 315 nick #irc3 :End of /WHO list.')
+        bot.loop.run_until_complete(task)
+        result = task.result()
+        assert result['timeout'] is False
+        assert len(result['users']) == 2
+
+    def test_who_nick(self):
+        bot = self.callFTU()
+        assert len(bot.events_re['in']) == 0
+        task = bot.async.who('irc3')
+        print(bot.events_re)
+        assert len(bot.events_re['in']) == 2
+        bot.dispatch(
+            ':card.freenode.net 352 nick * ~irc3 host1 serv1 irc3 H :0 bot')
+        bot.dispatch(':card.freenode.net 315 nick irc3 :End of /WHO list.')
+        bot.loop.run_until_complete(task)
+        result = task.result()
+        assert result['timeout'] is False
+        assert result['hopcount'] == '0'
+
     def test_ison(self):
         bot = self.callFTU()
         assert len(bot.events_re['in']) == 0
@@ -53,4 +82,21 @@ class TestAsync(BotTestCase):
         bot.loop.run_until_complete(task)
         result = task.result()
         assert result['timeout'] is False
-        assert result['nicknames'] == ['gawel']
+        assert result['names'] == ['gawel']
+
+    def test_names(self):
+        bot = self.callFTU()
+        assert len(bot.events_re['in']) == 0
+        task = bot.async.names('#irc3')
+        print(bot.events_re)
+        assert len(bot.events_re['in']) == 2
+        bot.dispatch(
+            ':card.freenode.net 353 nick @ #irc3 :irc3 @gawel')
+        bot.dispatch(
+            ':card.freenode.net 353 nick @ #irc3 :+panoramisk')
+        bot.dispatch(
+            ':card.freenode.net 366 nick #irc3 :End of /NAMES list.')
+        bot.loop.run_until_complete(task)
+        result = task.result()
+        assert result['timeout'] is False
+        assert len(result['names']) == 3

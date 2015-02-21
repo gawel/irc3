@@ -7,9 +7,9 @@ class async_event(event):
 
     def __init__(self, **kwargs):
         self.meta = kwargs.get('meta')
-        super(async_event, self).__init__(self.meta['match'],
-                                          callback=kwargs.pop('callback'))
-        super(async_event, self).compile(kwargs)
+        regexp = self.meta['match'].format(**kwargs)
+        super(async_event, self).__init__(regexp, kwargs.pop('callback'))
+        super(async_event, self).compile({})
 
     def compile(self, *args, **kwargs):
         # we don't need to recompile. params will never change
@@ -49,7 +49,7 @@ def async_events(context, events, send_line=None,
             events_.remove(e)
         if e.meta.get('final') is True:
             timeout.cancel()
-            task.set_result(process_results(results, timeout=False))
+            task.set_result(process_results(results=results, timeout=False))
             # detach events as soon as possible
             context.detach_events(*events_)
             # empty in place (still use ref)
