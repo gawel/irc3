@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from irc3.async import AsyncEvents
+from irc3 import utils
 from irc3 import dec
 __doc__ = """
 ==============================================
@@ -113,6 +114,8 @@ class WhoChannel(AsyncEvents):
             if 'retcode' in res:
                 value.update(res)
             else:
+                res['mask'] = utils.IrcString(
+                    '{nick}!{user}@{host}'.format(**res))
                 users.append(res)
         value['users'] = users
         value['success'] = value.get('retcode') == '315'
@@ -133,6 +136,9 @@ class WhoNick(AsyncEvents):
 
     def process_results(self, results=None, **value):
         for res in results:
+            if 'retcode' not in res:
+                res['mask'] = utils.IrcString(
+                    '{nick}!{user}@{host}'.format(**res))
             value.update(res)
         value['success'] = value.get('retcode') == '315'
         return value
