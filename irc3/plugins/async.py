@@ -73,15 +73,11 @@ class Whois(AsyncEvents):
     # when those events occurs, we can add them to the result list
     events = (
       # (?i) is for IGNORECASE. This will match either NicK or nick
-      {'match': "(?i)^:\S+ 301 \S+ {nick} :(?P<away>.*)",
-       },
+      {'match': "(?i)^:\S+ 301 \S+ {nick} :(?P<away>.*)"},
       {'match': "(?i)^:\S+ 311 \S+ {nick} (?P<username>\S+) (?P<host>\S+) . "
-                ":(?P<realname>.*)(?i)",
-       },
-      {'match': "(?i)^:\S+ 317 \S+ {nick} (?P<idle>[0-9]+).*",
-       },
-      {'match': "(?i)^:\S+ 319 \S+ {nick} :(?P<channels>.*)",
-       },
+                ":(?P<realname>.*)(?i)"},
+      {'match': "(?i)^:\S+ 317 \S+ {nick} (?P<idle>[0-9]+).*"},
+      {'match': "(?i)^:\S+ 319 \S+ {nick} :(?P<channels>.*)"},
       # if final=True then a result is returned when the event occurs
       {'match': "(?i)^:\S+ (?P<retcode>(318|401)) \S+ (?P<nick>{nick}) :.*",
        'final': True},

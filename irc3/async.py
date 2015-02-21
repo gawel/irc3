@@ -26,17 +26,17 @@ def default_result_processor(self, results=None, **value):
     return value
 
 
-def async_events(context, process_events, send_line=None,
+def async_events(context, events, send_line=None,
                  process_results=default_result_processor,
                  timeout=30, **params):
 
     task = asyncio.Future()  # async result
     results = []  # store events results
-    events = []  # reference registered events
+    events_ = []  # reference registered events
 
     def timeout_callback():
         """occurs when no final=True event is found"""
-        context.detach_events(*events)
+        context.detach_events(*events_)
         task.set_result(process_results(results=results, timeout=True))
 
     timeout = context.loop.call_later(timeout, timeout_callback)
@@ -46,20 +46,20 @@ def async_events(context, process_events, send_line=None,
         results.append(kw)
         if e.meta.get('multi') is False:
             context.detach_events(e)
-            events.remove(e)
+            events_.remove(e)
         if e.meta.get('final') is True:
             timeout.cancel()
             task.set_result(process_results(results, timeout=False))
             # detach events as soon as possible
-            context.detach_events(*events)
+            context.detach_events(*events_)
             # empty in place (still use ref)
-            events[:] = []
+            events_[:] = []
 
-    events.extend([
+    events_.extend([
         async_event(meta=kw, callback=callback, **params)
-        for kw in process_events])
+        for kw in events])
 
-    context.attach_events(*events, insert=True)
+    context.attach_events(*events_, insert=True)
 
     if send_line:
         context.send_line(send_line.format(**params))
