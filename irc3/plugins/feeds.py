@@ -69,6 +69,13 @@ def default_hook(entries):
     return entries
 
 
+def default_dispatcher(bot):
+    """Default messages dispatcher"""
+    def dispatcher(messages):
+        bot.call_many('privmsg', messages)
+    return dispatcher
+
+
 def fetch(args):
     """fetch a feed"""
     session = args['session']
@@ -144,6 +151,10 @@ class Feeds(object):
             hook = hook(bot)
         self.hook = hook
 
+        dispatcher = config.get('dispatcher', default_dispatcher)
+        dispatcher = irc3.utils.maybedotted(dispatcher)
+        self.dispatcher = dispatcher(bot)
+
         self.max_workers = int(config.get('max_workers', 5))
         delay = int(config.get('delay', 5))
         self.delay = delay * 60
@@ -216,7 +227,7 @@ class Feeds(object):
                     for c in feed['channels']:
                         yield c, message
 
-        self.bot.call_many('privmsg', messages())
+        self.dispatcher(messages())
 
     def fetch(self):
         """prefetch feeds"""
