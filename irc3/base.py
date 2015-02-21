@@ -137,15 +137,24 @@ class IrcObject(object):
 
     def detach_events(self, *events):
         """Detach one or more events from the bot instance"""
+        delete = defaultdict(list)
+
+        # remove from self.events
+        all_events = self.events
         for e in events:
             regexp = getattr(e.regexp, 're', e.regexp)
-            if e in self.events[e.iotype].get(regexp, []):
-                self.events[e.iotype][regexp].remove(e)
-                if not self.events[e.iotype][regexp]:
-                    del self.events[e.iotype][regexp]
-                    events_re = self.events_re[e.iotype]
-                    events_re = [r for r in events_re if r[0] != regexp]
-                    self.events_re[e.iotype] = events_re
+            iotype = e.iotype
+            if e in all_events[iotype].get(regexp, []):
+                all_events[e.iotype][regexp].remove(e)
+                if not all_events[iotype][regexp]:
+                    del all_events[iotype][regexp]
+                    # need to delete from self.events_re
+                    delete[iotype].append(regexp)
+
+        # delete from events_re
+        for iotype, regexps in delete.items():
+            self.events_re[iotype] = [r for r in self.events_re[iotype]
+                                      if r[0] not in regexps]
 
     def include(self, *modules, **kwargs):
         plugin_category = '__irc3_plugin__'
