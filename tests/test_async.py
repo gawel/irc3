@@ -26,6 +26,10 @@ class TestAsync(BotTestCase):
         task = bot.async.whois(nick='GaWel')
         assert len(bot.events_re['in']) > 2
         bot.dispatch(':localhost 311 me gawel username localhost * :realname')
+        bot.dispatch(':localhost 319 me gawel :@#irc3')
+        bot.dispatch(':localhost 312 me gawel localhost :Paris, FR')
+        bot.dispatch(':localhost 671 me gawel :is using a secure connection')
+        bot.dispatch(':localhost 330 me gawel gawel :is logged in as')
         bot.dispatch(':localhost 318 me gawel :End')
         bot.loop.run_until_complete(task)
         assert len(bot.events_re['in']) == 0

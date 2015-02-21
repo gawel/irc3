@@ -19,7 +19,7 @@ class async_event(event):
         self.callback(self, kw)
 
 
-def default_result_processor(self, results=None, **value):
+def default_result_processor(self, results=None, **value):  # pragma: no cover
     value['results'] = results
     if len(results) == 1:
         value.update(results[0])
@@ -44,7 +44,7 @@ def async_events(context, events, send_line=None,
     def callback(e, kw):
         """common callback for all events"""
         results.append(kw)
-        if e.meta.get('multi') is False:
+        if e.meta.get('multi') is not True:
             context.detach_events(e)
             events_.remove(e)
         if e.meta.get('final') is True:
@@ -77,7 +77,7 @@ class AsyncEvents(object):
     def __init__(self, context):
         self.context = context
 
-    def process_results(self, results=None, **value):
+    def process_results(self, results=None, **value):  # pragma: no cover
         """Process results.
         results is a list of dict catched during event.
         value is a dict containing some metadata (like timeout=(True/False).
