@@ -76,7 +76,7 @@ class Channel(set):
                 items.remove(item)
 
     def __repr__(self):
-        return sorted(list(self))
+        return repr(sorted(self))
 
 
 @plugin

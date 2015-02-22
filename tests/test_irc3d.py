@@ -63,7 +63,7 @@ class TestServer(testing.ServerTestCase):
 
         s.client1.dispatch('PRIVMSG #irc5 :Hello #irc5!')
         self.assertSent(
-            s.client1, ':irc.com 401 client1 None :No such nick/channel')
+            s.client1, ':irc.com 401 client1 #irc5 :No such nick/channel')
 
     def test_motd(self):
         s = self.callFTU(clients=1)

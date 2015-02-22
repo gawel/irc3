@@ -178,13 +178,14 @@ class ServerUserlist(userlist.Userlist):
 
             %%PRIVMSG <target> <:message>...
         """
-        target = self.nicks.get(args['<target>'], None)
+        dest = args['<target>']
+        target = self.nicks.get(dest, None)
         if target is not None:
             clients = [target]
         else:
-            clients = self.channels.get(args['<target>'], set())
+            clients = self.channels.get(dest, set())
             # do not send to sender
-            clients = clients.difference({client})
+            clients = clients.difference({client.nick})
         if clients:
             data = ' '.join(args['<:message>'])
             if not data.startswith(':'):
@@ -194,8 +195,8 @@ class ServerUserlist(userlist.Userlist):
                 broadcast=':{c.mask} {event} {<target>} {data}'.format(
                     c=client, target=target, event=event, data=data, **args),
                 clients=clients)
-        else:
-            client.fwrite(rfc.ERR_NOSUCHNICK, nick=target)
+        elif dest not in self.channels:
+            client.fwrite(rfc.ERR_NOSUCHNICK, nick=dest)
 
     @irc3d.command
     def NOTICE(self, client=None, args=None, event='PRIVMSG', **kwargs):
