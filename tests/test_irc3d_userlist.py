@@ -76,7 +76,8 @@ class TestServerUserList(testing.ServerTestCase):
 
         s.client1.reset()
         s.client1.dispatch('NAMES #irc')
-        self.assertSent(s.client1, ':irc.com 353 client1 :client1 client3')
+        self.assertSent(s.client1,
+                        ':irc.com 353 client1 = #irc :client1 client3')
         s.client1.dispatch('WHOIS client2')
         self.assertSent(s.client1, ':irc.com 319 client1 :#irc3')
 

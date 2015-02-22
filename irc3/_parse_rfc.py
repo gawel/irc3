@@ -96,10 +96,12 @@ class retcode(int):
 
             if item['num'] == '303':
                 omask = ':<nicknames>'
+            elif item['num'] == '311':
+                omask = omask.replace('*', '<m>')
             elif item['num'] == '319':
                 omask = ':<channels>'
             elif item['num'] == '353':
-                omask = ':<nicknames>'
+                omask = '<m> <channel> :<nicknames>'
 
             tpl = _re_sub.sub(tsub, omask)
             for v in ((' %d ', '{days}'),

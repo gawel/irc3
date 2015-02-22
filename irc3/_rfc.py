@@ -380,11 +380,11 @@ RPL_WHOISUSER = retcode(311)
 RPL_WHOISUSER.name = "RPL_WHOISUSER"
 RPL_WHOISUSER.re = (
     "^:(?P<srv>\S+) 311 (?P<me>\S+) "
-    "(?P<nick>\S+) (?P<username>\S+) (?P<host>\S+) . :(?P<data>.*)")
+    "(?P<nick>\S+) (?P<username>\S+) (?P<host>\S+) (?P<m>\S+) :(?P<data>.*)")
 RPL_WHOISUSER.tpl = (
     ':{c.srv} 311 {c.nick} '
-    '{nick} {username} {host} * :{realname}')
-RPL_WHOISUSER.params = ['srv', 'me', 'nick', 'username', 'host', 'data']
+    '{nick} {username} {host} {m} :{realname}')
+RPL_WHOISUSER.params = ['srv', 'me', 'nick', 'username', 'host', 'm', 'data']
 
 RPL_WHOISSERVER = retcode(312)
 RPL_WHOISSERVER.name = "RPL_WHOISSERVER"
@@ -573,11 +573,11 @@ RPL_NAMREPLY = retcode(353)
 RPL_NAMREPLY.name = "RPL_NAMREPLY"
 RPL_NAMREPLY.re = (
     "^:(?P<srv>\S+) 353 (?P<me>\S+) "
-    ":(?P<data>.*)")
+    "(?P<m>\S+) (?P<channel>\S+) :(?P<data>.*)")
 RPL_NAMREPLY.tpl = (
     ':{c.srv} 353 {c.nick} '
-    ':{nicknames}')
-RPL_NAMREPLY.params = ['srv', 'me', 'data']
+    '{m} {channel} :{nicknames}')
+RPL_NAMREPLY.params = ['srv', 'me', 'm', 'channel', 'data']
 
 RPL_LINKS = retcode(364)
 RPL_LINKS.name = "RPL_LINKS"

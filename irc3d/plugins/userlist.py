@@ -272,6 +272,8 @@ class ServerUserlist(userlist.Userlist):
         if self.context.config.testing:
             # easyer to test
             channel = sorted(channel)
+        # everything is a public channel
+        kwargs['m'] = '='
         client.fwrite((rfc.RPL_NAMREPLY, rfc.RPL_ENDOFNAMES),
                       nicknames=' '.join(channel), **kwargs)
 
@@ -299,4 +301,5 @@ class ServerUserlist(userlist.Userlist):
             if channels:
                 rpl.append(rfc.RPL_WHOISCHANNELS)
         rpl.append(rfc.RPL_ENDOFWHOIS)
+        kwargs['m'] = '*'
         client.fwrite(rpl, channels=channels, **kwargs)
