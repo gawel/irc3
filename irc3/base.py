@@ -226,6 +226,7 @@ class IrcObject(object):
     def dispatch(self, data, iotype='in', client=None):
         str = utils.IrcString
         call_soon = self.loop.call_soon
+        create_task = self.loop.create_task
         for regexp, cregexp in self.events_re[iotype]:
             match = cregexp(data)
             if match is not None:
@@ -237,7 +238,10 @@ class IrcObject(object):
                     # server
                     match['client'] = client
                 for e in self.events[iotype][regexp]:
-                    call_soon(e.async_callback, match)
+                    if e.iscoroutine is True:
+                        create_task(e.callback(**match))
+                    else:
+                        call_soon(e.async_callback, match)
 
     def call_many(self, callback, args):
         """callback is run with each arg but run a call per second"""

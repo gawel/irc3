@@ -2,70 +2,77 @@
 from irc3.testing import BotTestCase
 from irc3.testing import MagicMock
 from irc3.plugins import cron
+from irc3.compat import asyncio
 
 
 class MyCron(object):
 
     def __init__(self, bot):
-        pass
+        self.bot = bot
 
-    @cron.cron('* * * * *')
-    def raiser(self):
-        raise RuntimeError()
+    @cron.cron('* * * * * *')
+    def method(self):
+        return self.bot
 
 
-def null_callback(bot):
-    pass
+@cron.cron('* * * * * *')
+@asyncio.coroutine
+def function(bot):
+    return bot
 
 
 class TestCron(BotTestCase):
 
-    config = dict(includes=[])
-
-    def setUp(self):
-        cron.Cron.start_time = 0
-
-    def test_cron(self):
-        bot = self.callFTU()
-        bot.loop = MagicMock()
-        bot.include('mycrons')
-        plugin = bot.get_plugin(cron.Crons)
-        plugin.log.setLevel(1000)
-        plugin.connection_made()
-        self.assertEqual(len(plugin), 2, plugin)
-        self.assertTrue(bot.loop.call_at.call_count, 2)
-
-        bot.loop.reset_mock()
-        plugin.call_cron(plugin[1])
-        self.assertTrue(bot.loop.call_at.call_count, 1)
-
-        self.assertIn('*/2', str(plugin[0]))
-
-    def test_cron_raise(self):
-        bot = self.callFTU()
-        bot.loop = MagicMock()
-        bot.include(__name__)
-        plugin = bot.get_plugin(cron.Crons)
-        plugin.log.setLevel(1000)
-        plugin.connection_made()
-        self.assertEqual(len(plugin), 1, plugin)
-        self.assertTrue(bot.loop.call_at.call_count, 1)
-
-        bot.loop.reset_mock()
-        plugin.call_cron(plugin[0])
-        self.assertTrue(bot.loop.call_at.call_count, 1)
+    config = dict(includes=['irc3.plugins.cron'])
 
     def test_add_remove_cron(self):
-        bot = self.callFTU(includes=['irc3.plugins.cron'])
+        bot = self.callFTU()
         plugin = bot.get_plugin(cron.Crons)
+        plugin.connection_made()
         callback = MagicMock()
         c = bot.add_cron('* * * * *', callback)
-        self.assertEqual(len(plugin), 1, plugin)
-        self.assertFalse(callback.called)
-        plugin.started = True
-        bot.remove_cron(uuid=c.uuid)
-        bot.loop = MagicMock()
-        c = bot.add_cron('* * * * *', callback)
-        self.assertEqual(len(plugin), 2, plugin)
-        self.assertTrue(bot.loop.call_at.called)
-        bot.remove_cron(c)
+        assert c.handle is not None
+        assert len(plugin) == 1
+        assert not callback.called
+        plugin.remove_cron(c)
+        assert len(plugin) == 0
+
+    def test_connection_made(self):
+        bot = self.callFTU()
+        bot.include(__name__)
+        plugin = bot.get_plugin(cron.Crons)
+        assert not plugin.started
+        plugin.connection_made()
+        assert plugin.started
+
+    def test_reload(self):
+        bot = self.callFTU()
+        bot.include(__name__)
+        plugin = bot.get_plugin(cron.Crons)
+        assert len(plugin) == 2
+        plugin.before_reload()
+        assert len(plugin) == 0
+        assert not plugin.started
+        plugin.after_reload()
+        assert plugin.started
+
+    def test_callable(self):
+        loop = asyncio.new_event_loop()
+        bot = self.callFTU(loop=loop)
+        bot.include(__name__)
+        plugin = bot.get_plugin(cron.Crons)
+
+        results = []
+
+        f = asyncio.Future(loop=loop)
+
+        def complete(future):
+            results.append(future.result())
+            if len(results) == 2:
+                f.set_result(results)
+
+        for c in plugin:
+            asyncio.async(c.next(), loop=loop).add_done_callback(complete)
+
+        loop.run_until_complete(f)
+        assert results == [bot, bot]

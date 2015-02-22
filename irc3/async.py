@@ -1,22 +1,33 @@
 # -*- coding: utf-8 -*-
 from .compat import asyncio
-from .dec import event
+import functools
+import re
 
 
-class async_event(event):
+class event(object):
+
+    iotype = 'in'
+    iscoroutine = True
 
     def __init__(self, **kwargs):
         self.meta = kwargs.get('meta')
         regexp = self.meta['match'].format(**kwargs)
-        super(async_event, self).__init__(regexp, kwargs.pop('callback'))
-        super(async_event, self).compile({})
+        self.regexp = regexp
+        regexp = getattr(self.regexp, 're', self.regexp)
+        self.cregexp = re.compile(regexp).match
 
     def compile(self, *args, **kwargs):
         # we don't need to recompile. params will never change
         pass
 
-    def async_callback(self, kw):
-        self.callback(self, kw)
+    def __repr__(self):
+        s = getattr(self.regexp, 'name', self.regexp)
+        name = self.__class__.__name__
+        return '<temp_event {0} {1}>'.format(name, s)
+
+    def __call__(self, callback):
+        self.callback = asyncio.coroutine(functools.partial(callback, self))
+        return self
 
 
 def default_result_processor(self, results=None, **value):  # pragma: no cover
@@ -30,34 +41,40 @@ def async_events(context, events, send_line=None,
                  process_results=default_result_processor,
                  timeout=30, **params):
 
-    task = asyncio.Future()  # async result
+    loop = context.loop
+    task = asyncio.Future(loop=loop)  # async result
     results = []  # store events results
     events_ = []  # reference registered events
 
-    def timeout_callback():
-        """occurs when no final=True event is found"""
+    # async timeout
+    timeout = asyncio.async(asyncio.sleep(timeout, loop=loop), loop=loop)
+
+    def end(t=None):
+        """t can be a future (timeout done) or False (result success)"""
+        # cancel timeout if needed
+        if t is False:
+            timeout.cancel()
+        # detach events
         context.detach_events(*events_)
-        task.set_result(process_results(results=results, timeout=True))
+        # clean refs
+        events_[:] = []
+        # set results
+        task.set_result(process_results(results=results, timeout=bool(t)))
 
-    timeout = context.loop.call_later(timeout, timeout_callback)
+    # end on timeout
+    timeout.add_done_callback(end)
 
-    def callback(e, kw):
+    def callback(e, **kw):
         """common callback for all events"""
         results.append(kw)
         if e.meta.get('multi') is not True:
             context.detach_events(e)
             events_.remove(e)
         if e.meta.get('final') is True:
-            timeout.cancel()
-            task.set_result(process_results(results=results, timeout=False))
-            # detach events as soon as possible
-            context.detach_events(*events_)
-            # empty in place (still use ref)
-            events_[:] = []
+            # end on success
+            end(False)
 
-    events_.extend([
-        async_event(meta=kw, callback=callback, **params)
-        for kw in events])
+    events_.extend([event(meta=kw, **params)(callback) for kw in events])
 
     context.attach_events(*events_, insert=True)
 

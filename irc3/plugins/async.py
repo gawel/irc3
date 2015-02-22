@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from irc3.async import AsyncEvents
+from irc3.compat import asyncio
 from irc3 import utils
 from irc3 import dec
 __doc__ = """
@@ -207,7 +208,8 @@ class Async(object):
 
             result = yield from bot.async.whois('gawel')
         """
-        return self.async_whois(nick=nick.lower(), timeout=timeout)
+        return asyncio.async(self.async_whois(nick=nick.lower(),
+                             timeout=timeout))
 
     @dec.extend
     def who(self, target, timeout=20):

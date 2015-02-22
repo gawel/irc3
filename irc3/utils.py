@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from .compat import configparser
+from .compat import asyncio
 import importlib
+import functools
 import logging
 import os
 
@@ -236,6 +238,15 @@ def parse_modes(modes, targets=None, noargs=''):
         target = targets.pop(0) if mode not in noargs else None
         cleaned.append((char, mode, target))
     return cleaned
+
+
+def wraps_with_context(func, context):
+    """Return a wrapped partial(func, context)"""
+    wrapped = functools.partial(func, context)
+    wrapped = functools.wraps(func)(wrapped)
+    if asyncio.iscoroutinefunction(func):
+        wrapped = asyncio.coroutine(wrapped)
+    return wrapped
 
 
 def maybedotted(name):

@@ -12,8 +12,8 @@ test_requires = [
     'coverage',
     'feedparser', 'requests',
     'twitter',
+    'aiocron',
     'python-dateutil',
-    'croniter',
     'redis',
 ]
 

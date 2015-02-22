@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from irc3.utils import wraps_with_context
 from irc3.compat import asyncio
-import functools
 import venusian
 import re
 
@@ -47,12 +47,12 @@ class event(object):
         self.iotype = iotype
         self.callback = callback
         self.venusian_category = venusian_category
+        self.iscoroutine = False
+        if callback is not None:
+            self.iscoroutine = asyncio.iscoroutinefunction(callback)
 
     def async_callback(self, kwargs):  # pragma: no cover
-        if asyncio.iscoroutinefunction(self.callback):
-            return asyncio.async(self.callback(**kwargs))
-        else:
-            return self.callback(**kwargs)
+        return self.callback(**kwargs)
 
     def compile(self, config):
         regexp = getattr(self.regexp, 're', self.regexp)
@@ -60,27 +60,22 @@ class event(object):
             regexp = regexp.format(**config)
         self.cregexp = re.compile(regexp).match
 
-    def __call__(self, wrapped):
+    def __call__(self, func):
         def callback(context, name, ob):
             obj = context.context
             if info.scope == 'class':
-                self.callback = getattr(
-                    obj.get_plugin(ob),
-                    wrapped.__name__)
+                self.callback = getattr(obj.get_plugin(ob), func.__name__)
             else:
-                @functools.wraps(wrapped)
-                def wrapper(**kwargs):
-                    return wrapped(obj, **kwargs)
-                self.callback = wrapper
+                self.callback = wraps_with_context(func, obj)
             # a new instance is needed to keep this related to *one* bot
             # instance
             e = self.__class__(self.regexp, self.callback,
                                venusian_category=self.venusian_category,
                                iotype=self.iotype)
             obj.attach_events(e)
-        info = self.venusian.attach(wrapped, callback,
+        info = self.venusian.attach(func, callback,
                                     category=self.venusian_category)
-        return wrapped
+        return func
 
     def __repr__(self):
         s = getattr(self.regexp, 'name', self.regexp)
@@ -113,12 +108,9 @@ def extend(func):
     def callback(context, name, ob):
         obj = context.context
         if info.scope == 'class':
-            @functools.wraps(func)
-            def f(self, *args, **kwargs):
-                plugin = obj.get_plugin(ob)
-                return getattr(plugin, func.__name__)(*args, **kwargs)
-            setattr(obj, func.__name__, f.__get__(obj, obj.__class__))
+            f = getattr(obj.get_plugin(ob), func.__name__)
         else:
-            setattr(obj, func.__name__, func.__get__(obj, obj.__class__))
+            f = func
+        setattr(obj, f.__name__, f.__get__(obj, obj.__class__))
     info = venusian.attach(func, callback, category='irc3.extend')
     return func

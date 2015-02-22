@@ -1,6 +1,9 @@
 0.7.0 (unreleased)
 ==================
 
+- the cron plugin now require
+  `aiocron <https://pypi.python.org/pypi/aiocron/>`_
+
 - Add `irc3.plugins.async`; Allow to `yield from bot.whois('gawel')`
 
 

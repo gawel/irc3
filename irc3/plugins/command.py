@@ -179,10 +179,7 @@ def attach_command(func, depth=2, **predicates):
         if info.scope == 'class':
             callback = func.__get__(obj.get_plugin(ob), ob)
         else:
-            @functools.wraps(func)
-            def wrapper(*args, **kwargs):
-                return func(obj, *args, **kwargs)
-            callback = wrapper
+            callback = utils.wraps_with_context(func, obj)
         plugin = obj.get_plugin(utils.maybedotted(commands))
         predicates.update(module=func.__module__)
         cmd_name = predicates.get('name', func.__name__)
