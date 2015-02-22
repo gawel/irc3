@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from irc3.testing import BotTestCase
+from irc3.compat import asyncio
 import irc3
 
 
@@ -44,3 +45,22 @@ class TestEvents(BotTestCase):
             'PRIVMSG foo :Hi!',
             'PRIVMSG #irc3 :<nono> foo: Hi!',
         ])
+
+    def test_async_event(self):
+        loop = asyncio.new_event_loop()
+        future = asyncio.Future(loop=loop)
+
+        @asyncio.coroutine
+        def e(ctx, **kwargs):
+            ctx.privmsg('#irc3', 'async')
+            future.set_result(ctx)
+
+        bot = self.callFTU(loop=loop)
+
+        e = irc3.utils.wraps_with_context(e, bot)
+        bot.attach_events(irc3.event(irc3.rfc.PRIVMSG, e))
+
+        bot.dispatch(':g!g@g PRIVMSG #irc3 :async')
+
+        loop.run_until_complete(future)
+        assert future.result() is bot
