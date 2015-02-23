@@ -324,6 +324,8 @@ class IrcObject(object):
 
         --logdir DIRECTORY  Log directory to use instead of stderr
         --logdate           Show datetimes in console output
+        --host HOST         Server name or ip
+        --port PORT         Server port
         -v,--verbose        Increase verbosity
         -r,--raw            Show raw irc log on the console
         -d,--debug          Add some debug commands/utils
@@ -340,15 +342,22 @@ class IrcObject(object):
         args = docopt.docopt(textwrap.dedent(doc), args)
         cfg = utils.parse_config(
             cls.server and 'server' or 'bot', *args['<config>'])
-        cfg.update(kwargs)
         cfg.update(
             verbose=args['--verbose'],
             debug=args['--debug'],
         )
+        cfg.update(kwargs)
         pythonpath = cfg.get('pythonpath', [])
         pythonpath.append(cfg['here'])
         for path in pythonpath:
             sys.path.append(os.path.expanduser(path))
+        if args['--host']:  # pragma: no cover
+            host = args['--host']
+            cfg['host'] = host
+            if host in ('127.0.0.1', 'localhost'):
+                cfg['ssl'] = False
+        if args['--port']:  # pragma: no cover
+            cfg['port'] = args['--port']
         if args['--logdir'] or 'logdir' in cfg:
             logdir = os.path.expanduser(args['--logdir'] or cfg.get('logdir'))
             cls.logging_config = config.get_file_config(logdir)
@@ -358,7 +367,7 @@ class IrcObject(object):
         if args.get('--help-page'):  # pragma: no cover
             for v in cls.logging_config['handlers'].values():
                 v['level'] = 'ERROR'
-        if args['--debug']:
+        if cfg['debug']:
             cls.venusian_categories.append(prog + '.debug')
         if args['--interactive']:  # pragma: no cover
             import irc3.testing
