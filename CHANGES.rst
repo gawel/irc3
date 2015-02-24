@@ -1,4 +1,4 @@
-0.7.0 (unreleased)
+0.7.0 (2015-02-24)
 ==================
 
 - the cron plugin now require
