@@ -6,6 +6,8 @@
 
 - Add `irc3.plugins.async`; Allow to `yield from bot.whois('gawel')`
 
+- commands and events can now be coroutines
+
 
 0.6.0 (2015-02-15)
 ==================

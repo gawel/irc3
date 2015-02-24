@@ -104,6 +104,7 @@ Async commands
 Commands can be coroutines:
 
 .. literalinclude:: ../../examples/async_command.py
+  :language: py
 
 Available options
 =================
