@@ -473,16 +473,16 @@ Example:
 353 - RPL_NAMREPLY
 ------------------
 
-Format ``:{srv} 353 {nick} :{nicknames}``
+Format ``:{srv} 353 {nick} {m} {channel} :{nicknames}``
 
-Match ``^:(?P<srv>\S+) 353 (?P<me>\S+) :(?P<data>.*)``
+Match ``^:(?P<srv>\S+) 353 (?P<me>\S+) (?P<m>\S+) (?P<channel>\S+) :(?P<data>.*)``
 
 Example:
 
 .. code-block:: python
 
     @irc3.event(rfc.RPL_NAMREPLY)
-    def myevent(bot, srv=None, me=None, data=None):
+    def myevent(bot, srv=None, me=None, m=None, channel=None, data=None):
         # do something
 
 331 - RPL_NOTOPIC
@@ -1043,16 +1043,16 @@ Example:
 311 - RPL_WHOISUSER
 -------------------
 
-Format ``:{srv} 311 {nick} {nick} {username} {host} * :{realname}``
+Format ``:{srv} 311 {nick} {nick} {username} {host} {m} :{realname}``
 
-Match ``^:(?P<srv>\S+) 311 (?P<me>\S+) (?P<nick>\S+) (?P<username>\S+) (?P<host>\S+) . :(?P<data>.*)``
+Match ``^:(?P<srv>\S+) 311 (?P<me>\S+) (?P<nick>\S+) (?P<username>\S+) (?P<host>\S+) (?P<m>\S+) :(?P<data>.*)``
 
 Example:
 
 .. code-block:: python
 
     @irc3.event(rfc.RPL_WHOISUSER)
-    def myevent(bot, srv=None, me=None, nick=None, username=None, host=None, data=None):
+    def myevent(bot, srv=None, me=None, nick=None, username=None, host=None, m=None, data=None):
         # do something
 
 352 - RPL_WHOREPLY

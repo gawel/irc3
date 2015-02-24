@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from . import rfc
+from . import template
 import os
 
 
@@ -32,6 +33,7 @@ def render_attrs(title, attrs, out):
 
 def main():
     print('Generate docs...')
+
     attrs = [getattr(rfc, attr) for attr in dir(rfc)
              if attr.isupper() and attr not in ('RETCODES',)]
     repls = [attr for attr in attrs if attr.name.startswith('RPL_')]
@@ -61,6 +63,10 @@ def main():
         out = open('docs/plugins/' + filename + '.rst', 'w')
         out.write('.. automodule:: ' + modname + '\n')
         out.write('\n')
+
+    template.main(nick='mybot',
+                  dest=os.path.join(os.getcwd(), 'examples'))
+
 
 if __name__ == '__main__':
     main()
