@@ -30,7 +30,7 @@ This will create an almost ready to use ``config.ini`` file and a and a simple
 plugin name ``mybot_plugin.py`` to say «Hi» when the bot or someone else join a
 channel and an ``echo`` command.
 
-Here what the config file will looks like:
+Here is what the config file will looks like:
 
 .. literalinclude:: ../examples/config.ini
    :language: ini
