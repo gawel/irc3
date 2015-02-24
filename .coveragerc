@@ -11,7 +11,7 @@ omit =
     */examples/myextends*
     */examples/nickserv*
     */examples/freenode*
-    */irc3/third*
+    */irc3/template/plugin*
     */irc3/_gen_doc*
     */irc3/_parse_rfc*
     */site-packages*

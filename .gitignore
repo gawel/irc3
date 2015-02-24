@@ -21,6 +21,7 @@ fake-eggs
 .hgignore
 .idea
 .installed.cfg
+irssi_config
 *.jar
 *.mo
 .mr.developer.cfg
