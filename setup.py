@@ -13,7 +13,6 @@ test_requires = [
     'feedparser', 'requests',
     'twitter',
     'aiocron',
-    'python-dateutil',
     'redis',
 ]
 
