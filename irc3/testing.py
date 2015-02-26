@@ -40,10 +40,6 @@ def ini2config(data, type='bot'):
     return data
 
 
-def create_task(coro):  # pragma: no cover
-    return asyncio.Task(coro)
-
-
 def call_later(i, func, *args):
     if func.__name__ in dir(IrcBot):
         func(*args)
@@ -62,7 +58,6 @@ class IrcBot(irc3.IrcBot):
         if 'loop' not in config:
             loop = asyncio.new_event_loop()
             loop = mock.create_autospec(loop, spec_set=True)
-            loop.create_task = create_task
             loop.call_later = call_later
             loop.call_soon = call_soon
             loop.time.return_value = 10

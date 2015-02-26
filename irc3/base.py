@@ -61,6 +61,9 @@ class IrcObject(object):
         if self.loop is None:
             self.loop = asyncio.get_event_loop()
 
+        # python 3.4.1 do not have a create_task method. check for it
+        self.create_task = getattr(self.loop, 'create_task', self.create_task)
+
         self.reset()
 
         self.include(*self.config.get('includes', []))
@@ -71,6 +74,10 @@ class IrcObject(object):
             self.include('irc3.plugins.autojoins')
 
         self.recompile()
+
+    def create_task(self, coro):  # pragma: no cover
+        # python 3.4.1 fallback
+        return asyncio.async(coro, loop=self.loop)
 
     def reset(self, reloading=False):
         self.events_re = {'in': [], 'out': []}
@@ -225,8 +232,8 @@ class IrcObject(object):
 
     def dispatch(self, data, iotype='in', client=None):
         str = utils.IrcString
+        create_task = self.create_task
         call_soon = self.loop.call_soon
-        create_task = self.loop.create_task
         for regexp, cregexp in self.events_re[iotype]:
             match = cregexp(data)
             if match is not None:
