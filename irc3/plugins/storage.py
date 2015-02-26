@@ -37,8 +37,27 @@ Then use it::
     >>> bot.db['mykey'] = dict(key='value')
     >>> bot.db['mykey']
     {'key': 'value'}
+    >>> bot.db.setdefault('mykey', key='default')
+    {'key': 'value'}
+    >>> bot.db.setdefault('mykey', item='default')
+    {'item': 'default'}
+    >>> bot.db.set('mykey', item='value')
+    >>> bot.db.setdefault('mykey', item='default')
+    {'item': 'value'}
     >>> del bot.db['mykey']
     >>> bot.db['mykey']
+    {}
+
+You can use an instance as key::
+
+    >>> class MyPlugin(object):
+    ...     pass
+    >>> plugin = MyPlugin()
+    >>> bot.db[plugin] = dict(key='value')
+    >>> bot.db[plugin]
+    {'key': 'value'}
+    >>> del bot.db[plugin]
+    >>> bot.db[plugin]
     {}
 
 ..
@@ -86,6 +105,11 @@ Then use it::
     >>> bot.db['mykey']
     {}
 
+Api
+===
+
+.. autoclass:: Storage
+  :members: __getitem__, __setitem__, set, setdefault
 
 '''
 
@@ -201,29 +225,59 @@ class Storage(object):
         self.context = context
         self.context.db = self
 
+    def setdefault(self, key_, **kwargs):
+        """update storage value for key with kwargs iif the doesn't exist"""
+        stored = self[key_]
+        changed = False
+        for k, v in kwargs.items():
+            if k not in stored:
+                stored[k] = v
+                changed = True
+            else:
+                kwargs[k] = stored[k]
+        if changed:
+            self[key_] = stored
+        return kwargs
+
+    def set(self, key_, **kwargs):
+        """update storage value for key with kwargs"""
+        stored = self[key_]
+        changed = False
+        for k, v in kwargs.items():
+            if stored[k] != v:
+                stored[k] = v
+                changed = True
+        if changed:
+            self[key_] = stored
+
     def __setitem__(self, key, value):
+        """set storage value for key"""
+        key = getattr(key, '__module__', key)
         if not isinstance(value, dict):  # pragma: no cover
             raise TypeError('value must be a dict')
         try:
             return self.backend.set(key, value)
         except Exception as e:  # pragma: no cover
-            self.bot.log.exception(e)
+            self.context.log.exception(e)
             raise
 
     def __getitem__(self, key):
+        """get storage value for key"""
+        key = getattr(key, '__module__', key)
         try:
             return self.backend.get(key)
         except KeyError:
             return {}
         except Exception as e:  # pragma: no cover
-            self.bot.log.exception(e)
+            self.context.log.exception(e)
             raise
 
     def __delitem__(self, key):
+        key = getattr(key, '__module__', key)
         try:
             self.backend.delete(key)
         except Exception as e:  # pragma: no cover
-            self.bot.log.exception(e)
+            self.context.log.exception(e)
             raise
 
     def SIGINT(self):

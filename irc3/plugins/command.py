@@ -145,7 +145,7 @@ class mask_based_policy(object):
         masks = self.context.config[self.key]
         if hasattr(self.context, 'db'):
             # update config with storage values
-            value = self.context.db[self.key]
+            value = self.context.db[self]
             if isinstance(value, dict):
                 masks.update(value)
         return masks

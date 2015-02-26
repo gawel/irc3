@@ -178,7 +178,7 @@ class TestCommands(BotTestCase):
         self.assertSent(['PRIVMSG #chan :Done'])
 
         bot.include('irc3.plugins.storage')
-        bot.db[self.masks] = {
+        bot.db[self.name] = {
             'nobody!*': 'myperm view'
         }
         bot.dispatch(':nobody!user@host PRIVMSG #chan :!cmd')
