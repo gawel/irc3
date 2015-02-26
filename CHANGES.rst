@@ -1,4 +1,4 @@
-0.7.1 (unreleased)
+0.7.1 (2015-02-26)
 ==================
 
 - Storage plugin documentation
