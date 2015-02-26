@@ -1,7 +1,9 @@
 0.7.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Storage plugin documentation
+
+- Support python 3.4.1 again
 
 
 0.7.0 (2015-02-24)
