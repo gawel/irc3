@@ -294,7 +294,7 @@ class Storage(object):
             raise
 
     def __contains__(self, key):
-        key = getattr(key, '__module___', key)
+        key = getattr(key, '__module__', key)
         try:
             return self.backend.contains(key)
         except Exception as e:  # pragma: no cover
