@@ -1,7 +1,7 @@
 0.7.2 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Improved storage: can now test the existence of a key
 
 
 0.7.1 (2015-02-26)
