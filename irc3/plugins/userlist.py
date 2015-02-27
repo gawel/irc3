@@ -151,11 +151,11 @@ class Userlist(object):
                 channel.add(new_nick)
         self.broadcast(client=client, clients=clients, **kwargs)
 
-    @event('^:\S+ 353 [^&#]+(?P<channel>\S+) :(?P<nicknames>.*)')
-    def names(self, channel=None, nicknames=None):
+    @event(rfc.RPL_NAMREPLY)
+    def names(self, channel=None, data=None, **kwargs):
         """Initialise channel list and channel.modes"""
         statusmsg = self.context.server_config['STATUSMSG']
-        nicknames = nicknames.split(' ')
+        nicknames = data.split(' ')
         channel = self.channels[channel]
         for item in nicknames:
             nick = item.strip(statusmsg)
