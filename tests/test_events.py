@@ -25,7 +25,7 @@ class TestEvents(BotTestCase):
         bot = self.callFTU()
         bot.include('irc3.plugins.core')
         self.assertIn('<bound event ',
-                      repr(list(bot.events['in'].values())[0]))
+                      repr(list(bot.registry.events['in'].values())[0]))
 
     def test_bad_event(self):
         self.assertRaises(Exception, irc3.event, '(.*')

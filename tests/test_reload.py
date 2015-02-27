@@ -65,7 +65,7 @@ class TestReload(BotTestCase):
         assert bot.extend() is None
         crons = bot.get_plugin('irc3.plugins.cron.Crons')
         assert len(crons) == 1
-        assert len(bot.events['in']) == 6
+        assert len(bot.registry.events['in']) == 6
         bot.dispatch(':adm!user@host PRIVMSG #chan :!cmd')
         self.assertSent(['PRIVMSG #chan :%s' % id(p)])
 
@@ -81,6 +81,6 @@ class TestReload(BotTestCase):
         assert bot.extend() is p
         assert crons == bot.get_plugin('irc3.plugins.cron.Crons')
         assert len(crons) == 1
-        assert len(bot.events['in']) == 6
+        assert len(bot.registry.events['in']) == 6
         bot.dispatch(':adm!user@host PRIVMSG #chan :!cmd')
         self.assertSent(['PRIVMSG #chan :%s' % id(np)])

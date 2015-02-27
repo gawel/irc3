@@ -19,10 +19,41 @@ else:
     version = pkg_resources.get_distribution('irc3').version
 
 
+class Registry(object):
+    """Store (and hide from api) plugins events and stuff"""
+
+    def __init__(self):
+        self.reset(reloading=False)
+
+    def reset(self, reloading=True):
+        self.events_re = {'in': [], 'out': []}
+        self.events = {
+            'in': defaultdict(list),
+            'out': defaultdict(list)
+        }
+
+        self.scanned = []
+        self.includes = set()
+
+        if reloading:
+            self.reloading = self.plugins.copy()
+        else:
+            self.reloading = {}
+            self.plugins = {}
+
+    def get_event_matches(self, data, iotype='in'):
+        events = self.events[iotype]
+        for regexp, cregexp in self.events_re[iotype]:
+            match = cregexp(data)
+            if match is not None:
+                yield match, events[regexp]
+
+
 class IrcObject(object):
 
     nick = None
     server = False
+    plugin_category = '__irc3_plugin__'
     logging_config = config.LOGGING
 
     defaults = dict(
@@ -64,90 +95,73 @@ class IrcObject(object):
         # python 3.4.1 do not have a create_task method. check for it
         self.create_task = getattr(self.loop, 'create_task', self.create_task)
 
-        self.reset()
+        self.registry = Registry()
 
         self.include(*self.config.get('includes', []))
-
-        # auto include the autojoins plugin if needed (for backward compat)
-        if 'autojoins' in self.config and \
-           'irc3.plugins.autojoins' not in self.includes:
-            self.include('irc3.plugins.autojoins')
-
-        self.recompile()
 
     def create_task(self, coro):  # pragma: no cover
         # python 3.4.1 fallback
         return asyncio.async(coro, loop=self.loop)
 
-    def reset(self, reloading=False):
-        self.events_re = {'in': [], 'out': []}
-        self.events = {
-            'in': defaultdict(list),
-            'out': defaultdict(list)
-        }
-
-        self.scanned = []
-        self.includes = set()
-
-        if reloading:
-            self.reloading = self.plugins.copy()
-        else:
-            self.reloading = {}
-            self.plugins = {}
-
     def get_plugin(self, ob):
+        plugins = self.registry.plugins
+        includes = self.registry.includes
+        reloading = self.registry.reloading
+
         if isinstance(ob, string_types):
             ob_name = ob
             ob = utils.maybedotted(ob_name)
-            if ob_name not in self.plugins:
-                names = list(self.plugins)
+            if ob_name not in plugins:
+                names = list(plugins)
                 raise LookupError(
                     'Plugin %s not found in %s' % (ob_name, names))
         else:
             ob_name = ob.__module__ + '.' + ob.__name__
-        if ob_name not in self.plugins:
+        if ob_name not in plugins:
             self.log.debug("Register plugin '%s'", ob_name)
             for dotted in getattr(ob, 'requires', []):
-                if dotted not in self.includes:
+                if dotted not in includes:
                     self.include(dotted)
-            self.plugins[ob_name] = ob(self)
-        elif ob_name in self.reloading and hasattr(ob, 'reload'):
-                instance = self.reloading.pop(ob_name)
+            plugins[ob_name] = ob(self)
+        elif ob_name in reloading and hasattr(ob, 'reload'):
+                instance = reloading.pop(ob_name)
                 if instance.__class__ is not ob:
                     self.log.debug("Reloading plugin '%s'", ob_name)
-                    self.plugins[ob_name] = ob.reload(instance)
-        return self.plugins[ob_name]
+                    plugins[ob_name] = ob.reload(instance)
+        return plugins[ob_name]
 
     def recompile(self):
+        events_re = self.registry.events_re
         for iotype in ('in', 'out'):
-            events_re = []
-            for regexp, cregexp in self.events_re[iotype]:
-                e = self.events[iotype][regexp][0]
-                e.compile(self.config)
-                events_re.append((regexp, e.cregexp))
-            self.events_re[iotype] = events_re
+            events = self.registry.events[iotype]
+            for i, (regexp, cregexp) in enumerate(events_re[iotype]):
+                e = events[regexp][0]
+                events_re[i] = (regexp, e.compile(self.config))
 
     def attach_events(self, *events, **kwargs):
         """Attach one or more events to the bot instance"""
+        reg = self.registry
+        insert = 'insert' in kwargs
         for e in events:
-            e.compile(self.config)
+            cregexp = e.compile(self.config)
             regexp = getattr(e.regexp, 're', e.regexp)
-            if regexp not in self.events[e.iotype]:
-                if 'insert' in kwargs:
-                    self.events_re[e.iotype].insert(0, (regexp, e.cregexp))
+            if regexp not in reg.events[e.iotype]:
+                if insert:
+                    reg.events_re[e.iotype].insert(0, (regexp, cregexp))
                 else:
-                    self.events_re[e.iotype].append((regexp, e.cregexp))
-            if 'insert' in kwargs:
-                self.events[e.iotype][regexp].insert(0, e)
+                    reg.events_re[e.iotype].append((regexp, cregexp))
+            if insert:
+                reg.events[e.iotype][regexp].insert(0, e)
             else:
-                self.events[e.iotype][regexp].append(e)
+                reg.events[e.iotype][regexp].append(e)
 
     def detach_events(self, *events):
         """Detach one or more events from the bot instance"""
+        reg = self.registry
         delete = defaultdict(list)
 
         # remove from self.events
-        all_events = self.events
+        all_events = reg.events
         for e in events:
             regexp = getattr(e.regexp, 're', e.regexp)
             iotype = e.iotype
@@ -160,21 +174,19 @@ class IrcObject(object):
 
         # delete from events_re
         for iotype, regexps in delete.items():
-            self.events_re[iotype] = [r for r in self.events_re[iotype]
-                                      if r[0] not in regexps]
+            reg.events_re[iotype] = [r for r in reg.events_re[iotype]
+                                     if r[0] not in regexps]
 
     def include(self, *modules, **kwargs):
-        plugin_category = '__irc3_plugin__'
-        if self.server:
-            plugin_category = '__irc3d_plugin__'
+        reg = self.registry
         categories = kwargs.get('venusian_categories',
                                 self.venusian_categories)
         scanner = self.venusian.Scanner(context=self)
         for module in modules:
-            if module in self.includes:
+            if module in reg.includes:
                 self.log.warn('%s included twice', module)
             else:
-                self.includes.add(module)
+                reg.includes.add(module)
                 module = utils.maybedotted(module)
                 # we have to manualy check for plugins. venusian no longer
                 # support to attach both a class and methods
@@ -182,9 +194,9 @@ class IrcObject(object):
                     if not isinstance(klass, type):
                         continue
                     if klass.__module__ == module.__name__:
-                        if getattr(klass, plugin_category, False) is True:
+                        if getattr(klass, self.plugin_category, False) is True:
                             self.get_plugin(klass)
-                self.scanned.append((module.__name__, categories))
+                reg.scanned.append((module.__name__, categories))
                 scanner.scan(module, categories=categories)
 
     def reload(self, *modules):
@@ -200,11 +212,11 @@ class IrcObject(object):
 
         self.log.info('Reloading python code...')
         if not modules:
-            modules = self.includes
-        scanned = list(reversed(self.scanned))
+            modules = self.registry.includes
+        scanned = list(reversed(self.registry.scanned))
 
         # reset includes and events
-        self.reset(reloading=True)
+        self.registry.reset()
 
         to_scan = []
         for module, categories in scanned:
@@ -217,12 +229,12 @@ class IrcObject(object):
         for module, categories in to_scan:
             self.include(module, venusian_categories=categories)
 
-        self.reloading = {}
+        self.registry.reloading = {}
 
         self.notify('after_reload')
 
     def notify(self, event, exc=None, client=None):
-        for p in self.plugins.values():
+        for p in self.registry.plugins.values():
             meth = getattr(p, event, None)
             if meth is not None:
                 if client is not None:
@@ -234,21 +246,19 @@ class IrcObject(object):
         str = utils.IrcString
         create_task = self.create_task
         call_soon = self.loop.call_soon
-        for regexp, cregexp in self.events_re[iotype]:
-            match = cregexp(data)
-            if match is not None:
-                match = match.groupdict()
-                for key, value in match.items():
-                    if value is not None:
-                        match[key] = str(value)
-                if client is not None:
-                    # server
-                    match['client'] = client
-                for e in self.events[iotype][regexp]:
-                    if e.iscoroutine is True:
-                        create_task(e.callback(**match))
-                    else:
-                        call_soon(e.async_callback, match)
+        for match, events in self.registry.get_event_matches(data, iotype):
+            match = match.groupdict()
+            for key, value in match.items():
+                if value is not None:
+                    match[key] = str(value)
+            if client is not None:
+                # server
+                match['client'] = client
+            for e in events:
+                if e.iscoroutine is True:
+                    create_task(e.callback(**match))
+                else:
+                    call_soon(e.async_callback, match)
 
     def call_many(self, callback, args):
         """callback is run with each arg but run a call per second"""

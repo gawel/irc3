@@ -113,9 +113,8 @@ class IrcBot(base.IrcObject):
         super(IrcBot, self).__init__(*ini, **config)
         # auto include the autojoins plugin if needed (for backward compat)
         if 'autojoins' in self.config and \
-           'irc3.plugins.autojoins' not in self.includes:
+           'irc3.plugins.autojoins' not in self.registry.includes:
             self.include('irc3.plugins.autojoins')
-        self.recompile()
 
     @property
     def server_config(self):

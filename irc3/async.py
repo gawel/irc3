@@ -17,8 +17,7 @@ class event(object):
         self.cregexp = re.compile(regexp).match
 
     def compile(self, *args, **kwargs):
-        # we don't need to recompile. params will never change
-        pass
+        return self.cregexp
 
     def __repr__(self):
         s = getattr(self.regexp, 'name', self.regexp)

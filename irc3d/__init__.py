@@ -123,6 +123,7 @@ class IrcServer(base.IrcObject):
 
     nick = None
     server = True
+    plugin_category = '__irc3_plugin__'
 
     _pep8 = [config, extend, plugin, event, command]
     venusian = venusian
