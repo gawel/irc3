@@ -35,6 +35,8 @@ Usage::
 Then use it::
 
     >>> bot.db['mykey'] = dict(key='value')
+    >>> 'mykey' in bot.db
+    True
     >>> bot.db['mykey']
     {'key': 'value'}
     >>> bot.db.setdefault('mykey', key='default')
@@ -47,6 +49,8 @@ Then use it::
     >>> del bot.db['mykey']
     >>> bot.db['mykey']
     {}
+    >>> 'mykey' in bot.db
+    False
 
 You can use an instance as key::
 
@@ -109,7 +113,7 @@ Api
 ===
 
 .. autoclass:: Storage
-  :members: __getitem__, __setitem__, set, setdefault
+  :members: __getitem__, __setitem__, __contains__, set, setdefault
 
 '''
 
@@ -130,6 +134,9 @@ class Shelve(object):
     def delete(self, key):
         del self.db[key]
         self.sync()
+
+    def contains(self, key):
+        return key in self.db
 
     def sync(self):
         self.db.sync()
@@ -158,6 +165,9 @@ class JSON(object):
     def delete(self, key):
         del self.db[key]
         self.sync()
+
+    def contains(self, key):
+        return key in self.db
 
     def sync(self):
         with open(self.filename, 'w') as fd:
@@ -192,6 +202,9 @@ class Redis(object):
 
     def delete(self, key):
         self.db.delete(key)
+
+    def contains(self, key):
+        return self.db.exists(key)
 
     def flushdb(self):
         self.db.flushdb()
@@ -276,6 +289,14 @@ class Storage(object):
         key = getattr(key, '__module__', key)
         try:
             self.backend.delete(key)
+        except Exception as e:  # pragma: no cover
+            self.context.log.exception(e)
+            raise
+
+    def __contains__(self, key):
+        key = getattr(key, '__module___', key)
+        try:
+            return self.backend.contains(key)
         except Exception as e:  # pragma: no cover
             self.context.log.exception(e)
             raise
