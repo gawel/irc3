@@ -3,6 +3,8 @@
 
 - Improved storage: can now test the existence of a key
 
+- irc3.plugins.feeds is now full async
+
 
 0.7.1 (2015-02-26)
 ==================
