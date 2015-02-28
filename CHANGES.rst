@@ -20,7 +20,7 @@
 - the cron plugin now require
   `aiocron <https://pypi.python.org/pypi/aiocron/>`_
 
-- Add `irc3.plugins.async`; Allow to `yield from bot.whois('gawel')`
+- Add `irc3.plugins.async`; Allow to `yield from bot.async.whois('gawel')`
 
 - commands and events can now be coroutines
 
