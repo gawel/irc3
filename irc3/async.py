@@ -50,15 +50,16 @@ def async_events(context, events, send_line=None,
 
     def end(t=None):
         """t can be a future (timeout done) or False (result success)"""
-        # cancel timeout if needed
-        if t is False:
-            timeout.cancel()
-        # detach events
-        context.detach_events(*events_)
-        # clean refs
-        events_[:] = []
-        # set results
-        task.set_result(process_results(results=results, timeout=bool(t)))
+        if not task.done():
+            # cancel timeout if needed
+            if t is False:
+                timeout.cancel()
+            # detach events
+            context.detach_events(*events_)
+            # clean refs
+            events_[:] = []
+            # set results
+            task.set_result(process_results(results=results, timeout=bool(t)))
 
     # end on timeout
     timeout.add_done_callback(end)
