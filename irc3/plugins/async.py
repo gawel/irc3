@@ -236,7 +236,8 @@ class Async(object):
         """
         nicknames = [n.lower() for n in nicknames]
         self.context.send_line('ISON :{0}'.format(' '.join(nicknames)))
-        return self.async_ison(nicknames='(%s)' % '|'.join(nicknames), **kwargs)
+        return self.async_ison(nicknames='(%s)' % '|'.join(nicknames),
+                               **kwargs)
 
     @dec.extend
     def names(self, channel, timeout=20):
