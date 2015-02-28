@@ -20,7 +20,7 @@ else:  # pragma: no cover
     text_type = unicode
     string_types = basestring
     def isclass(o):
-        return isinstance(o, types.ClassType)
+        return isinstance(o, (type, types.ClassType))
 
 import configparser  # NOQA
 
