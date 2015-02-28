@@ -4,6 +4,7 @@ import os
 import time
 import irc3
 import datetime
+from irc3.compat import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from operator import itemgetter
 __doc__ = '''
@@ -69,7 +70,7 @@ def default_hook(entries):
     return entries
 
 
-def default_dispatcher(bot):
+def default_dispatcher(bot):  # pragma: no cover
     """Default messages dispatcher"""
     def dispatcher(messages):
         bot.call_many('privmsg', messages)
@@ -213,10 +214,11 @@ class Feeds(object):
             self.session = requests.Session()
             self.session.headers.update(self.headers)
 
-    def parse(self):
+    def parse(self, *args):
         """parse pre-fetched feeds and notify new entries"""
         entries = []
         for feed in self.feeds.values():
+            self.bot.log.debug('Parsing feed %s', feed['name'])
             entries.extend(parse(self.feedparser, feed))
 
         def messages():
@@ -229,29 +231,29 @@ class Feeds(object):
 
         self.dispatcher(messages())
 
-    def fetch(self):
-        """prefetch feeds"""
+    def update_time(self, future):
+        name = future.result()
+        self.bot.log.debug('Feed %s fetched', name)
+        feed = self.feeds[name]
+        feed['time'] = time.time()
+
+    def update(self):
+        """update feeds"""
+        loop = self.bot.loop
+        loop.call_later(self.delay, self.update)
+
         now = time.time()
         session = self.session
         feeds = [dict(f, session=session) for f in self.feeds.values()
                  if f['time'] < now - f['delay']]
-        if not feeds:
-            return
-        self.bot.log.info('Fetching feeds %s',
-                          ', '.join([f['name'] for f in feeds]))
-        with self.PoolExecutor(max_workers=self.max_workers) as executor:
-            for name in executor.map(fetch, feeds):
-                feed = self.feeds[name]
-                feed['time'] = time.time()
-
-    def update(self):
-        """fault tolerent fetch and notify"""
-        try:
-            self.fetch()
-        except Exception as e:
-            self.bot.log.exception(e)
-        try:
-            self.parse()
-        except Exception as e:
-            self.bot.log.exception(e)
-        self.bot.loop.call_later(self.delay, self.update)
+        if feeds:
+            self.bot.log.info('Fetching feeds %s',
+                              ', '.join([f['name'] for f in feeds]))
+            tasks = []
+            for feed in feeds:
+                task = loop.run_in_executor(None, fetch, feed)
+                task.add_done_callback(self.update_time)
+                tasks.append(task)
+            task = self.bot.create_task(
+                asyncio.wait(tasks, timeout=len(feeds) * 2, loop=loop))
+            task.add_done_callback(self.parse)

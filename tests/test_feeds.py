@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from irc3.testing import BotTestCase
 from irc3.testing import MagicMock
+from irc3.testing import asyncio
 import datetime
 import tempfile
 import shutil
@@ -20,6 +21,20 @@ class Hook:
         return []
 
 
+class Dispatcher:
+
+    def __init__(self, bot):
+        self.loop = bot.loop
+        self.reset()
+
+    def reset(self):
+        self.future = asyncio.Future(loop=self.loop)
+        return self.future
+
+    def __call__(self, messages):
+        self.future.set_result(list(messages))
+
+
 class TestFeeds(BotTestCase):
 
     name = 'irc3.plugins.feeds'
@@ -35,15 +50,19 @@ class TestFeeds(BotTestCase):
         )
 
     def callFTU(self, **kwargs):
+        loop = kwargs.pop('loop', None)
         config = dict(
             directory=self.wd,
             irc3='http://xxx',
+            dispatcher='tests.test_feeds.Dispatcher',
             channels='#irc3', **kwargs
         )
         config = {
             'includes': [self.name],
             self.name: config
         }
+        if loop:
+            config.update(loop=loop)
         return super(TestFeeds, self).callFTU(**config)
 
     def test_connection_made(self):
@@ -53,26 +72,31 @@ class TestFeeds(BotTestCase):
         self.assertTrue(bot.loop.call_later.called)
 
     def test_feed(self):
-        bot = self.callFTU()
+        bot = self.callFTU(loop=asyncio.new_event_loop())
+        future = bot.feeds.dispatcher.reset()
         bot.feeds.update()
-        self.assertSent([
-            'PRIVMSG #irc3 :[irc3] coverage '
-            'https://github.com/gawel/irc3/commit/'
-            'ec82ae2c5f8b2954f0646a2177deb65ad9db712a'])
+        bot.loop.run_until_complete(future)
+        assert future.result() == [
+            ('#irc3', '[irc3] coverage https://github.com/gawel/irc3/commit/'
+                      'ec82ae2c5f8b2954f0646a2177deb65ad9db712a')]
+        bot = self.callFTU(loop=asyncio.new_event_loop())
+        future = bot.feeds.dispatcher.reset()
         bot.feeds.update()
-        self.assertSent([])
+        bot.loop.run_until_complete(future)
+        assert future.result() == []
 
     def test_hooked_feed(self):
-        bot = self.callFTU(hook='tests.test_feeds.hook')
+        bot = self.callFTU(hook='tests.test_feeds.hook',
+                           loop=asyncio.new_event_loop())
+        future = bot.feeds.dispatcher.reset()
         bot.feeds.update()
-        self.assertSent([])
+        bot.loop.run_until_complete(future)
+        assert future.result() == []
 
     def test_hooked_feed_with_class(self):
-        bot = self.callFTU(hook='tests.test_feeds.Hook')
+        bot = self.callFTU(hook='tests.test_feeds.Hook',
+                           loop=asyncio.new_event_loop())
+        future = bot.feeds.dispatcher.reset()
         bot.feeds.update()
-        self.assertSent([])
-
-    def test_exception(self):
-        bot = self.callFTU()
-        bot.feeds.fetch = bot.feeds.parse = MagicMock(side_effect=KeyError())
-        bot.feeds.update()
+        bot.loop.run_until_complete(future)
+        assert future.result() == []
