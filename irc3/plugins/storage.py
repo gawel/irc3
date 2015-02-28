@@ -101,6 +101,7 @@ Or redis::
     >>> bot.db.backend.flushdb()
 
 Then use it::
+
     >>> bot.db.SIGINT()
     >>> bot.db['mykey'] = dict(key='value')
     >>> bot.db['mykey']
@@ -113,7 +114,7 @@ Api
 ===
 
 .. autoclass:: Storage
-  :members: __getitem__, __setitem__, __contains__, set, setdefault
+  :members: __getitem__,__setitem__,__delitem__,__contains__,set,setdefault
 
 '''
 
@@ -239,7 +240,8 @@ class Storage(object):
         self.context.db = self
 
     def setdefault(self, key_, **kwargs):
-        """update storage value for key with kwargs iif the doesn't exist"""
+        """Update storage value for key with kwargs iif the keys doesn't
+        exist. Return stored values"""
         stored = self[key_]
         changed = False
         for k, v in kwargs.items():
@@ -253,7 +255,7 @@ class Storage(object):
         return kwargs
 
     def set(self, key_, **kwargs):
-        """update storage value for key with kwargs"""
+        """Update storage value for key with kwargs"""
         stored = self[key_]
         changed = False
         for k, v in kwargs.items():
@@ -264,7 +266,7 @@ class Storage(object):
             self[key_] = stored
 
     def __setitem__(self, key, value):
-        """set storage value for key"""
+        """Set storage value for key"""
         key = getattr(key, '__module__', key)
         if not isinstance(value, dict):  # pragma: no cover
             raise TypeError('value must be a dict')
@@ -275,7 +277,7 @@ class Storage(object):
             raise
 
     def __getitem__(self, key):
-        """get storage value for key"""
+        """Get storage value for key"""
         key = getattr(key, '__module__', key)
         try:
             return self.backend.get(key)
@@ -286,6 +288,7 @@ class Storage(object):
             raise
 
     def __delitem__(self, key):
+        """Delete key in storage"""
         key = getattr(key, '__module__', key)
         try:
             self.backend.delete(key)
@@ -294,6 +297,7 @@ class Storage(object):
             raise
 
     def __contains__(self, key):
+        """Return True if storage contains key"""
         key = getattr(key, '__module__', key)
         try:
             return self.backend.contains(key)
