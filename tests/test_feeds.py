@@ -96,6 +96,7 @@ class TestFeeds(BotTestCase):
     def test_hooked_feed_with_class(self):
         bot = self.callFTU(hook='tests.test_feeds.Hook',
                            loop=asyncio.new_event_loop())
+        assert isinstance(bot.feeds.hook, Hook)
         future = bot.feeds.dispatcher.reset()
         bot.feeds.update()
         bot.loop.run_until_complete(future)

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys
+import types
 PY3 = bool(sys.version_info[0] == 3)
 PY34 = bool(sys.version_info[0:2] >= (3, 4))
 
@@ -13,9 +14,13 @@ def u(value):
 if PY3:  # pragma: no cover
     text_type = str
     string_types = (bytes, str)
+    def isclass(o):
+        return isinstance(o, type)
 else:  # pragma: no cover
     text_type = unicode
     string_types = basestring
+    def isclass(o):
+        return isinstance(o, types.ClassType)
 
 import configparser  # NOQA
 
