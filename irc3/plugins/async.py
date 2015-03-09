@@ -74,20 +74,20 @@ class Whois(AsyncEvents):
 
     # when those events occurs, we can add them to the result list
     events = (
-      # (?i) is for IGNORECASE. This will match either NicK or nick
-      {'match': "(?i)^:\S+ 301 \S+ {nick} :(?P<away>.*)"},
-      {'match': "(?i)^:\S+ 311 \S+ {nick} (?P<username>\S+) (?P<host>\S+) . "
-                ":(?P<realname>.*)(?i)"},
-      {'match': "(?i)^:\S+ 312 \S+ {nick} (?P<server>\S+) "
-                ":(?P<server_desc>.*)"},
-      {'match': "(?i)^:\S+ 317 \S+ {nick} (?P<idle>[0-9]+).*"},
-      {'match': "(?i)^:\S+ 319 \S+ {nick} :(?P<channels>.*)"},
-      {'match': "(?i)^:\S+ 330 \S+ {nick} (?P<acount>\S+) "
-                ":(?P<acount_desc>.*)"},
-      {'match': "(?i)^:\S+ 671 \S+ {nick} :(?P<connection>.*)"},
-      # if final=True then a result is returned when the event occurs
-      {'match': "(?i)^:\S+ (?P<retcode>(318|401)) \S+ (?P<nick>{nick}) :.*",
-       'final': True},
+        # (?i) is for IGNORECASE. This will match either NicK or nick
+        {'match': "(?i)^:\S+ 301 \S+ {nick} :(?P<away>.*)"},
+        {'match': "(?i)^:\S+ 311 \S+ {nick} (?P<username>\S+) (?P<host>\S+) . "
+                  ":(?P<realname>.*)(?i)"},
+        {'match': "(?i)^:\S+ 312 \S+ {nick} (?P<server>\S+) "
+                  ":(?P<server_desc>.*)"},
+        {'match': "(?i)^:\S+ 317 \S+ {nick} (?P<idle>[0-9]+).*"},
+        {'match': "(?i)^:\S+ 319 \S+ {nick} :(?P<channels>.*)"},
+        {'match': "(?i)^:\S+ 330 \S+ {nick} (?P<acount>\S+) "
+                  ":(?P<acount_desc>.*)"},
+        {'match': "(?i)^:\S+ 671 \S+ {nick} :(?P<connection>.*)"},
+        # if final=True then a result is returned when the event occurs
+        {'match': "(?i)^:\S+ (?P<retcode>(318|401)) \S+ (?P<nick>{nick}) :.*",
+         'final': True},
     )
 
     def process_results(self, results=None, **value):
@@ -106,12 +106,12 @@ class WhoChannel(AsyncEvents):
     send_line = 'WHO {channel}'
 
     events = (
-      {"match": "(?i)^:\S+ 352 \S+ {channel} (?P<user>\S+) "
-                "(?P<host>\S+) (?P<server>\S+) (?P<nick>\S+) "
-                "(?P<modes>\S+) :(?P<hopcount>\S+) (?P<realname>.*)",
-       "multi": True},
-      {"match": "(?i)^:\S+ (?P<retcode>(315|401)) \S+ {channel} :.*",
-       "final": True},
+        {"match": "(?i)^:\S+ 352 \S+ {channel} (?P<user>\S+) "
+                  "(?P<host>\S+) (?P<server>\S+) (?P<nick>\S+) "
+                  "(?P<modes>\S+) :(?P<hopcount>\S+) (?P<realname>.*)",
+         "multi": True},
+        {"match": "(?i)^:\S+ (?P<retcode>(315|401)) \S+ {channel} :.*",
+         "final": True},
     )
 
     def process_results(self, results=None, **value):
@@ -133,11 +133,11 @@ class WhoNick(AsyncEvents):
     send_line = 'WHO {nick}'
 
     events = (
-      {"match": "(?i)^:\S+ 352 \S+ (?P<channel>\S+) (?P<user>\S+) "
-                "(?P<host>\S+) (?P<server>\S+) (?P<nick>{nick}) "
-                "(?P<modes>\S+) :(?P<hopcount>\S+)\s*(?P<realname>.*)"},
-      {"match": "(?i)^:\S+ (?P<retcode>(315|401)) \S+ {nick} :.*",
-       "final": True},
+        {"match": "(?i)^:\S+ 352 \S+ (?P<channel>\S+) (?P<user>\S+) "
+                  "(?P<host>\S+) (?P<server>\S+) (?P<nick>{nick}) "
+                  "(?P<modes>\S+) :(?P<hopcount>\S+)\s*(?P<realname>.*)"},
+        {"match": "(?i)^:\S+ (?P<retcode>(315|401)) \S+ {nick} :.*",
+         "final": True},
     )
 
     def process_results(self, results=None, **value):
@@ -153,8 +153,8 @@ class WhoNick(AsyncEvents):
 class IsOn(AsyncEvents):
 
     events = (
-      {"match": "(?i)^:\S+ 303 \S+ :(?P<nicknames>({nicknames}.*|$))",
-       "final": True},
+        {"match": "(?i)^:\S+ 303 \S+ :(?P<nicknames>({nicknames}.*|$))",
+         "final": True},
     )
 
     def process_results(self, results=None, **value):
@@ -170,9 +170,10 @@ class Names(AsyncEvents):
     send_line = 'NAMES {channel}'
 
     events = (
-      {"match": "(?i)^:\S+ 353 .*{channel} :(?P<nicknames>.*)", 'multi': True},
-      {'match': "(?i)^:\S+ (?P<retcode>(366|401)) \S+ {channel} :.*",
-       'final': True},
+        {"match": "(?i)^:\S+ 353 .*{channel} :(?P<nicknames>.*)",
+         'multi': True},
+        {'match': "(?i)^:\S+ (?P<retcode>(366|401)) \S+ {channel} :.*",
+         'final': True},
     )
 
     def process_results(self, results=None, **value):
