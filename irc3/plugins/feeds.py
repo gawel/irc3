@@ -111,7 +111,11 @@ def parse(feedparser, args):
             if e.updated <= updated:
                 # skip already sent entries
                 continue
-            if datetime.datetime(*e.updated_parsed[:7]) < max_date:
+            try:
+                updated_parsed = e.updated_parsed[:7]
+            except AttributeError:
+                continue
+            if datetime.datetime(updated_parsed) < max_date:
                 # skip entries older than 2 days
                 continue
             e['filename'] = filename
