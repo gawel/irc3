@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-import logging.config
 from irc3.plugins.command import command
-import logging
 import irc3
 
 
@@ -76,9 +74,6 @@ class MyPlugin:
 
 
 def main():
-    # logging configuration
-    logging.config.dictConfig(irc3.config.LOGGING)
-
     # instanciate a bot
     irc3.IrcBot(
         nick='irc3', autojoins=['#irc3'],
