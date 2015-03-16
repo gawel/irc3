@@ -9,6 +9,7 @@ version = '0.7.2.dev0'
 
 install_requires = ['venusian>=1.0a8', 'docopt']
 test_requires = [
+    'pysendfile',
     'coverage',
     'feedparser', 'requests',
     'twitter',
@@ -21,11 +22,15 @@ if py_ver < (3, 0):
     install_requires.extend([
         'trollius',
         'futures',
+        'ipaddress',
         'configparser',
     ])
     test_requires.extend(['mock'])
 elif py_ver < (3, 3):
-    install_requires.append('trollius')
+    install_requires.extend([
+        'trollius',
+        'ipaddress',
+    ])
     test_requires.append('mock')
 elif py_ver < (3, 4):
     install_requires.append('asyncio')

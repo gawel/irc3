@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from collections import deque
+from .dcc import DCCManager
 from .dec import event
 from .dec import extend
 from .dec import plugin
@@ -111,6 +112,7 @@ class IrcBot(base.IrcObject):
 
     def __init__(self, *ini, **config):
         super(IrcBot, self).__init__(*ini, **config)
+        self.dcc_manager = DCCManager(self)
         # auto include the autojoins plugin if needed (for backward compat)
         if 'autojoins' in self.config and \
            'irc3.plugins.autojoins' not in self.registry.includes:

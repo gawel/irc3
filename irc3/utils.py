@@ -1,15 +1,26 @@
 # -*- coding: utf-8 -*-
+from unicodedata import normalize
 from .compat import configparser
 from .compat import asyncio
 import importlib
 import functools
 import logging
 import os
+import re
 
 try:
     BaseString = unicode
 except NameError:  # pragma: no cover
     BaseString = str
+
+
+def slugify(value):
+    if not isinstance(value, BaseString):  # pragma: no cover
+        value = value.decode('utf8', 'ignore')
+    value = normalize('NFKD', value)
+    value = value.encode('ascii', 'ignore').decode('ascii')
+    value = re.sub('[^\w\s-]', '', value).strip().lower()
+    return re.sub('[-\s]+', '-', value)
 
 
 class IrcString(BaseString):

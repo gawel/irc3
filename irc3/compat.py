@@ -12,11 +12,13 @@ def u(value):
 
 
 if PY3:  # pragma: no cover
+    from urllib.request import urlopen
     text_type = str
     string_types = (bytes, str)
     def isclass(o):
         return isinstance(o, type)
 else:  # pragma: no cover
+    from urllib2 import urlopen
     text_type = unicode
     string_types = basestring
     def isclass(o):
