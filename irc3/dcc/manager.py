@@ -75,7 +75,7 @@ class DCCManager(object):
         info = self.connections[protocol.type]
         info['total'] += 1
         info['masks'][protocol.mask][protocol.port] = protocol
-        protocol.ready.set_result(True)
+        protocol.ready.set_result(protocol)
 
     def create(self, name_or_class, mask, filepath=None, **kwargs):
         if isclass(name_or_class):
@@ -105,7 +105,7 @@ class DCCManager(object):
         kwargs.setdefault('port', None)
         f = protocol(
             mask=mask, ip=self.ip,
-            bot=self.bot, manager=self, loop=self.loop, **kwargs)
+            bot=self.bot, loop=self.loop, **kwargs)
 
         if kwargs['port']:
             task = asyncio.async(

@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 from collections import deque
 from .dcc import DCCManager
+from .dec import dcc_event
 from .dec import event
 from .dec import extend
 from .dec import plugin
@@ -75,10 +76,11 @@ class IrcConnection(asyncio.Protocol):
 class IrcBot(base.IrcObject):
     """An IRC bot"""
 
-    _pep8 = [event, extend, plugin, rfc, config]
+    _pep8 = [dcc_event, event, extend, plugin, rfc, config]
     venusian = venusian
     venusian_categories = [
         'irc3',
+        'irc3.dcc',
         'irc3.extend',
         'irc3.rfc1459',
         'irc3.plugins.cron',

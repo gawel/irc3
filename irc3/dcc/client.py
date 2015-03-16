@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import struct
+from collections import deque
 from functools import partial
 from irc3.compat import asyncio
+from irc3.compat import text_type
 
 
 class DCCBase(asyncio.Protocol):
@@ -23,7 +26,7 @@ class DCCBase(asyncio.Protocol):
 
     def connection_made(self, transport):
         self.transport = transport
-        self.started.set_result(True)
+        self.started.set_result(self)
 
     def connection_lost(self, exc):
         self.close(exc)
@@ -33,16 +36,12 @@ class DCCBase(asyncio.Protocol):
             self.idle_handle.cancel()
         if self.transport:
             self.transport.close()
-        info = self.manager.connections[self.type]
+        info = self.bot.dcc_manager.connections[self.type]
         if self.port in info['masks'][self.mask]:
             info['total'] -= 1
             del info['masks'][self.mask][self.port]
         if not self.closed.done():
             self.closed.set_result(result)
-
-    def data_received(self, data):
-        self.set_timeout()
-        self.dispatch(data)
 
     def set_timeout(self):
         if self.idle_handle is not None:
@@ -65,25 +64,47 @@ class DCCChat(DCCBase):
 
     def connection_made(self, transport):
         super(DCCChat, self).connection_made(transport)
+        self.encoding = getattr(self.bot, 'encoding', 'ascii')
         self.set_timeout()
+        self.queue = deque()
 
-    def dispatch(self, data):
-        data = data.strip(' \r\n')
-        self.send(*data.split('\n'))
+    def decode(self, data):
+        """Decode data with bot's encoding"""
+        return data.decode(self.encoding, 'ignore')
+
+    def data_received(self, data):
+        self.set_timeout()
+        data = self.decode(data)
+        if self.queue:
+            data = self.queue.popleft() + data
+        lines = data.split('\r\n')
+        self.queue.append(lines.pop(-1))
+        for line in lines:
+            self.bot.dispatch(line, iotype='dcc_in', client=self)
+
+    def encode(self, data):
+        """Encode data with bot's encoding"""
+        if isinstance(data, text_type):
+            data = data.encode(self.encoding)
+        return data
+
+    def write(self, data):
+        if data is not None:
+            data = self.encode(data)
+            if not data.endswith(b'\r\n'):
+                data = data + b'\r\n'
+            self.transport.write(data)
 
     def send_line(self, message):
-        if not isinstance(message, bytes):
-            message = message.encode('utf-8')
-        self.transport.write(message + b'\r\n')
+        self.write(message)
+        self.bot.dispatch(message, iotype='dcc_out', client=self)
 
     def send(self, *messages):
         for message in messages:
             self.send_line(message)
 
     def action(self, message):
-        if not isinstance(message, bytes):
-            message = message.encode('utf-8')
-        message = b'\x01ACTION ' + message + b'\x01'
+        message = '\x01ACTION ' + message + '\x01'
         self.send_line(message)
 
     def actions(self, *messages):
@@ -102,7 +123,8 @@ class DCCGet(DCCBase):
         else:
             self.bytes_received = 0
 
-    def dispatch(self, data):
+    def data_received(self, data):
+        self.set_timeout()
         with open(self.filepath, 'ab') as fd:
             fd.write(data)
         self.bytes_received += len(data)
@@ -143,7 +165,8 @@ class DCCSend(DCCBase):
         else:
             self.loop.remove_writer(self.socket)
 
-    def dispatch(self, data):
+    def data_received(self, data):
+        self.set_timeout()
         bytes_received = (
             struct.unpack('!I', data[i:i+4])[0]
             for i in range(0, len(data), 4))

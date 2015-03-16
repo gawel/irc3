@@ -4,7 +4,7 @@ from irc3.testing import BotTestCase
 from irc3.compat import asyncio
 from irc3.dcc.client import DCCSend
 from irc3.dcc.optim import DCCSend as DCCSendOptim
-from irc3 import dcc
+from irc3 import dcc_event
 import tempfile
 import shutil
 import os
@@ -34,7 +34,7 @@ class DCCTestCase(BotTestCase):
         self.dst = os.path.join(self.wd, 'dst')
         self.src = os.path.join(self.wd, 'src')
         with open(self.src, 'wb') as fd:
-            fd.write('start%send' % ('---' * (1024 * 1024)))
+            fd.write(('start%ssend' % ('---' * (1024 * 1024))).encode('ascii'))
 
     def assertFileSent(self):
         getsize = os.path.getsize
@@ -45,6 +45,49 @@ class DCCTestCase(BotTestCase):
         with open(self.dst, 'rb') as fd:
             dest = fd.read()
         assert src == dest
+
+
+log = {'in': [], 'out': []}
+
+
+@dcc_event('(?P<data>.*)')
+def log_in(bot, client=None, data=None):
+    log['in'].append((client, data))
+
+
+@dcc_event('(?P<data>.*)', iotype='out')
+def log_out(bot, client=None, data=None):
+    log['out'].append((client, data))
+
+
+def chat_ready(client):
+    client = client.result()
+    client.send(client.mask)
+    client.actions(client.mask)
+    client.loop.call_later(.001, client.idle_timeout_reached)
+
+
+class TestChat(DCCTestCase):
+
+    def created(self, f):
+        self.client = self.manager.create(
+            'chat', 'gawel', host='127.0.0.1', port=self.server.port)
+        self.client.ready.add_done_callback(chat_ready)
+        self.client.closed.add_done_callback(self.future.set_result)
+
+    def test_create(self):
+        self.callDCCFTU('chat', 'gawel')
+        self.bot.include(__name__)
+        self.loop.run_until_complete(self.future)
+        proto = self.client
+        assert proto.transport is not None
+        info = self.manager.connections['chat']['masks']['gawel']
+        assert proto not in info.values()
+        assert proto.started.result() is proto
+        assert proto.closed.done()
+
+        assert len(log['in']) == 2
+        assert len(log['out']) == 3
 
 
 class TestSend(DCCTestCase):
@@ -66,7 +109,7 @@ class TestSend(DCCTestCase):
         assert proto.transport is not None
         info = self.manager.connections['get']['masks']['gawel']
         assert proto not in info.values()
-        assert proto.started.result() is True
+        assert proto.started.result() is proto
         assert proto.closed.done()
         self.assertFileSent()
 
@@ -101,7 +144,7 @@ class TestResume(DCCTestCase):
         assert proto.transport is not None
         info = self.manager.connections['get']['masks']['gawel']
         assert proto not in info.values()
-        assert proto.started.result() is True
+        assert proto.started.result() is proto
         assert proto.closed.done()
         self.assertFileSent()
 
@@ -131,7 +174,7 @@ class TestSendWithLimit(DCCTestCase):
         assert proto.transport is not None
         info = self.manager.connections['get']['masks']['gawel']
         assert proto not in info.values()
-        assert proto.started.result() is True
+        assert proto.started.result() is proto
         assert proto.closed.done()
         self.assertFileSent()
 
@@ -139,30 +182,3 @@ class TestSendWithLimit(DCCTestCase):
 class TestSendWithLimitOptim(TestSendWithLimit):
 
     send_class = DCCSendOptim
-
-
-class Chat(dcc.DCCChat):
-
-    def connection_made(self, transport):
-        super(Chat, self).connection_made(transport)
-        self.send('Yo!')
-        self.actions('OUPS')
-        self.loop.call_later(.001, self.idle_timeout_reached)
-
-
-class TestChat(DCCTestCase):
-
-    def created(self, f):
-        self.client = self.manager.create(
-            Chat, 'gawel', host='127.0.0.1', port=self.server.port)
-        self.client.closed.add_done_callback(self.future.set_result)
-
-    def test_create(self):
-        self.callDCCFTU(Chat, 'gawel')
-        self.loop.run_until_complete(self.future)
-        proto = self.client
-        assert proto.transport is not None
-        info = self.manager.connections['chat']['masks']['gawel']
-        assert proto not in info.values()
-        assert proto.started.result() is True
-        assert proto.closed.done()

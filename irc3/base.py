@@ -26,10 +26,15 @@ class Registry(object):
         self.reset(reloading=False)
 
     def reset(self, reloading=True):
-        self.events_re = {'in': [], 'out': []}
+        self.events_re = {
+            'in': [], 'out': [],
+            'dcc_in': [], 'dcc_out': [],
+        }
         self.events = {
             'in': defaultdict(list),
-            'out': defaultdict(list)
+            'out': defaultdict(list),
+            'dcc_in': defaultdict(list),
+            'dcc_out': defaultdict(list),
         }
 
         self.scanned = []
@@ -252,7 +257,7 @@ class IrcObject(object):
                 if value is not None:
                     match[key] = str(value)
             if client is not None:
-                # server
+                # server / dcc chat
                 match['client'] = client
             for e in events:
                 if e.iscoroutine is True:

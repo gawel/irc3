@@ -83,6 +83,12 @@ class event(object):
         return '<bound {0} {1} to {2}>'.format(name, s, self.callback)
 
 
+def dcc_event(regexp, callback=None, iotype='in',
+              venusian_category='irc3.dcc'):
+    return event(regexp, callback=callback, iotype='dcc_' + iotype,
+                 venusian_category='irc3.dcc')
+
+
 def extend(func):
     """Allow to extend a bot:
 
