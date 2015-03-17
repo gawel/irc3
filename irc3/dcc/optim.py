@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 from irc3.dcc.client import DCCSend as DCCSendBase
-from sendfile import sendfile
+try:
+    from os import sendfile
+except ImportError:
+    from sendfile import sendfile
 
 
 class DCCSend(DCCSendBase):
 
+    _sendfile = sendfile
+
     def send_chunk(self):
-        with open(self.filepath, 'rb') as fd:
-            sent = sendfile(self.socket.fileno(), fd.fileno(),
-                            self.offset, self.block_size)
+        sent = self._sendfile(self.socket.fileno(), self.fd_fileno,
+                              self.offset, self.block_size)
         return sent

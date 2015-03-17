@@ -72,7 +72,7 @@ class CTCP(object):
         self.bot.loop.call_later(30, self.bot.attach_events, self.event)
 
     def on_ctcp(self, mask=None, target=None, ctcp=None, **kw):
-        lctcp = ctcp.lower()
+        lctcp = ctcp.split(' ')[0].lower()
         if lctcp in self.bot.config.ctcp:
             try:
                 self.queue.put_nowait((mask.nick, lctcp))

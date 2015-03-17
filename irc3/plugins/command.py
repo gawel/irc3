@@ -248,6 +248,13 @@ class Commands(dict):
             else:
                 return self.do_command(predicates, meth, mask, target, **kw)
 
+    @irc3.dcc_event(r'(^|\x01ACTION\s*){re_cmd}(?P<cmd>\w+)'
+                    r'(\s(?P<data>\S.*)|\x01|$)')
+    def on_dcc_command(self, cmd, client=None, **kw):
+        predicates, meth = self.get(cmd, (None, None))
+        if meth is not None:
+            return self.do_command(predicates, meth, client, client, **kw)
+
     def do_command(self, predicates, meth, client, target, data=None, **kw):
         nick = self.context.nick or '-'
         to = target == nick and client.nick or target
@@ -271,14 +278,15 @@ class Commands(dict):
             self.context.privmsg(to, 'Invalid arguments.')
         else:
             uid = (cmd_name, to)
+            use_client = isinstance(client, asyncio.Protocol)
             if not self.tasks[uid].done():
                 self.context.notice(
-                    client if self.context.server else client.nick,
+                    client if use_client else client.nick,
                     "Another task is already running. "
                     "Please be patient and don't flood me")
             elif not self.handles[uid].done() and self.antiflood:
                 self.context.notice(
-                    client if self.context.server else client.nick,
+                    client if use_client else client.nick,
                     "Please be patient and don't flood me")
             else:
                 if not PY3:  # pragma: no cover

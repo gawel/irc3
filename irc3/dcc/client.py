@@ -50,7 +50,7 @@ class DCCBase(asyncio.Protocol):
             self.idle_handle = self.loop.call_later(
                 self.idle_timeout, self.idle_timeout_reached)
 
-    def idle_timeout_reached(self):
+    def idle_timeout_reached(self, *args):
         if self.type == 'chat':
             msg = "Your idle is too high. Closing connection."
             self.send_line(msg)
@@ -122,13 +122,19 @@ class DCCGet(DCCBase):
             self.bytes_received = self.offset
         else:
             self.bytes_received = 0
+        self.fd = open(self.filepath, 'ab')
 
     def data_received(self, data):
         self.set_timeout()
-        with open(self.filepath, 'ab') as fd:
-            fd.write(data)
+        self.fd.write(data)
         self.bytes_received += len(data)
         self.transport.write(struct.pack('!I', self.bytes_received))
+
+    def close(self, *args, **kwargs):
+        if self.fd:
+            self.fd.close()
+            self.fd = None
+        super(DCCGet, self).close(*args, **kwargs)
 
 
 class DCCSend(DCCBase):
@@ -144,17 +150,30 @@ class DCCSend(DCCBase):
         self.delay = 1. / (self.limit_rate / 64.) if self.limit_rate else None
         socket = self.transport.get_extra_info('socket')
         self.socket = socket
+        self.sendfile = getattr(self.socket, 'sendfile', None)
+        self.fd = open(self.filepath, 'rb')
+        self.fd_fileno = self.fd.fileno()
         self.loop.remove_writer(socket)
         self.loop.add_writer(socket, self.next_chunk)
 
+    def write(self, *args):  # pragma: no cover
+        raise NotImplementedError('write is not available during DCCSend')
+
     def send_chunk(self):
-        with open(self.filepath, 'rb') as fd:
-            fd.seek(self.offset)
-            sent = self.socket.send(fd.read(self.block_size))
+        if self.sendfile:
+            sent = self.sendfile(self.fd_fileno, self.offset, self.block_size)
+        else:
+            self.fd.seek(self.offset)
+            sent = self.socket.send(self.fd.read(self.block_size))
         return sent
 
     def next_chunk(self):
-        sent = self.send_chunk()
+        try:
+            sent = self.send_chunk()
+        except Exception as e:  # pragma: no cover
+            self.bot.log.exception(e)
+            self.fd.close()
+            sent = 0
         if sent != 0:
             self.offset += sent
             cb = partial(self.loop.add_writer, self.socket, self.next_chunk)
@@ -173,3 +192,9 @@ class DCCSend(DCCBase):
         for recv in bytes_received:
             if recv == self.filesize:
                 self.transport.close()
+
+    def close(self, *args, **kwargs):
+        if self.fd:
+            self.fd.close()
+            self.fd = None
+        super(DCCSend, self).close(*args, **kwargs)

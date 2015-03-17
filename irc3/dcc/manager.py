@@ -6,15 +6,19 @@ from collections import defaultdict
 from irc3.compat import urlopen
 from irc3.compat import asyncio
 from irc3.compat import isclass
+from irc3.compat import PY35
 from irc3.utils import slugify
 from irc3.utils import maybedotted
 from irc3.dcc.client import DCCChat
 from irc3.dcc.client import DCCGet
 
-try:
-    from irc3.dcc.optim import DCCSend
-except ImportError:  # pragma: no cover
+if PY35:
     from irc3.dcc.client import DCCSend
+else:
+    try:
+        from irc3.dcc.optim import DCCSend
+    except ImportError:  # pragma: no cover
+        from irc3.dcc.client import DCCSend
 
 DCC_TYPES = ('chat', 'get', 'send')
 
@@ -120,6 +124,11 @@ class DCCManager(object):
             task.add_done_callback(partial(self.created, f))
         return f
 
+    def resume(self, mask, filename, port, pos):
+        self.connections['send']['masks'][mask][port].offset = pos
+        message = 'DCC ACCEPT %s %d %d' % (filename, port, pos)
+        self.bot.ctcp(mask, message)
+
     def is_allowed(self, name_or_class, mask):  # pragma: no cover
         if isclass(name_or_class):
             name = name_or_class.type
@@ -144,8 +153,3 @@ class DCCManager(object):
             self.bot.notice(mask, msg)
             return False
         return True
-
-    def resume(self, mask, filename, port, pos):
-        self.connections['send']['masks'][mask][port].offset = pos
-        message = 'DCC ACCEPT %s %d %d' % (filename, port, pos)
-        self.bot.ctcp(mask, message)

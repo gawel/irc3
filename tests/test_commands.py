@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from irc3.testing import BotTestCase
 from irc3.plugins import command
+from irc3.plugins import dcc
 from irc3.compat import asyncio
 from irc3.compat import PY34
 from irc3.compat import u
@@ -13,6 +14,7 @@ import os
 
 
 @command.command(permission='myperm', options_first=True)
+@dcc.dcc_command(options_first=True)
 def cmd(bot, *args):
     """Test command
         %%cmd
