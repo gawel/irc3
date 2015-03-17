@@ -47,7 +47,9 @@ def chat_ready(client):
 class TestChat(BotTestCase):
 
     loop = asyncio.new_event_loop()
-    config = dict(loop=loop, includes=['irc3.plugins.dcc'])
+    config = dict(loop=loop,
+                  includes=['irc3.plugins.dcc'],
+                  dcc={'ip': '127.0.0.1'})
     mask = 'gawel@gawel!bearstech.com'
 
     def callDCCFTU(self, *args, **kwargs):
@@ -57,7 +59,6 @@ class TestChat(BotTestCase):
         self.bot.dispatch(':%s PRIVMSG irc3 :!chat' % self.mask)
         self.future = asyncio.Future(loop=self.loop)
         self.loop.call_later(.1, self.created)
-        print('kjh')
 
     def created(self):
         print(self.bot.dcc_manager.connections['chat'])
@@ -65,7 +66,7 @@ class TestChat(BotTestCase):
         self.server = list(servers.values())[0]
         print(self.server)
         self.client = self.bot.dcc_manager.create(
-            'chat', 'gawel', host=self.server.host, port=self.server.port)
+            'chat', 'gawel', host='127.0.0.1', port=self.server.port)
         self.client.ready.add_done_callback(chat_ready)
         self.client.closed.add_done_callback(self.future.set_result)
 
