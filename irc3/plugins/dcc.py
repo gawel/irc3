@@ -1,9 +1,43 @@
 # -*- coding: utf-8 -*-
 import irc3
 from irc3.plugins import command
+__doc__ = """
+==============================================
+:mod:`irc3.plugins.dcc` DCC Chat plugin
+==============================================
+
+This module provide a command to start a DCC CHAT with the bot and extend it
+with CHAT commands.
+
+CHAT Commands
+=============
+
+Adding new commands::
+
+    >>> @dcc_command
+    ... def echo(bot, mask, client, args):
+    ...     '''echo command
+    ...         %%echo <words>...
+    ...     '''
+    ...     yield ' '.join(args['words']
+
+bot is the bot instance. mask is the irc mask of the user connected via dcc.
+client is an instance of :class:`~irc3.dcc.DCCChat`
+
+
+API
+===
+
+.. autofunction:: dcc_command
+
+.. autoclass:: Commands
+   :members:
+
+"""
 
 
 def dcc_command(*func, **predicates):
+    """DCC CHAT command decorator"""
     predicates['commands'] = 'irc3.plugins.dcc.Commands'
     if func:
         func = func[0]
@@ -18,6 +52,7 @@ def dcc_command(*func, **predicates):
 
 @irc3.plugin
 class Commands(command.Commands):
+    """DCC CHAT commands plugin"""
 
     requires = ['irc3.plugins.command']
 

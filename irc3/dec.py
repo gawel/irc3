@@ -85,6 +85,7 @@ class event(object):
 
 def dcc_event(regexp, callback=None, iotype='in',
               venusian_category='irc3.dcc'):
+    """Work like :class:`~irc3.dec.event` but occurs during DCC CHATs"""
     return event(regexp, callback=callback, iotype='dcc_' + iotype,
                  venusian_category='irc3.dcc')
 

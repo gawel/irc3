@@ -55,17 +55,16 @@ class TestChat(BotTestCase):
     def callDCCFTU(self, *args, **kwargs):
         self.bot = self.callFTU()
         self.bot.protocol.transport.get_extra_info = get_extra_info
-        self.bot.dcc_manager.connection_made()
         self.bot.dispatch(':%s PRIVMSG irc3 :!chat' % self.mask)
         self.future = asyncio.Future(loop=self.loop)
         self.loop.call_later(.1, self.created)
 
     def created(self):
-        print(self.bot.dcc_manager.connections['chat'])
-        servers = self.bot.dcc_manager.connections['chat']['masks'][self.mask]
+        print(self.bot.dcc.connections['chat'])
+        servers = self.bot.dcc.connections['chat']['masks'][self.mask]
         self.server = list(servers.values())[0]
         print(self.server)
-        self.client = self.bot.dcc_manager.create(
+        self.client = self.bot.dcc.create(
             'chat', 'gawel', host='127.0.0.1', port=self.server.port)
         self.client.ready.add_done_callback(chat_ready)
         self.client.closed.add_done_callback(self.future.set_result)
@@ -77,7 +76,7 @@ class TestChat(BotTestCase):
         self.loop.run_until_complete(self.future)
         proto = self.client
         assert proto.transport is not None
-        info = self.bot.dcc_manager.connections['chat']['masks']['gawel']
+        info = self.bot.dcc.connections['chat']['masks']['gawel']
         assert proto not in info.values()
         assert proto.started.result() is proto
         assert proto.closed.done()
@@ -95,8 +94,7 @@ class DCCTestCase(BotTestCase):
         bot = self.callFTU()
         self.future = asyncio.Future(loop=self.loop)
         bot.protocol.transport.get_extra_info = get_extra_info
-        self.manager = manager = bot.dcc_manager
-        manager.connection_made()
+        self.manager = manager = bot.dcc
         self.server = manager.create(*args, **kwargs)
         self.server.ready.add_done_callback(self.created)
 

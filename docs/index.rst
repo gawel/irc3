@@ -71,6 +71,7 @@ Documentation
    dec
    utils
    rfc
+   dcc
    reloadable
    plugins/*
    hack

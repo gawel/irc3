@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 from functools import partial
-from ipaddress import ip_address
 from collections import defaultdict
-from irc3.compat import urlopen
 from irc3.compat import asyncio
 from irc3.compat import isclass
 from irc3.compat import PY35
@@ -24,6 +22,7 @@ DCC_TYPES = ('chat', 'get', 'send')
 
 
 class DCCManager(object):
+    """Manage DCC connections"""
 
     def __init__(self, bot):
         self.bot = bot
@@ -48,20 +47,6 @@ class DCCManager(object):
             self.protocols[n] = klass
         self.seeks = {}
 
-    def connection_made(self):
-        if 'ip' in self.config:
-            ip = self.config['ip']
-        else:
-            ip = self.bot.protocol.transport.get_extra_info('sockname')[0]
-        ip = ip_address(ip)
-        if ip.version == 4:
-            self.ip = int(ip)
-        else:  # pragma: no cover
-            response = urlopen('http://ipv4.icanhazip.com/')
-            ip = response.read().strip().decode()
-            ip = ip_address(ip)
-            self.ip = int(ip)
-
     def created(self, protocol, future):
         if protocol.port is None:
             server = future.result()
@@ -82,6 +67,7 @@ class DCCManager(object):
         protocol.ready.set_result(protocol)
 
     def create(self, name_or_class, mask, filepath=None, **kwargs):
+        """Create a new DCC connection. Return an ``asyncio.Protocol``"""
         if isclass(name_or_class):
             name = name_or_class.type
             protocol = name_or_class
@@ -108,7 +94,7 @@ class DCCManager(object):
                 kwargs.setdefault('resume', False)
         kwargs.setdefault('port', None)
         f = protocol(
-            mask=mask, ip=self.ip,
+            mask=mask, ip=int(self.bot.ip),
             bot=self.bot, loop=self.loop, **kwargs)
 
         if kwargs['port']:
@@ -125,11 +111,13 @@ class DCCManager(object):
         return f
 
     def resume(self, mask, filename, port, pos):
+        """Resume a DCC send"""
         self.connections['send']['masks'][mask][port].offset = pos
         message = 'DCC ACCEPT %s %d %d' % (filename, port, pos)
         self.bot.ctcp(mask, message)
 
     def is_allowed(self, name_or_class, mask):  # pragma: no cover
+        """Return True is a new connection is allowed"""
         if isclass(name_or_class):
             name = name_or_class.type
         else:

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from ipaddress import ip_address
 from collections import deque
 from .dcc import DCCManager
 from .dcc import DCCChat
@@ -11,6 +12,7 @@ from . import config
 from . import utils
 from . import rfc
 from . import base
+from irc3.compat import urlopen
 from .compat import text_type
 from .compat import asyncio
 import venusian
@@ -115,7 +117,7 @@ class IrcBot(base.IrcObject):
 
     def __init__(self, *ini, **config):
         super(IrcBot, self).__init__(*ini, **config)
-        self.dcc_manager = DCCManager(self)
+        self._ip = self._dcc = None
         # auto include the autojoins plugin if needed (for backward compat)
         if 'autojoins' in self.config and \
            'irc3.plugins.autojoins' not in self.registry.includes:
@@ -153,7 +155,7 @@ class IrcBot(base.IrcObject):
                 'USER {realname} {host} {host} :{userinfo}\r\n'
                 'NICK {nick}\r\n'
             ).format(**self.config))
-            self.dcc_manager.connection_made()
+            self.dcc.connection_made()
             self.notify('connection_made')
 
     def send_line(self, data):
@@ -265,32 +267,57 @@ class IrcBot(base.IrcObject):
 
     nick = property(get_nick, set_nick, doc='nickname get/set')
 
+    @property
+    def ip(self):
+        """return bot's ip as an ``ip_address`` object"""
+        if not self._ip:
+            if 'ip' in self.config:
+                ip = self.config['ip']
+            else:
+                ip = self.protocol.transport.get_extra_info('sockname')[0]
+            ip = ip_address(ip)
+            if ip.version == 4:
+                self._ip = ip
+            else:  # pragma: no cover
+                response = urlopen('http://ipv4.icanhazip.com/')
+                ip = response.read().strip().decode()
+                ip = ip_address(ip)
+                self._ip = ip
+        return self._ip
+
+    @property
+    def dcc(self):
+        """return the :class:`~irc3.dcc.DCCManager`"""
+        if self._dcc is None:
+            self._dcc = DCCManager(self)
+        return self._dcc
+
     @asyncio.coroutine
     def dcc_chat(self, mask, host=None, port=None):
         """Open a DCC CHAT whith mask. If host/port are specified then connect
         to a server. Else create a server"""
-        return self.dcc_manager.create(
+        return self.dcc.create(
             'chat', mask, host=host, port=port).ready
 
     @asyncio.coroutine
     def dcc_get(self, mask, host, port, filepath, filesize=None):
         """DCC GET a file from mask. filepath must be an absolute path with an
         existing directory. filesize is the expected file size."""
-        return self.dcc_manager.create(
+        return self.dcc.create(
             'get', mask, filepath=filepath, filesize=filesize).ready
 
     @asyncio.coroutine
     def dcc_send(self, mask, filepath):
         """DCC SEND a file to mask. filepath must be an absolute path to
         existing file"""
-        return self.dcc_manager.create('send', mask, filepath=filepath).ready
+        return self.dcc.create('send', mask, filepath=filepath).ready
 
     @asyncio.coroutine
     def dcc_accept(self, mask, filepath, port, pos):
         """accept a DCC RESUME for an axisting DCC SEND. filepath is the
         filename to sent.  port is the port opened on the server.
         pos is the expected offset"""
-        return self.dcc_manager.resume(mask, filepath, port, pos)
+        return self.dcc.resume(mask, filepath, port, pos)
 
     def SIGHUP(self):
         self.reload()

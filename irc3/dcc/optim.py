@@ -7,6 +7,7 @@ except ImportError:
 
 
 class DCCSend(DCCSendBase):
+    """DCC SEND implementation"""
 
     _sendfile = sendfile
 

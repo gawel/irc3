@@ -6,11 +6,6 @@ import irc3
 @irc3.plugin
 class Plugin(object):
 
-    requires = [
-        'irc3.plugins.core',
-        'irc3.plugins.command',
-    ]
-
     def __init__(self, bot):
         self.bot = bot
 
@@ -20,7 +15,7 @@ class Plugin(object):
         if mask.nick != self.bot.nick:
             self.bot.privmsg(channel, 'Hi %s!' % mask.nick)
         else:
-            self.bot.privmsg(channel, 'Hi!')
+            self.bot.privmsg(channel, 'Hi %s!')
 
     @command(permission='view')
     def echo(self, mask, target, args):

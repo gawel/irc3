@@ -36,7 +36,7 @@ class DCCBase(asyncio.Protocol):
             self.idle_handle.cancel()
         if self.transport:
             self.transport.close()
-        info = self.bot.dcc_manager.connections[self.type]
+        info = self.bot.dcc.connections[self.type]
         if self.port in info['masks'][self.mask]:
             info['total'] -= 1
             del info['masks'][self.mask][self.port]
@@ -58,6 +58,7 @@ class DCCBase(asyncio.Protocol):
 
 
 class DCCChat(DCCBase):
+    """DCC CHAT implementation"""
 
     type = 'chat'
     ctcp = 'DCC CHAT chat {0.ip} {0.port}'
@@ -73,8 +74,9 @@ class DCCChat(DCCBase):
         return data.decode(self.encoding, 'ignore')
 
     def data_received(self, data):
+        """data received"""
         self.set_timeout()
-        data = self.decode(data)
+        data = self.decod(data)
         if self.queue:
             data = self.queue.popleft() + data
         lines = data.split('\r\n')
@@ -113,6 +115,7 @@ class DCCChat(DCCBase):
 
 
 class DCCGet(DCCBase):
+    """DCC GET implementation"""
     type = 'get'
     ctcp = None
 
@@ -138,6 +141,7 @@ class DCCGet(DCCBase):
 
 
 class DCCSend(DCCBase):
+    """DCC SEND implementation"""
 
     type = 'send'
     ctcp = 'DCC SEND {0.filename_safe} {0.ip} {0.port} {0.filesize}'
