@@ -76,7 +76,7 @@ class DCCChat(DCCBase):
     def data_received(self, data):
         """data received"""
         self.set_timeout()
-        data = self.decod(data)
+        data = self.decode(data)
         if self.queue:
             data = self.queue.popleft() + data
         lines = data.split('\r\n')
