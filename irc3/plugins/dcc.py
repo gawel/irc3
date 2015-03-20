@@ -19,7 +19,7 @@ Adding new commands::
     ...     '''echo command
     ...         %%echo <words>...
     ...     '''
-    ...     yield ' '.join(args['words']
+    ...     yield ' '.join(args['words'])
 
 bot is the bot instance. mask is the irc mask of the user connected via dcc.
 client is an instance of :class:`~irc3.dcc.DCCChat`
