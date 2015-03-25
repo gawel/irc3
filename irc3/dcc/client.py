@@ -56,6 +56,9 @@ class DCCBase(asyncio.Protocol):
             self.send_line(msg)
         self.close()
 
+    def __repr__(self):
+        return '<%s with %s>' % (self.__class__.__name__, self.mask)
+
 
 class DCCChat(DCCBase):
     """DCC CHAT implementation"""
@@ -79,7 +82,7 @@ class DCCChat(DCCBase):
         data = self.decode(data)
         if self.queue:
             data = self.queue.popleft() + data
-        lines = data.split('\r\n')
+        lines = data.replace('\r', '').split('\n')
         self.queue.append(lines.pop(-1))
         for line in lines:
             self.bot.dispatch(line, iotype='dcc_in', client=self)

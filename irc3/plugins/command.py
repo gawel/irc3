@@ -248,13 +248,6 @@ class Commands(dict):
             else:
                 return self.do_command(predicates, meth, mask, target, **kw)
 
-    @irc3.dcc_event(r'(^|\x01ACTION\s*){re_cmd}(?P<cmd>\w+)'
-                    r'(\s(?P<data>\S.*)|\x01|$)')
-    def on_dcc_command(self, cmd, client=None, **kw):
-        predicates, meth = self.get(cmd, (None, None))
-        if meth is not None:
-            return self.do_command(predicates, meth, client, client, **kw)
-
     def do_command(self, predicates, meth, client, target, data=None, **kw):
         nick = self.context.nick or '-'
         to = target == nick and client.nick or target

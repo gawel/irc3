@@ -6,6 +6,7 @@ from irc3.dcc.client import DCCSend
 from irc3.dcc.optim import DCCSend as DCCSendOptim
 from irc3.plugins.dcc import dcc_command
 from irc3 import dcc_event
+from irc3 import utils
 import tempfile
 import shutil
 import os
@@ -50,7 +51,8 @@ class TestChat(BotTestCase):
     config = dict(loop=loop,
                   includes=['irc3.plugins.dcc'],
                   dcc={'ip': '127.0.0.1'})
-    mask = 'gawel@gawel!bearstech.com'
+    mask = utils.IrcString('gawel@gawel!bearstech.com')
+    dmask = utils.IrcString('gawel@gawel!127.0.0.1')
 
     def callDCCFTU(self, *args, **kwargs):
         self.bot = self.callFTU()
@@ -65,12 +67,13 @@ class TestChat(BotTestCase):
         self.server = list(servers.values())[0]
         print(self.server)
         self.client = self.bot.dcc.create(
-            'chat', 'gawel', host='127.0.0.1', port=self.server.port)
+            'chat', self.dmask,
+            host='127.0.0.1', port=self.server.port)
         self.client.ready.add_done_callback(chat_ready)
         self.client.closed.add_done_callback(self.future.set_result)
 
     def test_create(self):
-        self.callDCCFTU('chat', 'gawel')
+        self.callDCCFTU()
         self.bot.include('irc3.plugins.dcc')
         self.bot.include(__name__)
         self.loop.run_until_complete(self.future)
@@ -89,6 +92,7 @@ class DCCTestCase(BotTestCase):
 
     loop = asyncio.new_event_loop()
     config = dict(loop=loop)
+    dmask = utils.IrcString('gawel@gawel!127.0.0.1')
 
     def callDCCFTU(self, *args, **kwargs):
         bot = self.callFTU()
@@ -123,18 +127,18 @@ class TestSend(DCCTestCase):
 
     def created(self, f):
         self.client = self.manager.create(
-            'get', 'gawel',
+            'get', utils.IrcString('gawel!gawel@host'),
             host='127.0.0.1', port=self.server.port,
             idle_timeout=10, filepath=self.dst)
         self.client.closed.add_done_callback(self.future.set_result)
 
     def test_create(self):
         self.createFiles()
-        self.callDCCFTU(self.send_class, 'gawel', filepath=self.src)
+        self.callDCCFTU(self.send_class, self.dmask, filepath=self.src)
         self.loop.run_until_complete(self.future)
         proto = self.client
         assert proto.transport is not None
-        info = self.manager.connections['get']['masks']['gawel']
+        info = self.manager.connections['get']['masks'][self.dmask]
         assert proto not in info.values()
         assert proto.started.result() is proto
         assert proto.closed.done()
@@ -155,21 +159,21 @@ class TestResume(DCCTestCase):
             with open(self.src, 'rb') as fdd:
                 fd.write(fdd.read(1345))
         self.client = self.manager.create(
-            'get', 'gawel',
+            'get', self.dmask,
             host='127.0.0.1', port=self.server.port,
             idle_timeout=10, filepath=self.dst)
         self.client.resume = True
-        self.manager.resume('gawel', self.server.filename_safe,
+        self.manager.resume(self.dmask, self.server.filename_safe,
                             self.server.port, self.client.offset)
         self.client.closed.add_done_callback(self.future.set_result)
 
     def test_create(self):
         self.createFiles()
-        self.callDCCFTU(self.send_class, 'gawel', filepath=self.src)
+        self.callDCCFTU(self.send_class, self.dmask, filepath=self.src)
         self.loop.run_until_complete(self.future)
         proto = self.client
         assert proto.transport is not None
-        info = self.manager.connections['get']['masks']['gawel']
+        info = self.manager.connections['get']['masks'][self.dmask]
         assert proto not in info.values()
         assert proto.started.result() is proto
         assert proto.closed.done()
@@ -187,19 +191,19 @@ class TestSendWithLimit(DCCTestCase):
 
     def created(self, f):
         self.client = self.manager.create(
-            'get', 'gawel',
+            'get', self.dmask,
             host='127.0.0.1', port=self.server.port,
             idle_timeout=10, filepath=self.dst)
         self.client.closed.add_done_callback(self.future.set_result)
 
     def test_create(self):
         self.createFiles()
-        self.callDCCFTU(self.send_class, 'gawel',
+        self.callDCCFTU(self.send_class, self.dmask,
                         filepath=self.src, limit_rate=64)
         self.loop.run_until_complete(self.future)
         proto = self.client
         assert proto.transport is not None
-        info = self.manager.connections['get']['masks']['gawel']
+        info = self.manager.connections['get']['masks'][self.dmask]
         assert proto not in info.values()
         assert proto.started.result() is proto
         assert proto.closed.done()

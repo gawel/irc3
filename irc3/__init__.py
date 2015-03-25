@@ -155,7 +155,6 @@ class IrcBot(base.IrcObject):
                 'USER {realname} {host} {host} :{userinfo}\r\n'
                 'NICK {nick}\r\n'
             ).format(**self.config))
-            self.dcc.connection_made()
             self.notify('connection_made')
 
     def send_line(self, data):

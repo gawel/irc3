@@ -55,7 +55,7 @@ class DCCManager(object):
                 self.config[protocol.type + '_accept_timeout'],
                 server.close)
             ctcp_msg = protocol.ctcp.format(protocol)
-            self.bot.ctcp(protocol.mask, ctcp_msg)
+            self.bot.ctcp(protocol.mask.nick, ctcp_msg)
         else:
             transport, protocol = future.result()
             protocol.idle_handle = self.loop.call_later(

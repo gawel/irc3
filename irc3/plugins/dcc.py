@@ -77,9 +77,4 @@ class Commands(command.Commands):
 
             %%chat
         """
-        def ctcp(f):
-            protocol = f.result()
-            self.context.ctcp(
-                mask, 'DCC CHAT chat {0.host} {0.port}'.format(protocol))
-        task = self.context.create_task(self.context.dcc_chat(mask))
-        task.add_done_callback(ctcp)
+        self.context.create_task(self.context.dcc_chat(mask))

@@ -32,12 +32,15 @@ class RawLog(object):
 
     @irc3d.event(r'^(?P<raw>.*)', venusian_category='irc3d.debug')
     @irc3.event(r'^(?P<raw>.*)', venusian_category='irc3.debug')
+    @irc3.dcc_event(r'^(?P<raw>.*)', venusian_category='irc3.debug')
     def debug_input(self, raw=None, client=None, iotype='in', **kwargs):
         self.log(raw, client, iotype)
 
     @irc3d.event(r'^(?P<raw>.*)', iotype='out',
                  venusian_category='irc3d.debug')
     @irc3.event(r'^(?P<raw>.*)', iotype='out', venusian_category='irc3.debug')
+    @irc3.dcc_event(r'^(?P<raw>.*)', iotype='out',
+                    venusian_category='irc3.debug')
     def debug_output(self, raw=None, client=None, iotype='out', **kwargs):
         self.log(raw, client, iotype)
 

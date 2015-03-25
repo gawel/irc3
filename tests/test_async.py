@@ -67,7 +67,6 @@ class TestAsync(BotTestCase):
         bot = self.callFTU()
         assert len(bot.registry.events_re['in']) == 0
         task = bot.async.who('irc3')
-        print(bot.registry.events_re)
         assert len(bot.registry.events_re['in']) == 2
         bot.dispatch(
             ':card.freenode.net 352 nick * ~irc3 host1 serv1 irc3 H :0 bot')
@@ -92,7 +91,6 @@ class TestAsync(BotTestCase):
         bot = self.callFTU()
         assert len(bot.registry.events_re['in']) == 0
         task = bot.async.names('#irc3')
-        print(bot.registry.events_re)
         assert len(bot.registry.events_re['in']) == 2
         bot.dispatch(
             ':card.freenode.net 353 nick @ #irc3 :irc3 @gawel')
