@@ -75,7 +75,7 @@ class MyPlugin:
 
 def main():
     # instanciate a bot
-    irc3.IrcBot(
+    config = dict(
         nick='irc3', autojoins=['#irc3'],
         host='irc.undernet.org', port=6667, ssl=False,
         includes=[
@@ -83,7 +83,10 @@ def main():
             'irc3.plugins.command',
             'irc3.plugins.human',
             __name__,  # this register MyPlugin
-        ]).run()
+            ]
+    )
+    bot = irc3.IrcBot.from_config(config)
+    bot.run(forever=True)
 
 if __name__ == '__main__':
     main()

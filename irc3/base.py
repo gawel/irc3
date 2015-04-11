@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import sys
 import ssl
 import signal
@@ -318,12 +319,12 @@ class IrcObject(object):
         """Register handlers for UNIX signals (SIGHUP/SIGINT)"""
         try:
             self.loop.add_signal_handler(signal.SIGHUP, self.SIGHUP)
-        except AttributeError:
+        except AttributeError:  # pragma: no cover
             # windows
             pass
         try:
             self.loop.add_signal_handler(signal.SIGINT, self.SIGINT)
-        except NotImplementedError:
+        except NotImplementedError:  # pragma: no cover
             # annaconda
             pass
 
@@ -333,6 +334,26 @@ class IrcObject(object):
         self.add_signal_handlers()
         if forever:
             loop.run_forever()
+
+    @classmethod
+    def from_config(cls, cfg, **kwargs):
+        """return an instance configured with the ``cfg`` dict"""
+        pythonpath = cfg.get('pythonpath', [])
+        pythonpath.append(cfg['here'])
+        for path in pythonpath:
+            sys.path.append(os.path.expanduser(path))
+        prog = cls.server and 'irc3d' or 'irc3'
+        if cfg['debug']:
+            cls.venusian_categories.append(prog + '.debug')
+        if cfg.get('interactive'):  # pragma: no cover
+            import irc3.testing
+            context = getattr(irc3.testing, cls.__name__)(**cfg)
+        else:
+            context = cls(**cfg)
+        if cfg.get('raw'):
+            context.include('irc3.plugins.log',
+                            venusian_categories=[prog + '.debug'])
+        return context
 
     @classmethod
     def from_argv(cls, argv=None, **kwargs):
@@ -369,10 +390,6 @@ class IrcObject(object):
             debug=args['--debug'],
         )
         cfg.update(kwargs)
-        pythonpath = cfg.get('pythonpath', [])
-        pythonpath.append(cfg['here'])
-        for path in pythonpath:
-            sys.path.append(os.path.expanduser(path))
         if args['--host']:  # pragma: no cover
             host = args['--host']
             cfg['host'] = host
@@ -389,16 +406,9 @@ class IrcObject(object):
         if args.get('--help-page'):  # pragma: no cover
             for v in cls.logging_config['handlers'].values():
                 v['level'] = 'ERROR'
-        if cfg['debug']:
-            cls.venusian_categories.append(prog + '.debug')
-        if args['--interactive']:  # pragma: no cover
-            import irc3.testing
-            context = getattr(irc3.testing, cls.__name__)(**cfg)
-        else:
-            context = cls(**cfg)
         if args['--raw']:
-            context.include('irc3.plugins.log',
-                            venusian_categories=[prog + '.debug'])
+            cfg['raw'] = True
+        context = cls.from_config(cfg)
         if args.get('--help-page'):  # pragma: no cover
             context.print_help_page()
         elif args['--interactive']:  # pragma: no cover
@@ -407,5 +417,5 @@ class IrcObject(object):
             sys.exit(0)
         else:
             context.run(forever=not bool(kwargs))
-        if argv or kwargs:
+        if kwargs or argv:
             return context
