@@ -3,6 +3,12 @@
 
 - Improved storage: can now test the existence of a key
 
+- irc.plugins.storage: `db['foo']` now will raise a `KeyError` if the key does
+  not exist to match dictionary behaviour.
+
+- irc.plugins.storage now supports `db.get(key)`  that will return either `None`
+  or the value of an optional `default` argument.
+
 - irc3.plugins.feeds is now full async
 
 
