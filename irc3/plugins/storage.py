@@ -295,7 +295,7 @@ class Storage(object):
         try:
             return self.backend.get(key)
         except KeyError:
-            raise
+            raise KeyError(key)
         except Exception as e:  # pragma: no cover
             self.context.log.exception(e)
             raise
