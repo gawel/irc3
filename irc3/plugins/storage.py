@@ -47,8 +47,13 @@ Then use it::
     >>> bot.db.setdefault('mykey', item='default')
     {'item': 'value'}
     >>> del bot.db['mykey']
+    >>> bot.db.get('mykey')
+    >>> bot.db.get('mykey', 'default')
+    'default'
     >>> bot.db['mykey']
-    {}
+    Traceback (most recent call last):
+      ...
+    KeyError: 'mykey'
     >>> 'mykey' in bot.db
     False
 
@@ -61,8 +66,7 @@ You can use an instance as key::
     >>> bot.db[plugin]
     {'key': 'value'}
     >>> del bot.db[plugin]
-    >>> bot.db[plugin]
-    {}
+    >>> bot.db.get(plugin)
 
 ..
     >>> bot.db.SIGINT()
@@ -80,8 +84,7 @@ You can also use shelve::
     >>> bot.db['mykey']
     {'key': 'value'}
     >>> del bot.db['mykey']
-    >>> bot.db['mykey']
-    {}
+    >>> bot.db.get('mykey')
 
 ..
     >>> bot.db.SIGINT()
@@ -107,14 +110,17 @@ Then use it::
     >>> bot.db['mykey']
     {'key': 'value'}
     >>> del bot.db['mykey']
+    >>> bot.db.get('mykey')
     >>> bot.db['mykey']
-    {}
+    Traceback (most recent call last):
+      ...
+    KeyError
 
 Api
 ===
 
 .. autoclass:: Storage
-  :members: __getitem__,__setitem__,__delitem__,__contains__,set,setdefault
+  :members: __getitem__,__setitem__,__delitem__,__contains__,get,set,setdefault
 
 '''
 
@@ -254,9 +260,16 @@ class Storage(object):
             self[key_] = stored
         return kwargs
 
+    def get(self, key_, default=None):
+        """Get storage value for key or return default"""
+        if key_ not in self:
+            return default
+        else:
+            return self[key_]
+
     def set(self, key_, **kwargs):
         """Update storage value for key with kwargs"""
-        stored = self[key_]
+        stored = self.get(key_, dict())
         changed = False
         for k, v in kwargs.items():
             if stored[k] != v:
@@ -282,7 +295,7 @@ class Storage(object):
         try:
             return self.backend.get(key)
         except KeyError:
-            return {}
+            raise KeyError(key)
         except Exception as e:  # pragma: no cover
             self.context.log.exception(e)
             raise
