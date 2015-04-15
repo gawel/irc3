@@ -1,5 +1,7 @@
-0.7.2 (unreleased)
+0.8.0 (unreleased)
 ==================
+
+- Added dcc send/get/chat implementation
 
 - Improved storage: can now test the existence of a key
 
