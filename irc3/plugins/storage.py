@@ -114,7 +114,7 @@ Then use it::
     >>> bot.db['mykey']
     Traceback (most recent call last):
       ...
-    KeyError
+    KeyError: 'mykey'
 
 Api
 ===
