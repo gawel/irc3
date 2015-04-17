@@ -42,6 +42,7 @@ class DCCBase(asyncio.Protocol):
             del info['masks'][self.mask][self.port]
         if not self.closed.done():
             self.closed.set_result(result)
+        self.bot.log.debug('%s closed', self)
 
     def set_timeout(self):
         if self.idle_handle is not None:
@@ -55,6 +56,9 @@ class DCCBase(asyncio.Protocol):
             msg = "Your idle is too high. Closing connection."
             self.send_line(msg)
         self.close()
+
+    def __str__(self):
+        return '%s with %s' % (self.__class__.__name__, self.mask)
 
     def __repr__(self):
         return '<%s with %s>' % (self.__class__.__name__, self.mask)
