@@ -145,9 +145,13 @@ class mask_based_policy(object):
         masks = self.context.config[self.key]
         if hasattr(self.context, 'db'):
             # update config with storage values
-            value = self.context.db[self]
-            if isinstance(value, dict):
-                masks.update(value)
+            try:
+                value = self.context.db[self]
+            except KeyError:
+                pass
+            else:
+                if isinstance(value, dict):
+                    masks.update(value)
         return masks
 
     def has_permission(self, mask, permission):
