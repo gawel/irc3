@@ -1,4 +1,4 @@
-0.8.0 (unreleased)
+0.8.0 (2015-04-19)
 ==================
 
 - Added dcc send/get/chat implementation
