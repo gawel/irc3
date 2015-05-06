@@ -339,11 +339,12 @@ class IrcObject(object):
     def from_config(cls, cfg, **kwargs):
         """return an instance configured with the ``cfg`` dict"""
         pythonpath = cfg.get('pythonpath', [])
-        pythonpath.append(cfg['here'])
+        if 'here' in cfg:
+            pythonpath.append(cfg['here'])
         for path in pythonpath:
             sys.path.append(os.path.expanduser(path))
         prog = cls.server and 'irc3d' or 'irc3'
-        if cfg['debug']:
+        if cfg.get('debug'):
             cls.venusian_categories.append(prog + '.debug')
         if cfg.get('interactive'):  # pragma: no cover
             import irc3.testing
