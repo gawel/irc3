@@ -327,7 +327,12 @@ class Commands(dict):
             %%help [<cmd>]
         """
         if args['<cmd>']:
-            predicates, meth = self.get(args['<cmd>'], (None, None))
+            args = args['<cmd>']
+            # Strip out self.context.config.cmd from args so we can use
+            # both !help !foo and !help foo
+            if args.startswith(self.context.config.cmd):
+                args = args[len(self.context.config.cmd):]
+            predicates, meth = self.get(args, (None, None))
             if meth is not None:
                 doc = meth.__doc__ or ''
                 doc = [l.strip() for l in doc.split('\n') if l.strip()]
