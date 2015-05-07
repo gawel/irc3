@@ -116,6 +116,11 @@ class TestCommands(BotTestCase):
         bot.dispatch(':bar!user@host PRIVMSG #chan :!help ping')
         self.assertSent(['PRIVMSG #chan :ping/pong', 'PRIVMSG #chan :!ping'])
 
+    def test_help_command_with_bang(self):
+        bot = self.callFTU()
+        bot.dispatch(':bar!user@host PRIVMSG #chan :!help !ping')
+        self.assertSent(['PRIVMSG #chan :ping/pong', 'PRIVMSG #chan :!ping'])
+
     def test_reconnect_command(self):
         self.patch_asyncio()
         bot = self.callFTU(includes=['irc3.plugins.core'])
