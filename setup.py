@@ -9,7 +9,6 @@ version = '0.8.1.dev0'
 
 install_requires = ['venusian>=1.0a8', 'docopt']
 test_requires = [
-    'coverage',
     'feedparser', 'requests',
     'twitter',
     'aiocron',
