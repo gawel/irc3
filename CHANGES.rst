@@ -1,4 +1,4 @@
-0.8.1 (unreleased)
+0.8.1 (2015-05-14)
 ==================
 
 -  Fixes bug in userlist plugin `#59 <https://github.com/gawel/irc3/pull/59>`_
