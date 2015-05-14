@@ -190,7 +190,7 @@ class Userlist(object):
                 nicknames = channel.modes[prefix[mode]]
                 if char == '+':
                     nicknames.add(tgt)
-                elif target in nicknames:
+                elif tgt in nicknames:
                     nicknames.remove(tgt)
                 if client is not None:
                     broadcast = (
