@@ -13,8 +13,8 @@ irc3. plugable irc client library based on python's asyncio
 
 
 .. image:: https://raw.githubusercontent.com/gawel/irc3/master/docs/_static/logo.png
-   :width: 200
-   :height: 200
+   :width: 100
+   :height: 100
    :align: center
    :alt: Ceative Commons – Attribution (CC BY 3.0) - Hydra designed by Huu Nguyen from the Noun Project - http://thenounproject.com/term/hydra/46963/
    :target: http://thenounproject.com/term/hydra/46963/
