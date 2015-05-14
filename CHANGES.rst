@@ -1,7 +1,10 @@
 0.8.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+-  Fixes bug in userlist plugin `#59 <https://github.com/gawel/irc3/pull/59>`_
+
+-  Strip out self.context.config.cmd from !help arg. Allow to use !help !cmd
+   `#57 <https://github.com/gawel/irc3/pull/57>`_
 
 
 0.8.0 (2015-04-19)
