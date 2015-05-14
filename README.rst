@@ -11,6 +11,9 @@ irc3. plugable irc client library based on python's asyncio
 .. image:: https://pypip.in/d/irc3/badge.png
    :target: https://crate.io/packages/irc3/
 
+A plugable irc client library based on python's `asyncio
+<http://docs.python.org/dev/library/asyncio.html>`_.
+
 
 .. image:: https://raw.githubusercontent.com/gawel/irc3/master/docs/_static/logo.png
    :width: 100
@@ -19,9 +22,6 @@ irc3. plugable irc client library based on python's asyncio
    :alt: Ceative Commons – Attribution (CC BY 3.0) - Hydra designed by Huu Nguyen from the Noun Project - http://thenounproject.com/term/hydra/46963/
    :target: http://thenounproject.com/term/hydra/46963/
 
-
-A plugable irc client library based on python's `asyncio
-<http://docs.python.org/dev/library/asyncio.html>`_.
 
 Require python 2.7, 3.2+
 
