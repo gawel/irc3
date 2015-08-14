@@ -114,6 +114,7 @@ Available options
     [irc3.plugins.command]
     cmd = !
     antiflood = true
+    casesensitive = true
     guard = irc3.plugins.command.mask_based_policy
 
 '''
@@ -188,6 +189,8 @@ def attach_command(func, depth=2, **predicates):
         plugin = obj.get_plugin(utils.maybedotted(commands))
         predicates.update(module=func.__module__)
         cmd_name = predicates.get('name', func.__name__)
+        if not plugin.case_sensitive:
+            cmd_name = cmd_name.lower()
         plugin[cmd_name] = (predicates, callback)
         obj.log.debug('Register command %r', cmd_name)
     info = venusian.attach(func, callback,
@@ -232,6 +235,7 @@ class Commands(dict):
             context.config['re_cmd'] = self.cmd
 
         self.antiflood = self.config.get('antiflood', False)
+        self.case_sensitive = self.config.get('casesensitive', False)
 
         guard = utils.maybedotted(config.get('guard', self.default_policy))
         self.log.debug('Guard: %s', guard.__name__)
@@ -243,6 +247,8 @@ class Commands(dict):
     @irc3.event((r':(?P<mask>\S+) PRIVMSG (?P<target>\S+) '
                  r':{re_cmd}(?P<cmd>\w+)(\s(?P<data>\S.*)|$)'))
     def on_command(self, cmd, mask=None, target=None, client=None, **kw):
+        if not self.case_sensitive:
+            cmd = cmd.lower()
         predicates, meth = self.get(cmd, (None, None))
         if meth is not None:
             if predicates.get('public', True) is False and target.is_channel:

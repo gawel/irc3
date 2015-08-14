@@ -154,6 +154,16 @@ class TestCommands(BotTestCase):
         bot.dispatch(':bar!user@host PRIVMSG nono :!ping xx')
         self.assertSent(['PRIVMSG bar :Invalid arguments.'])
 
+    def test_command_case_insensitive(self):
+        bot = self.callFTU(nick='nono')
+        bot.dispatch(':bar!user@host PRIVMSG nono :!PiNG')
+        self.assertSent(['NOTICE bar :PONG bar!'])
+
+    def test_command_case_sensitive(self):
+        bot = self.callFTU(**{self.name: {'casesensitive': True}})
+        bot.dispatch(':bar!user@host PRIVMSG nono :!PiNG')
+        self.assertNothingSent()
+
     def test_permissions(self):
         tmp = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, tmp)
