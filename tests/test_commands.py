@@ -13,7 +13,9 @@ import codecs
 import os
 
 
-@command.command(permission='myperm', options_first=True)
+@command.command(permission='myperm',
+                 show_in_help_list=False,
+                 options_first=True)
 @dcc.dcc_command(options_first=True)
 def cmd(bot, *args):
     """Test command
@@ -63,6 +65,18 @@ class TestCommands(BotTestCase):
         bot.dispatch(':bar!user@host PRIVMSG #chan :!help')
         self.assertSent(
             ['PRIVMSG #chan :Available commands: !help, !ping'])
+
+    def test_help_hides(self):
+        bot = self.callFTU(nick='foo')
+        bot.include(__name__)
+        # For direct messages
+        bot.dispatch(':bar!user@host PRIVMSG foo :!help')
+        self.assertSent(
+            ['PRIVMSG bar :Available commands: !cmd_view, !help, !ping'])
+        # channel messages
+        bot.dispatch(':bar!user@host PRIVMSG #chan :!help')
+        self.assertSent(
+            ['PRIVMSG #chan :Available commands: !cmd_view, !help, !ping'])
 
     def test_help_with_url(self):
         bot = self.callFTU(nick='foo', **{

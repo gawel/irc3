@@ -55,6 +55,12 @@ When a command is not public, you can't use it on a channel::
     >>> bot.test(':gawel!user@host PRIVMSG #chan :!adduser foo pass')
     PRIVMSG gawel :You can only use the 'adduser' command in private.
 
+If a command is tagged with ``show_in_help_list=False``, it won't be shown
+on the result of ``!help``.
+
+    >>> bot.test(':gawel!user@host PRIVMSG #chan :!help')
+    PRIVMSG #chan :Available commands: !adduser, !echo, !help, !ping
+
 Guard
 =====
 
@@ -356,8 +362,11 @@ class Commands(dict):
                         line = line.replace('%%', self.context.config.cmd)
                         yield line
         else:
-            cmds = ', '.join([self.cmd + k for k in sorted(self.keys())])
-            lines = utils.split_message('Available commands: ' + cmds, 160)
+            cmds = sorted((k for (k, (p, m)) in self.items()
+                           if p.get('show_in_help_list', True)))
+            cmds_str = ', '.join([self.cmd + k for k in cmds])
+            lines = utils.split_message(
+                'Available commands: %s ' % cmds_str, 160)
             for line in lines:
                 yield line
             url = self.config.get('url')
