@@ -103,6 +103,14 @@ class TestCommands(BotTestCase):
         self.assertSent(
             ['PRIVMSG bar :Available commands: |help, |ping'])
 
+    def test_command_trailing_space(self):
+        bot = self.callFTU(nick='foo')
+        bot.dispatch(':bar!user@host PRIVMSG foo :!ping')
+        bot.dispatch(':bar!user@host PRIVMSG foo :!ping ')
+        bot.dispatch(':bar!user@host PRIVMSG foo :!ping  ')
+        self.assertSent(
+            ['NOTICE bar :PONG bar!']*3)
+
     def test_private_command(self):
         bot = self.callFTU()
         bot.dispatch(':bar!user@host PRIVMSG nono :!ping')
