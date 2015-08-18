@@ -53,10 +53,7 @@ class ServerCommands(Commands):
 
     requires = ['irc3d.plugins.userlist']
     default_policy = server_policy
-
-    def __init__(self, *args, **kwargs):
-        super(ServerCommands, self).__init__(*args, **kwargs)
-        self.case_sensitive = True  # always be case sensitive
+    case_sensitive = True
 
     @event(r'^(?P<cmd>\w+)(\s(?P<data>\S.*)|$)')
     def on_command(self, cmd, mask=None, target=None, client=None, **kw):

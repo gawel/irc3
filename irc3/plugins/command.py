@@ -224,6 +224,7 @@ class Commands(dict):
         __name__.replace('command', 'core'),
     ]
     default_policy = free_policy
+    case_sensitive = False
 
     def __init__(self, context):
         self.context = context
@@ -241,7 +242,8 @@ class Commands(dict):
             context.config['re_cmd'] = self.cmd
 
         self.antiflood = self.config.get('antiflood', False)
-        self.case_sensitive = self.config.get('casesensitive', False)
+        self.case_sensitive = self.config.get('casesensitive',
+                                              self.case_sensitive)
 
         guard = utils.maybedotted(config.get('guard', self.default_policy))
         self.log.debug('Guard: %s', guard.__name__)
@@ -310,9 +312,8 @@ class Commands(dict):
 
                 callback = functools.partial(self.command_callback, uid, to)
                 if res is not None:
-                    if (asyncio.iscoroutinefunction(meth)
-                            or asyncio.iscoroutinefunction(
-                                self.guard.__call__)):
+                    if (asyncio.iscoroutinefunction(meth) or
+                       asyncio.iscoroutinefunction(self.guard.__call__)):
                         task = asyncio.async(res, loop=self.context.loop)
                         # use a callback if command is a coroutine
                         task.add_done_callback(callback)
