@@ -272,7 +272,7 @@ class Storage(object):
         stored = self.get(key_, dict())
         changed = False
         for k, v in kwargs.items():
-            if stored[k] != v:
+            if k not in stored or stored[k] != v:
                 stored[k] = v
                 changed = True
         if changed:
