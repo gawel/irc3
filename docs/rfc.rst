@@ -865,7 +865,7 @@ Example:
 
 Format ``:{srv} 203 {nick} ???? {class} [{clientip}]``
 
-Match ``^:(?P<srv>\S+) 203 (?P<me>\S+) ???? (?P<class>\S+) [(?P<clientip>\S+)]``
+Match ``^:(?P<srv>\S+) 203 (?P<me>\S+) \S+ (?P<class>\S+) [(?P<clientip>\S+)]``
 
 Example:
 

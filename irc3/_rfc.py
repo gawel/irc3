@@ -42,7 +42,7 @@ RPL_TRACEUNKNOWN = retcode(203)
 RPL_TRACEUNKNOWN.name = "RPL_TRACEUNKNOWN"
 RPL_TRACEUNKNOWN.re = (
     "^:(?P<srv>\S+) 203 (?P<me>\S+) "
-    "???? (?P<class>\S+) [(?P<clientip>\S+)]")
+    "\S+ (?P<class>\S+) [(?P<clientip>\S+)]")
 RPL_TRACEUNKNOWN.tpl = (
     ':{c.srv} 203 {c.nick} '
     '???? {class} [{clientip}]')
