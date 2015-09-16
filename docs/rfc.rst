@@ -593,16 +593,16 @@ Example:
 215 - RPL_STATSILINE
 --------------------
 
-Format ``:{srv} 215 {nick} I {host} * {host} {port} {class}``
+Format ``:{srv} 215 {nick} I {host} * {host1} {port} {class}``
 
-Match ``^:(?P<srv>\S+) 215 (?P<me>\S+) I (?P<host>\S+) . (?P<host>\S+) (?P<port>\S+) (?P<class>\S+)``
+Match ``^:(?P<srv>\S+) 215 (?P<me>\S+) I (?P<host>\S+) . (?P<host1>\S+) (?P<port>\S+) (?P<class>\S+)``
 
 Example:
 
 .. code-block:: python
 
     @irc3.event(rfc.RPL_STATSILINE)
-    def myevent(bot, srv=None, me=None, host=None, host=None, port=None, class=None):
+    def myevent(bot, srv=None, me=None, host=None, host1=None, port=None, class=None):
         # do something
 
 216 - RPL_STATSKLINE

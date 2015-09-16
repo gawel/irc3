@@ -16,9 +16,11 @@ def main():
 
     with open('irc3/rfc1459.txt') as fd:
         for line in fd:
+            line = line.replace('<host> * <host>', '<host> * <host1>')
             line = line.replace('<# visible>', '<visible>')
             line = line.replace('<H|G>[*][@|+]', '<modes>')
             line = line.replace('<nick!user|*!*>@<host|server>', '<mask>')
+
             match = _re_num.search(line)
             if match is not None:
                 if item:

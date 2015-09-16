@@ -140,11 +140,11 @@ RPL_STATSILINE = retcode(215)
 RPL_STATSILINE.name = "RPL_STATSILINE"
 RPL_STATSILINE.re = (
     "^:(?P<srv>\S+) 215 (?P<me>\S+) "
-    "I (?P<host>\S+) . (?P<host>\S+) (?P<port>\S+) (?P<class>\S+)")
+    "I (?P<host>\S+) . (?P<host1>\S+) (?P<port>\S+) (?P<class>\S+)")
 RPL_STATSILINE.tpl = (
     ':{c.srv} 215 {c.nick} '
-    'I {host} * {host} {port} {class}')
-RPL_STATSILINE.params = ['srv', 'me', 'host', 'host', 'port', 'class']
+    'I {host} * {host1} {port} {class}')
+RPL_STATSILINE.params = ['srv', 'me', 'host', 'host1', 'port', 'class']
 
 RPL_STATSKLINE = retcode(216)
 RPL_STATSKLINE.name = "RPL_STATSKLINE"
