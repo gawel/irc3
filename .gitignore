@@ -5,6 +5,7 @@ build
 _build
 .bzr
 .bzrignore
+.cache
 .chutifab
 .coverage
 coverage*
@@ -32,6 +33,7 @@ parts
 *.pyc
 *.pyd
 *.pyo
+.ropeproject/
 *.so
 src
 .svn
