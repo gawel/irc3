@@ -61,6 +61,14 @@ on the result of ``!help``.
     >>> bot.test(':gawel!user@host PRIVMSG #chan :!help')
     PRIVMSG #chan :Available commands: !adduser, !echo, !help, !ping
 
+View extra info about a command by specifying it to ``!help``.
+
+    >>> bot.test(':gawel!user@host PRIVMSG #chan :!help echo')
+    PRIVMSG #chan :Echo command
+    PRIVMSG #chan :!echo <words>...
+    >>> bot.test(':gawel!user@host PRIVMSG #chan :!help nonexistant')
+    PRIVMSG #chan :No such command. Try !help for an overview of all commands.
+
 Guard
 =====
 
@@ -362,6 +370,10 @@ class Commands(dict):
                             buf = None
                         line = line.replace('%%', self.context.config.cmd)
                         yield line
+            else:
+                yield ('No such command. Try %shelp for an '
+                       'overview of all commands.'
+                       % self.context.config.cmd)
         else:
             cmds = sorted((k for (k, (p, m)) in self.items()
                            if p.get('show_in_help_list', True)))
