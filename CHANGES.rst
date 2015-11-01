@@ -1,8 +1,19 @@
 0.8.2 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Added !help nonexistant error message
 
+- Allow to hide commands from !help
+
+- Don't reject commands with trailing spaces
+
+- Allow to use coroutine guards
+
+- Make commands case insensitive
+
+- Add basic casefolding plugin
+
+- Prevent keyerror when setting keys that don't exist in cache.
 
 0.8.1 (2015-05-14)
 ==================
