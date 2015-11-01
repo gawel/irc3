@@ -1,4 +1,4 @@
-0.8.2 (unreleased)
+0.8.2 (2015-11-01)
 ==================
 
 - Added !help nonexistant error message
