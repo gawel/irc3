@@ -1,7 +1,17 @@
 graft docs
 prune docs/_build
+graft examples
 graft irc3
+graft irc3d
 graft tests
-include *.rst *.cfg *.ini
+include *.rst *.cfg *.ini *.txt
 global-exclude *.pyc
 global-exclude __pycache__
+exclude bootstrap.py
+exclude .installed.cfg
+exclude .coveragerc
+exclude update.sh
+exclude Dockerfile
+exclude docker
+exclude docker/Dockerfile
+exclude docker/Makefile
