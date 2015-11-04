@@ -1,4 +1,4 @@
-0.8.3 (unreleased)
+0.8.3 (2015-11-04)
 ==================
 
 - fix wheel metadata
