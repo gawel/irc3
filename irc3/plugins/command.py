@@ -174,7 +174,7 @@ class mask_based_policy(object):
             return True
         for pattern in self.masks:
             if fnmatch.fnmatch(mask, pattern):
-                if permission is None or not isinstance(self.masks, dict):
+                if not isinstance(self.masks, dict):
                     return True
                 perms = self.masks[pattern]
                 if permission in perms or 'all_permissions' in perms:
