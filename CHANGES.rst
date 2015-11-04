@@ -1,7 +1,9 @@
 0.8.3 (unreleased)
 ==================
 
-- Nothing changed yet.
+- fix wheel metadata
+
+- public command was not public if you're using a guard
 
 
 0.8.2 (2015-11-01)
