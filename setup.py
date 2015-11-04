@@ -15,23 +15,33 @@ test_requires = [
     'redis',
 ]
 
+install_requires_py2 = [
+    'trollius',
+    'futures',
+    'ipaddress',
+    'configparser',
+]
+test_requires_py2 = ['mock', 'pysendfile']
+
+install_requires_py32 = [
+    'trollius',
+    'ipaddress',
+]
+test_requires_py32 = ['mock', 'pysendfile']
+
+install_requires_py33 = [
+    'asyncio',
+]
+
 py_ver = sys.version_info[:2]
 if py_ver < (3, 0):
-    install_requires.extend([
-        'trollius',
-        'futures',
-        'ipaddress',
-        'configparser',
-    ])
-    test_requires.extend(['mock', 'pysendfile'])
+    install_requires.extend(install_requires_py2)
+    test_requires.extend(test_requires_py2)
 elif py_ver < (3, 3):
-    install_requires.extend([
-        'trollius',
-        'ipaddress',
-    ])
-    test_requires.extend(['mock', 'pysendfile'])
+    install_requires.extend(install_requires_py32)
+    test_requires.extend(test_requires_py2)
 elif py_ver < (3, 4):
-    install_requires.append('asyncio')
+    install_requires.extend(install_requires_py33)
 
 
 def read(*rnames):
@@ -63,7 +73,12 @@ setup(
     zip_safe=False,
     install_requires=install_requires,
     extras_require={
+        ':python_version=="2.7"': install_requires_py2,
+        ':python_version=="3.2"': install_requires_py32,
+        ':python_version=="3.3"': install_requires_py33,
         'test': test_requires,
+        'test:python_version=="2.7"': install_requires_py2,
+        'test:python_version=="3.2"': test_requires_py32,
     },
     entry_points='''
     [console_scripts]
