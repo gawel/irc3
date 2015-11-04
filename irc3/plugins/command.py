@@ -170,6 +170,8 @@ class mask_based_policy(object):
         return masks
 
     def has_permission(self, mask, permission):
+        if permission is None:
+            return True
         for pattern in self.masks:
             if fnmatch.fnmatch(mask, pattern):
                 if permission is None or not isinstance(self.masks, dict):
