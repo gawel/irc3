@@ -303,7 +303,8 @@ class IrcBot(base.IrcObject):
         """DCC GET a file from mask. filepath must be an absolute path with an
         existing directory. filesize is the expected file size."""
         return self.dcc.create(
-            'get', mask, filepath=filepath, filesize=filesize, host=host, port=port).ready
+            'get', mask, filepath=filepath, filesize=filesize,
+            host=host, port=port).ready
 
     @asyncio.coroutine
     def dcc_send(self, mask, filepath):
