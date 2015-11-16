@@ -15,7 +15,7 @@ class Plugin(object):
         if mask.nick != self.bot.nick:
             self.bot.privmsg(channel, 'Hi %s!' % mask.nick)
         else:
-            self.bot.privmsg(channel, 'Hi %s!')
+            self.bot.privmsg(channel, 'Hi!')
 
     @command(permission='view')
     def echo(self, mask, target, args):
