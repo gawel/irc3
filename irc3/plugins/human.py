@@ -3,9 +3,10 @@ from __future__ import unicode_literals
 import os
 import irc3
 import stat
+import json
 import codecs
 import random
-import subprocess
+from irc3.compat import urlopen
 __doc__ = '''
 ==========================================
 :mod:`irc3.plugins.human` Human plugin
@@ -58,13 +59,20 @@ class Human(object):
             self.initialize(15)
 
     def initialize(self, amount):  # pragma: no cover
-        cmd = (
-            'wget -q -t 1 -O- '
-            '"http://www.iheartquotes.com/api/v1/random?max_lines=1" '
-            '| head -n 1 | grep -v "&" >> {}').format(self.db)
-        processes = [subprocess.Popen(cmd, shell=True) for i in range(amount)]
-        for p in processes:
-            p.wait()
+        try:
+            page = urlopen('http://api.icndb.com/jokes/random/15')
+            data = page.read()
+            if isinstance(data, bytes):
+                data = data.decode('utf8')
+            quotes = json.loads(data)
+            quotes = [v['joke'] for v in quotes['value']]
+        except:
+            self.bot.log.error('Failed to get quotes from api.icndb.com')
+            quotes = [u'Hi!', u'lol']
+        self.bot.log.info('Initialise %s with %s quotes',
+                          self.db, len(quotes))
+        with codecs.open(self.db, 'w', 'utf8') as fd:
+            fd.write(u'\n'.join(quotes))
 
     @irc3.event(irc3.rfc.MY_PRIVMSG)
     def on_message(self, mask=None, event=None, target=None, data=None):
