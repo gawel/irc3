@@ -83,14 +83,14 @@ class Logger(object):
                   **kwargs)
         self.handler(kw)
 
-    @irc3.event((r''':(?P<mask>\S+) (?P<event>[A-Z]+) (?P<target>#\S+)'''
-                 r'''(\s:(?P<data>.*)|$)'''))
+    @irc3.event((r'''(@(?P<tags>\S+) )?:(?P<mask>\S+) (?P<event>[A-Z]+)'''
+                 r''' (?P<target>#\S+)(\s:(?P<data>.*)|$)'''))
     def on_input(self, mask, event, target=None, data=None, **kwargs):
         if target and target.is_channel:
             self.process(event=event, mask=mask,
                          channel=target, data=data, **kwargs)
 
-    @irc3.event((r'''(?P<event>[A-Z]+) (?P<target>#\S+)'''
+    @irc3.event((r'''(@(?P<tags>\S+) )?(?P<event>[A-Z]+) (?P<target>#\S+)'''
                  r'''(\s:(?P<data>.*)|$)'''), iotype='out')
     def on_output(self, event, target=None, data=None, **kwargs):
         if target and target.is_channel:

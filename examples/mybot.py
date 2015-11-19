@@ -29,7 +29,7 @@ class MyPlugin:
         """triggered when connection is lost"""
 
     @irc3.event(irc3.rfc.JOIN)
-    def welcome(self, mask, channel):
+    def welcome(self, mask, channel, **kw):
         """Welcome people who join a channel"""
         if mask.nick != self.bot.nick:
             self.bot.call_with_human_delay(
