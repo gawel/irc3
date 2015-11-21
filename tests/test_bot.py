@@ -97,7 +97,7 @@ class TestBot(BotTestCase):
         bot = self.callFTU()
         bot.include('irc3.plugins.core')
         bot.dispatch('PING :youhou')
-        self.assertSent(['PONG youhou'])
+        self.assertSent(['PONG :youhou'])
 
     def test_nick(self):
         bot = self.callFTU()

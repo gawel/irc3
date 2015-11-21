@@ -83,12 +83,12 @@ class Core(object):
             self.ping_handle.cancel()
         self.ping_handle = self.bot.loop.call_later(
             self.timeout - self.max_lag, self.bot.send,
-            'PING %s' % int(self.bot.loop.time()))
+            'PING :%s' % int(self.bot.loop.time()))
 
     @event(rfc.PING)
     def ping(self, data):
         """PING reply"""
-        self.bot.send('PONG ' + data)
+        self.bot.send('PONG :' + data)
         self.pong(event='PING', data=data)
 
     @event(rfc.NEW_NICK)

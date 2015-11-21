@@ -151,7 +151,7 @@ class TestCommands(BotTestCase):
                         'irc3.debug',
                     ])
         bot.dispatch(':bar!user@host PRIVMSG #chan :!reconnect')
-        self.assertSent(['PING 10'])
+        self.assertSent(['PING :10'])
 
     def test_antiflood(self):
         bot = self.callFTU(**{self.name: dict(antiflood=True)})
