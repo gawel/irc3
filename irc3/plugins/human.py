@@ -75,7 +75,7 @@ class Human(object):
             fd.write(u'\n'.join(quotes))
 
     @irc3.event(irc3.rfc.MY_PRIVMSG)
-    def on_message(self, mask=None, event=None, target=None, data=None):
+    def on_message(self, mask=None, event=None, target=None, data=None, **kw):
         with codecs.open(self.db, 'ab+', encoding=self.bot.encoding) as fd:
             fd.write(data + '\n')
 

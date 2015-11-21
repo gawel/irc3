@@ -257,6 +257,10 @@ class IrcObject(object):
             for key, value in match.items():
                 if value is not None:
                     match[key] = str(value)
+            # backwards compatibility fix for IRCv3.2 tag support:
+            # If no tags (None-value), exclude from dictionary
+            if match.get("tags", True) is None:
+                del match["tags"]
             if client is not None:
                 # server / dcc chat
                 match['client'] = client

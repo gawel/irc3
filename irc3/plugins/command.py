@@ -262,7 +262,7 @@ class Commands(dict):
         self.handles = defaultdict(Done)
         self.tasks = defaultdict(Done)
 
-    @irc3.event((r':(?P<mask>\S+) PRIVMSG (?P<target>\S+) '
+    @irc3.event((r'(@(?P<tags>\S+) )?:(?P<mask>\S+) PRIVMSG (?P<target>\S+) '
                  r':{re_cmd}(?P<cmd>\w+)(\s(?P<data>\S.*)|(\s*$))'))
     def on_command(self, cmd, mask=None, target=None, client=None, **kw):
         if not self.case_sensitive:

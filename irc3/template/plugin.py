@@ -10,7 +10,7 @@ class Plugin(object):
         self.bot = bot
 
     @irc3.event(irc3.rfc.JOIN)
-    def say_hi(self, mask, channel):
+    def say_hi(self, mask, channel, **kw):
         """Say hi when someone join a channel"""
         if mask.nick != self.bot.nick:
             self.bot.privmsg(channel, 'Hi %s!' % mask.nick)
