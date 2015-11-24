@@ -33,6 +33,10 @@ _unescapes = (
 # for vendor-tagnames: TLD with slash appended
 _valid_key = re.compile("^([\w.-]+/)?[\w-]+$")
 
+# valid escaped tag-values must not contain
+# NUL, CR, LF, semicolons or spaces
+_valid_escaped_value = re.compile("^[^ ;\n\r\0]*$")
+
 
 def _unescape(string):
     for a, b in _unescapes:
@@ -71,7 +75,7 @@ def encode(tags):
     tagstrings = []
     for key, value in tags.items():
         if not _valid_key.match(key):
-            raise KeyError("dictionary key is invalid as tag key: " + key)
+            raise ValueError("dictionary key is invalid as tag key: " + key)
         # if no value, just append the key
         if value:
             tagstrings.append(key + "=" + _escape(value))
@@ -110,7 +114,11 @@ def decode(tagstring):
     for tag in tagstring.split(";"):
         # value is either everything after "=", or None
         key, value = (tag.split("=", 1) + [None])[:2]
+        if not _valid_key.match(key):
+            raise ValueError("invalid tag key: " + key)
         if value:
+            if not _valid_escaped_value.match(value):
+                raise ValueError("invalid escaped tag value: " + value)
             value = _unescape(value)
         tags[key] = value
 

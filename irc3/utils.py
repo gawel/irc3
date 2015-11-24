@@ -2,6 +2,7 @@
 from unicodedata import normalize
 from .compat import configparser
 from .compat import asyncio
+from . import tags
 import importlib
 import functools
 import logging
@@ -104,6 +105,24 @@ class IrcString(BaseString):
             True
         """
         return not (self.is_server or self.is_channel)
+
+    @property
+    def tagdict(self):
+        """return a dict converted from this string interpreted as a tag-string
+
+        .. code-block:: py
+
+            >>> from pprint import pprint
+            >>> dict_ = IrcString('aaa=bbb;ccc;example.com/ddd=eee').tagdict
+            >>> pprint({str(k): str(v) for k, v in dict_.items()})
+            {'aaa': 'bbb', 'ccc': 'None', 'example.com/ddd': 'eee'}
+        """
+        if not hasattr(self, "_tagdict"):
+            try:
+                self._tagdict = tags.decode(self)
+            except ValueError:
+                self._tagdict = {}
+        return self._tagdict
 
 
 STRIPPED_CHARS = '\t '
