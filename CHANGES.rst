@@ -1,7 +1,13 @@
 0.8.4 (unreleased)
 ==================
 
-- Nothing changed yet.
+- added basic support for IRCv3.2 tags
+
+- fixed #78: plugin can be old style classes
+
+- fixed #75: Ensure we send the PING and PONG data as trailing
+
+- fixed #71: need to pass host and ip to dcc
 
 
 0.8.3 (2015-11-04)
