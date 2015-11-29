@@ -1,4 +1,4 @@
-0.8.4 (unreleased)
+0.8.4 (2015-11-29)
 ==================
 
 - added basic support for IRCv3.2 tags
