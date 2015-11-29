@@ -7,6 +7,7 @@ import logging
 import logging.config
 from . import utils
 from . import config
+from .compat import isclass
 from .compat import asyncio
 from .compat import reload_module
 from .compat import string_types
@@ -197,7 +198,7 @@ class IrcObject(object):
                 # we have to manualy check for plugins. venusian no longer
                 # support to attach both a class and methods
                 for klass in list(module.__dict__.values()):
-                    if not isinstance(klass, type):
+                    if not isclass(klass):
                         continue
                     if klass.__module__ == module.__name__:
                         if getattr(klass, self.plugin_category, False) is True:
