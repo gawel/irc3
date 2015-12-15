@@ -24,7 +24,7 @@ def main(nick=None, user=None, dest=None):
             sys.exit(-1)
     dest = dest or os.getcwd()
     user = user or os.environ.get('USER', 'mynick')
-    config = dict(nick=nick, user=user)
+    config = dict(nick=nick, user=user, hash='${hash}')
     data = get_template('config.ini', **config)
     with open(os.path.join(dest, 'config.ini'), 'w') as fd:
         fd.write(data)
