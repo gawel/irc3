@@ -9,6 +9,9 @@ __doc__ = '''
 Auto join channels. The bot will retry to join when kicked and will retry to
 join each 30s when an error occurs.
 
+To add a "double-pound" (``##``) channel from ``config.ini``, use
+commas (``,,``) instead of pounds.
+
 ..
     >>> from irc3.testing import IrcBot
 
@@ -28,7 +31,8 @@ class AutoJoins(object):
 
     def __init__(self, bot):
         self.bot = bot
-        self.channels = utils.as_list(self.bot.config.get('autojoins', []))
+        L = utils.as_list(self.bot.config.get('autojoins', []))
+        self.channels = [ch.replace(',', '#') for ch in L]
         self.handles = {}
         self.timeout = 240
 
