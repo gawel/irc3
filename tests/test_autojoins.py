@@ -62,3 +62,10 @@ class TestAutojoin(BotTestCase):
         self.assertNotIn('#foo', plugin.handles)
 
         bot.notify('connection_lost')
+
+    def test_poundescape(self):
+        bot = self.callFTU(autojoins=[',foo', ',,bar'])
+        bot.notify('connection_made')
+
+        bot.dispatch(':hobana.freenode.net 376 irc3 :End of /MOTD command.')
+        self.assertSent(['JOIN #foo', 'JOIN ##bar'])
