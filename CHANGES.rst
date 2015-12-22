@@ -1,4 +1,4 @@
-0.8.5 (unreleased)
+0.8.5 (2015-12-22)
 ==================
 
 -  ${hash} is now replaced by # in config files. This allow to set real channel
