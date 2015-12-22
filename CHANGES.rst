@@ -1,7 +1,8 @@
 0.8.5 (unreleased)
 ==================
 
-- Nothing changed yet.
+-  ${hash} is now replaced by # in config files. This allow to set real channel
+   names.
 
 
 0.8.4 (2015-11-29)
