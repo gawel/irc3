@@ -7,7 +7,6 @@ from irc3.dcc.optim import DCCSend as DCCSendOptim
 from irc3.plugins.dcc import dcc_command
 from irc3 import dcc_event
 from irc3 import utils
-from unittest import skipIf
 import tempfile
 import shutil
 import sys
@@ -47,7 +46,6 @@ def chat_ready(client):
     client.loop.call_later(.1, client.idle_timeout_reached)
 
 
-@skipIf(sys.version_info[0:2] in ((3, 4), (3, 5)), 'FIXME py34 / py35')
 class TestChat(BotTestCase):
 
     loop = asyncio.new_event_loop()
@@ -86,7 +84,12 @@ class TestChat(BotTestCase):
         assert proto.started.result() is proto
         assert proto.closed.done()
 
-        assert len(log['in']) == 5
+        if sys.version_info[0:2] >= (3, 4):
+            # closing message is sent (buffer is cleaned?)
+            assert len(log['in']) == 6
+        else:
+            # but not with py < 3.4
+            assert len(log['in']) == 5
         assert len(log['out']) == 6
 
 
