@@ -1,7 +1,9 @@
 0.8.6 (unreleased)
 ==================
 
-- Nothing changed yet.
+- fix DCC stuff for python3.5
+
+- added DCC examples at https://github.com/gawel/irc3/tree/master/examples
 
 
 0.8.5 (2015-12-22)
