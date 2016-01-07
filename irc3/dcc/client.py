@@ -162,6 +162,8 @@ class DCCSend(DCCBase):
         socket = self.transport.get_extra_info('socket')
         self.socket = socket
         self.sendfile = getattr(self.socket, 'sendfile', None)
+        if self.sendfile:
+            self.socket.setblocking(1)
         self.fd = open(self.filepath, 'rb')
         self.fd_fileno = self.fd.fileno()
         self.loop.remove_writer(socket)
@@ -172,7 +174,7 @@ class DCCSend(DCCBase):
 
     def send_chunk(self):
         if self.sendfile:
-            sent = self.sendfile(self.fd_fileno, self.offset, self.block_size)
+            sent = self.sendfile(self.fd, self.offset, self.block_size)
         else:
             self.fd.seek(self.offset)
             sent = self.socket.send(self.fd.read(self.block_size))

@@ -343,6 +343,7 @@ class IrcObject(object):
     @classmethod
     def from_config(cls, cfg, **kwargs):
         """return an instance configured with the ``cfg`` dict"""
+        cfg = dict(cfg, **kwargs)
         pythonpath = cfg.get('pythonpath', [])
         if 'here' in cfg:
             pythonpath.append(cfg['here'])

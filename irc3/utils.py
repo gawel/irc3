@@ -20,8 +20,10 @@ def slugify(value):
         value = value.decode('utf8', 'ignore')
     value = normalize('NFKD', value)
     value = value.encode('ascii', 'ignore').decode('ascii')
-    value = re.sub('[^\w\s-]', '', value).strip().lower()
-    return re.sub('[-\s]+', '-', value)
+    value = re.sub('[^\w\s\.-]', '', value).strip().lower()
+    value = re.sub('[-\s]+', '-', value)
+    value = re.sub('-*\.+-*', '.', value)
+    return value
 
 
 class IrcString(BaseString):

@@ -3,6 +3,7 @@ from unittest import TestCase
 from irc3.utils import IrcString
 from irc3.utils import maybedotted
 from irc3.utils import split_message
+from irc3.utils import slugify
 from irc3.testing import ini2config
 import irc3.plugins
 
@@ -52,6 +53,11 @@ class TestUtils(TestCase):
         self.assertRaises(LookupError, maybedotted, 'irc3.none')
         self.assertRaises(LookupError, maybedotted, None)
         self.assertRaises(LookupError, maybedotted, '')
+
+    def test_slugify(self):
+        assert slugify('a test file .rst') == 'a-test-file.rst'
+        assert slugify('a test/../ file .rst') == 'a-test.file.rst'
+        assert slugify('C:\\\\a test\../ file .rst') == 'ca-test.file.rst'
 
 
 class TestSplit(TestCase):

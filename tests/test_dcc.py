@@ -123,7 +123,6 @@ class DCCTestCase(BotTestCase):
         assert src == dest
 
 
-@skipIf(sys.version_info[0:2] in ((3, 4), (3, 5)), 'FIXME py34 / py35')
 class TestSend(DCCTestCase):
 
     send_class = DCCSend
@@ -153,7 +152,6 @@ class TestSendOptim(TestSend):
     send_class = DCCSendOptim
 
 
-@skipIf(sys.version_info[0:2] in ((3, 4), (3, 5)), 'FIXME py34 / py35')
 class TestResume(DCCTestCase):
 
     send_class = DCCSend
@@ -189,7 +187,6 @@ class TestResumeOptim(TestResume):
     send_class = DCCSendOptim
 
 
-@skipIf(sys.version_info[0:2] in ((3, 4), (3, 5)), 'FIXME py34 / py35')
 class TestSendWithLimit(DCCTestCase):
 
     send_class = DCCSend
