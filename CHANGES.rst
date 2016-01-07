@@ -1,4 +1,4 @@
-0.8.6 (unreleased)
+0.8.6 (2016-01-07)
 ==================
 
 - fix DCC stuff for python3.5
