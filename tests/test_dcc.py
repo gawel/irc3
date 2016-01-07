@@ -9,7 +9,6 @@ from irc3 import dcc_event
 from irc3 import utils
 import tempfile
 import shutil
-import sys
 import os
 
 log = {'in': [], 'out': []}
@@ -84,12 +83,9 @@ class TestChat(BotTestCase):
         assert proto.started.result() is proto
         assert proto.closed.done()
 
-        if sys.version_info[0:2] >= (3, 4):
-            # closing message is sent (buffer is cleaned?)
-            assert len(log['in']) == 6
-        else:
-            # but not with py < 3.4
-            assert len(log['in']) == 5
+        # the timeout message is sent or not regarding python version.
+        # we tolerate both
+        assert len(log['in']) in (5, 6)
         assert len(log['out']) == 6
 
 
