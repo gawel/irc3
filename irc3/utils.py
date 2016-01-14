@@ -119,7 +119,8 @@ class IrcString(BaseString):
             >>> pprint({str(k): str(v) for k, v in dict_.items()})
             {'aaa': 'bbb', 'ccc': 'None', 'example.com/ddd': 'eee'}
         """
-        if not hasattr(self, "_tagdict"):
+        tagdict = getattr(self, '_tagdict', None)
+        if tagdict is None:
             try:
                 self._tagdict = tags.decode(self)
             except ValueError:
