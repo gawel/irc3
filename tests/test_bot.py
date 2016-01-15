@@ -39,7 +39,7 @@ class TestBot(BotTestCase):
         self.assertSent(['NOTICE gawel :Youhou!'])
 
     def test_long_message(self):
-        bot = self.callFTU(max_length=7)
+        bot = self.callFTU(max_length=8)
         message = 'How you doing?'
         bot.privmsg('gawel', message)
         self.assertSent([

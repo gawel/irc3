@@ -5,6 +5,7 @@ from .compat import asyncio
 from . import tags
 import importlib
 import functools
+import textwrap
 import logging
 import os
 import re
@@ -133,19 +134,11 @@ STRIPPED_CHARS = '\t '
 
 def split_message(message, max_length):
     """Split long messages"""
-    if len(message) >= max_length:
-        messages = message.split(' ')
-        message = ''
-        while messages:
-            buf = messages.pop(0)
-            if len(message) + len(buf) > max_length:
-                if message.strip(STRIPPED_CHARS):
-                    yield message.strip(STRIPPED_CHARS)
-                message = ''
-            message += ' ' + buf
-    message = message.strip(STRIPPED_CHARS)
-    if message:
-        yield message
+    if len(message) > max_length:
+        for message in textwrap.wrap(message, max_length):
+            yield message
+    else:
+        yield message.strip(STRIPPED_CHARS)
 
 
 class Config(dict):

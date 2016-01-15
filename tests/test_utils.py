@@ -61,16 +61,13 @@ class TestUtils(TestCase):
 
 
 class TestSplit(TestCase):
-    def callFTU(self, messages, **kwargs):
-        return list(split_message(' '.join(messages), 80))
+    def callFTU(self, messages, max_length=10):
+        return list(split_message(' '.join(messages), max_length))
 
     def test_split_message(self):
-        messages = ['allo', 'http://' * 80]
+        messages = ['allo', 'alloallo']
         self.assertEqual(messages, self.callFTU(messages))
-        messages = ['http://' * 80, 'allo allo', 'http://' * 80]
-        self.assertEqual(messages, self.callFTU(messages))
-        # nonbreaking space
-        messages = ['allo http://' * 80]
-        self.assertEqual(messages, self.callFTU(messages))
+        messages = ['allo\t', 'alloallo']
+        self.assertEqual([m.strip() for m in messages], self.callFTU(messages))
         messages = ['\x1d \x1f']
         self.assertEqual(messages, self.callFTU(messages))
