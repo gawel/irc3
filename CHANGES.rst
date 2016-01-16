@@ -1,4 +1,4 @@
-0.8.7 (unreleased)
+0.8.7 (2016-01-16)
 ==================
 
 - fixed 76: split large messages using textwrap.wrap(). This will avoid RevQ
