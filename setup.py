@@ -7,7 +7,7 @@ from setuptools import find_packages
 
 version = '0.8.7.dev0'
 
-install_requires = ['venusian>=1.0a8', 'docopt']
+install_requires = ['venusian>=1.0', 'docopt']
 test_requires = [
     'feedparser', 'requests',
     'twitter',
