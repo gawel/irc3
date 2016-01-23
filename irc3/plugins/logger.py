@@ -61,7 +61,7 @@ class file_handler(object):
                 os.makedirs(dirname)
         fmt = self.formatters.get(event['event'].lower())
         if fmt:
-            with open(filename, 'a+') as fd:
+            with open(filename, 'a+', encoding='utf-8') as fd:
                 fd.write(fmt.format(**event) + '\r\n')
 
 
