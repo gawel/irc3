@@ -3,6 +3,7 @@ include =
     */irc3/*.py
     */irc3/*/*.py
 omit =
+    conftest.py
     */tests*
     */docs/conf.py
     */examples/social*

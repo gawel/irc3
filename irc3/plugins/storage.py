@@ -101,11 +101,11 @@ Or redis::
     >>> bot = IrcBot(**config)
 
 ..
-    >>> bot.db.backend.flushdb()
+    >>> bot.db.backend.flushdb()  # require redis
+    >>> bot.db.SIGINT()
 
 Then use it::
 
-    >>> bot.db.SIGINT()
     >>> bot.db['mykey'] = dict(key='value')
     >>> bot.db['mykey']
     {'key': 'value'}
