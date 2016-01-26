@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import os
 import irc3
 import logging
+import codecs
 from datetime import datetime
 __doc__ = '''
 ================================================
@@ -49,6 +50,7 @@ class file_handler(object):
         }
         config.update(bot.config.get(__name__, {}))
         self.filename = config['filename']
+        self.encoding = bot.encoding
         self.formatters = bot.config.get(
             __name__ + '.formatters',
             self.formatters)
@@ -61,7 +63,7 @@ class file_handler(object):
                 os.makedirs(dirname)
         fmt = self.formatters.get(event['event'].lower())
         if fmt:
-            with open(filename, 'a+') as fd:
+            with codecs.open(filename, 'a+', self.encoding) as fd:
                 fd.write(fmt.format(**event) + '\r\n')
 
 
