@@ -1,4 +1,4 @@
-0.8.8 (unreleased)
+0.8.8 (2016-01-27)
 ==================
 
 - logger plugin now take care of unicode
