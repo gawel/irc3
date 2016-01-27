@@ -7,6 +7,7 @@ graft tests
 include *.rst *.cfg *.ini *.txt
 global-exclude *.pyc
 global-exclude __pycache__
+include conftest.py
 exclude bootstrap.py
 exclude .installed.cfg
 exclude .coveragerc
