@@ -133,7 +133,7 @@ Available options
 
 '''
 
-WEIRD_CHARS = '$^|.*?'
+WEIRD_CHARS = '$^|.*?+'
 
 
 class free_policy(object):
