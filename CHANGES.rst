@@ -1,7 +1,7 @@
 0.8.9 (unreleased)
 ==================
 
-- Nothing changed yet.
+- use re.escape to escape command char
 
 
 0.8.8 (2016-01-27)
