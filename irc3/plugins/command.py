@@ -13,6 +13,7 @@ import logging
 import docopt
 import irc3
 import sys
+import re
 __doc__ = '''
 ==========================================
 :mod:`irc3.plugins.command` Command plugin
@@ -133,8 +134,6 @@ Available options
 
 '''
 
-WEIRD_CHARS = '$^|.*?+'
-
 
 class free_policy(object):
     """Default policy"""
@@ -246,10 +245,7 @@ class Commands(dict):
         if 'cmd' in context.config:  # in case of
             config['cmd'] = context.config['cmd']
         context.config['cmd'] = self.cmd = config.get('cmd', '!')
-        if self.cmd in WEIRD_CHARS:
-            context.config['re_cmd'] = r'\%s' % self.cmd
-        else:
-            context.config['re_cmd'] = self.cmd
+        context.config['re_cmd'] = re.escape(self.cmd)
 
         self.antiflood = self.config.get('antiflood', False)
         self.case_sensitive = self.config.get('casesensitive',
