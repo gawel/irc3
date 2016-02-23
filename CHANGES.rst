@@ -1,4 +1,4 @@
-0.8.9 (unreleased)
+0.8.9 (2016-02-23)
 ==================
 
 - use re.escape to escape command char
