@@ -138,7 +138,7 @@ def split_message(message, max_length):
         for message in textwrap.wrap(message, max_length):
             yield message
     else:
-        yield message.strip(STRIPPED_CHARS)
+        yield message.rstrip(STRIPPED_CHARS)
 
 
 class Config(dict):
