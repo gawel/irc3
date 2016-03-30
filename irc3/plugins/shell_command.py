@@ -2,21 +2,9 @@
 import os
 import irc3
 import logging
-import subprocess
+from irc3 import asyncio
 from functools import partial
 from irc3.plugins.command import Commands
-
-
-def shell_command(context, command, *args, **kwargs):
-    env = os.environ.copy()
-    env['IRC3_COMMAND'] = command
-    try:
-        lines = subprocess.check_output(command, shell=True, env=env)
-        for line in lines.split('\n'):
-            yield line
-    except Exception as e:
-        context.log.exception(e)
-        yield '%s' % e
 
 
 @irc3.plugin
@@ -31,10 +19,35 @@ class ShellCommand(object):
         for k, v in self.config.items():
             if v.startswith('#'):
                 continue
-            meth = partial(shell_command, self.context, v)
+            meth = partial(self.shell_command, v)
             meth.__name__ = k
             meth.__doc__ = '''Run $ %s
             %%%%%s
             ''' % (v, k)
             self.log.debug('Register command %s: $ %s', k, v)
-            commands[k] = (predicates, meth)
+            commands[k] = (predicates, asyncio.coroutine(meth))
+
+    def shell_command(self, command, *args, **kwargs):
+        f = asyncio.Future()
+        env = os.environ.copy()
+        env['IRC3_COMMAND'] = command
+        task = asyncio.create_subprocess_shell(
+            command, shell=True, env=env,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.STDOUT)
+        task = self.context.create_task(task)
+        task.add_done_callback(partial(self.wait, f))
+        return f
+
+    def wait(self, f, result):
+        proc = result.result()
+        task = self.context.create_task(proc.wait())
+        task.add_done_callback(partial(self.read, f, proc))
+
+    def read(self, f, proc, result):
+        task = self.context.create_task(proc.stdout.read())
+        task.add_done_callback(partial(self.send, f))
+
+    def send(self, f, result):
+        lines = result.result()
+        f.set_result(lines.split('\n'))
