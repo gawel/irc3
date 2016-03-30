@@ -3,6 +3,7 @@ import os
 import irc3
 import logging
 from irc3 import asyncio
+from irc3.compat import text_type
 from functools import partial
 from irc3.plugins.command import Commands
 
@@ -50,4 +51,6 @@ class ShellCommand(object):
 
     def send(self, f, result):
         lines = result.result()
-        f.set_result(lines.split('\n'))
+        if not isinstance(lines, text_type):
+            lines = lines.decode('utf8')
+        f.set_result(lines.split(u'\n'))
