@@ -181,13 +181,11 @@ class IrcBot(base.IrcObject):
         flood_rate = 1. / float(self.config.flood_rate)
         while True:
             if flood_burst == 0:
-                delay = .001
                 future, data = yield from self.queue.get()
                 future.set_result(True)
                 self.send(data)
                 yield from asyncio.sleep(.001, loop=self.loop)
             else:
-                time = int(self.loop.time()) + 1
                 lines = []
                 for i in range(flood_burst + 1):
                     future, data = yield from self.queue.get()
