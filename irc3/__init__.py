@@ -101,7 +101,8 @@ class IrcBot(base.IrcObject):
         host='localhost',
         url='https://irc3.readthedocs.org/',
         passwords={},
-        max_lines_per_second=3,
+        flood_burst=4,
+        flood_rate=1,
         ctcp=dict(
             version='irc3 {version} - {url}',
             userinfo='{userinfo}',
@@ -176,24 +177,31 @@ class IrcBot(base.IrcObject):
 
     @asyncio.coroutine
     def process_queue(self):
-        max_lines_per_second = self.config.max_lines_per_second
+        flood_burst = self.config.flood_burst
+        flood_rate = 1. / float(self.config.flood_rate)
         while True:
-            if max_lines_per_second == 0:
+            if flood_burst == 0:
                 delay = .001
                 future, data = yield from self.queue.get()
                 future.set_result(True)
                 self.send(data)
+                yield from asyncio.sleep(.001, loop=self.loop)
             else:
-                delay = 1. / max_lines_per_second
                 time = int(self.loop.time()) + 1
-                for i in range(max_lines_per_second):
-                    yield from asyncio.sleep(delay, loop=self.loop)
+                lines = []
+                for i in range(flood_burst + 1):
+                    future, data = yield from self.queue.get()
+                    future.set_result(True)
+                    lines.append(data)
+                    if self.queue.empty():
+                        break
+                if lines:
+                    self.send(u'\r\n'.join(lines))
+                while not self.queue.empty():
+                    yield from asyncio.sleep(flood_rate, loop=self.loop)
                     future, data = yield from self.queue.get()
                     future.set_result(True)
                     self.send(data)
-                if self.loop.time() < time:
-                    delay = time - self.loop.time()
-            yield from asyncio.sleep(delay, loop=self.loop)
 
     def send(self, data):
         """send data to the server"""
