@@ -4,7 +4,6 @@ import irc3
 import logging
 from irc3 import asyncio
 from functools import partial
-from irc3.compat import Queue
 __doc__ = '''
 ==========================================
 :mod:`irc3.plugins.fifo` Fifo plugin
@@ -42,6 +41,10 @@ When your bot will join a channel it will create a fifo::
 You'll be able to print stuff to a channel from a shell::
 
     $ cat /etc/passwd > /tmp/run/irc3/channel
+
+You can also send raw irc commands using the ``raw`` file::
+
+    $ echo JOIN \#achannel > /tmp/run/irc3/raw
 '''
 
 
@@ -60,18 +63,9 @@ class Fifo(object):
 
         self.loop = self.context.loop
         self.fifos = {}
-        self.queue = Queue(loop=self.loop)
-        self.sleep_delay = .2
+        self.create_fifo(None)
 
-        self.context.create_task(self.process_queue())
-
-    def process_queue(self):
-        while True:
-            channel, message = yield from self.queue.get()
-            self.context.privmsg(channel, message)
-            yield from asyncio.sleep(self.context.config.min_delay,
-                                     loop=self.loop)
-
+    @asyncio.coroutine
     def watch_fd(self, channel, fd, *args):
         while True:
             data = True
@@ -84,21 +78,24 @@ class Fifo(object):
                 if data:
                     if not self.send_blank_line and not data.strip():
                         continue
-                    msgs.append(data)
-            if msgs:
-                for msg in msgs:
-                    self.queue.put_nowait((channel, msg))
-            yield from irc3.asyncio.sleep(self.sleep_delay, loop=self.loop)
+                    if channel is None:
+                        self.context.send_line(data)
+                    else:
+                        self.context.privmsg(channel, data)
+            yield from irc3.asyncio.sleep(.2, loop=self.loop)
 
     def create_fifo(self, channel):
-        path = os.path.join(self.runpath, channel.strip('#&+'))
+        if channel is None:
+            path = os.path.join(self.runpath, 'raw')
+        else:
+            path = os.path.join(self.runpath, channel.strip('#&+'))
         if not os.path.exists(path):
             os.mkfifo(path)
         fileno = os.open(path, os.O_RDONLY | os.O_NDELAY)
         fd = os.fdopen(fileno)
         meth = partial(self.watch_fd, channel, fd)
-        self.loop.call_soon(meth)
-        self.log.debug("%s's fifo is %r", channel, fd)
+        self.context.create_task(meth())
+        self.log.debug("%s's fifo is %s %r", channel or 'raw', path, fd)
         return meth
 
     @irc3.event(irc3.rfc.JOIN)
