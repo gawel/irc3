@@ -2,8 +2,47 @@
 import os
 import irc3
 import logging
+from irc3 import asyncio
 from functools import partial
 from irc3.compat import Queue
+__doc__ = '''
+==========================================
+:mod:`irc3.plugins.fifo` Fifo plugin
+==========================================
+
+Allow to cat something to a channel using Unix's fifo
+
+..
+    >>> from irc3.testing import IrcBot
+    >>> from irc3.testing import ini2config
+    >>> import shutil
+    >>> import os
+    >>> try:
+    ...     shutil.rmtree('/tmp/run/irc3')
+    ... except:
+    ...     pass
+
+Usage::
+
+    >>> config = ini2config("""
+    ... [bot]
+    ... includes =
+    ...     irc3.plugins.fifo
+    ... [irc3.plugins.fifo]
+    ... runpath = /tmp/run/irc3
+    ... """)
+    >>> bot = IrcBot(**config)
+
+When your bot will join a channel it will create a fifo::
+
+    >>> bot.test(':irc3!user@host JOIN #channel')
+    >>> print(os.listdir('/tmp/run/irc3'))
+    ['channel']
+
+You'll be able to print stuff to a channel from a shell::
+
+    $ cat /etc/passwd > /tmp/run/irc3/channel
+'''
 
 
 @irc3.plugin
@@ -15,49 +54,41 @@ class Fifo(object):
         self.config = self.context.config[__name__]
         self.send_blank_line = self.config.get('send_blank_line', True)
 
-        self.runpath = self.config['runpath']
+        self.runpath = self.config.get('runpath', '/run/irc3')
         if not os.path.exists(self.runpath):
             os.makedirs(self.runpath)
 
         self.loop = self.context.loop
         self.fifos = {}
-        self.queue = Queue()
-        self.time = int(self.loop.time())
+        self.queue = Queue(loop=self.loop)
         self.sleep_delay = .2
 
-        self.process_queue()
+        self.context.create_task(self.process_queue())
 
-    def process_queue(self, f=None):
-        if f is not None:
-            if f.result():
-                # we have a (channel, message)
-                time = int(self.loop.time())
-                ttime = self.time + .5
-                if time < ttime:
-                    self.time = ttime
-                else:
-                    self.time = time
-                self.loop.call_at(self.time, self.context.privmsg, *f.result())
-        task = self.context.create_task(self.queue.get())
-        task.add_done_callback(self.process_queue)
+    def process_queue(self):
+        while True:
+            channel, message = yield from self.queue.get()
+            self.context.privmsg(channel, message)
+            yield from asyncio.sleep(self.context.config.min_delay,
+                                     loop=self.loop)
 
     def watch_fd(self, channel, fd, *args):
-        data = True
-        msgs = []
-        while data:
-            try:
-                data = fd.readline()
-            except (IOError, OSError):
-                break
-            if data:
-                if not self.send_blank_line and not data.strip():
-                    continue
-                msgs.append(data)
-        if msgs:
-            for msg in msgs:
-                self.context.create_task(self.queue.put((channel, msg)))
-        task = self.context.create_task(irc3.asyncio.sleep(self.sleep_delay))
-        task.add_done_callback(self.fifos[channel])
+        while True:
+            data = True
+            msgs = []
+            while data:
+                try:
+                    data = fd.readline()
+                except (IOError, OSError):
+                    break
+                if data:
+                    if not self.send_blank_line and not data.strip():
+                        continue
+                    msgs.append(data)
+            if msgs:
+                for msg in msgs:
+                    self.queue.put_nowait((channel, msg))
+            yield from irc3.asyncio.sleep(self.sleep_delay, loop=self.loop)
 
     def create_fifo(self, channel):
         path = os.path.join(self.runpath, channel.strip('#&+'))
