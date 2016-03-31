@@ -12,7 +12,7 @@ class TestAsync(BotTestCase):
     def test_whois_fail(self):
         bot = self.callFTU()
         assert len(bot.registry.events_re['in']) == 0
-        task = bot.async.whois(nick='gawel')
+        task = bot.async_cmds.whois(nick='gawel')
         assert len(bot.registry.events_re['in']) > 2
         bot.dispatch(':localhost 401 me gawel :No such nick')
         bot.loop.run_until_complete(task)
@@ -23,7 +23,7 @@ class TestAsync(BotTestCase):
     def test_whois_success(self):
         bot = self.callFTU()
         assert len(bot.registry.events_re['in']) == 0
-        task = bot.async.whois(nick='GaWel')
+        task = bot.async_cmds.whois(nick='GaWel')
         assert len(bot.registry.events_re['in']) > 2
         bot.dispatch(':localhost 311 me gawel username localhost * :realname')
         bot.dispatch(':localhost 319 me gawel :@#irc3')
@@ -42,7 +42,7 @@ class TestAsync(BotTestCase):
     def test_whois_timeout(self):
         bot = self.callFTU()
         assert len(bot.registry.events_re['in']) == 0
-        task = bot.async.whois(nick='GaWel', timeout=.1)
+        task = bot.async_cmds.whois(nick='GaWel', timeout=.1)
         assert len(bot.registry.events_re['in']) > 2
         bot.loop.run_until_complete(task)
         result = task.result()
@@ -51,7 +51,7 @@ class TestAsync(BotTestCase):
     def test_who_channel(self):
         bot = self.callFTU()
         assert len(bot.registry.events_re['in']) == 0
-        task = bot.async.who('#irc3')
+        task = bot.async_cmds.who('#irc3')
         assert len(bot.registry.events_re['in']) == 2
         bot.dispatch(
             ':card.freenode.net 352 nick #irc3 ~irc3 host1 srv1 irc3 H :0 bot')
@@ -66,7 +66,7 @@ class TestAsync(BotTestCase):
     def test_who_nick(self):
         bot = self.callFTU()
         assert len(bot.registry.events_re['in']) == 0
-        task = bot.async.who('irc3')
+        task = bot.async_cmds.who('irc3')
         assert len(bot.registry.events_re['in']) == 2
         bot.dispatch(
             ':card.freenode.net 352 nick * ~irc3 host1 serv1 irc3 H :0 bot')
@@ -79,7 +79,7 @@ class TestAsync(BotTestCase):
     def test_ison(self):
         bot = self.callFTU()
         assert len(bot.registry.events_re['in']) == 0
-        task = bot.async.ison('GaWel', timeout=.1)
+        task = bot.async_cmds.ison('GaWel', timeout=.1)
         assert len(bot.registry.events_re['in']) > 0
         bot.dispatch(':localhost 303 me :gawel')
         bot.loop.run_until_complete(task)
@@ -90,7 +90,7 @@ class TestAsync(BotTestCase):
     def test_names(self):
         bot = self.callFTU()
         assert len(bot.registry.events_re['in']) == 0
-        task = bot.async.names('#irc3')
+        task = bot.async_cmds.names('#irc3')
         assert len(bot.registry.events_re['in']) == 2
         bot.dispatch(
             ':card.freenode.net 353 nick @ #irc3 :irc3 @gawel')

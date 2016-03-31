@@ -194,7 +194,7 @@ class Async(object):
 
     def __init__(self, context):
         self.context = context
-        self.context.async = self
+        self.context.async_cmds = self.context.async = self
         self.async_whois = Whois(context)
         self.async_who_channel = WhoChannel(context)
         self.async_who_nick = WhoNick(context)
@@ -207,7 +207,7 @@ class Async(object):
 
         .. code-block:: py
 
-            result = yield from bot.async.whois('gawel')
+            result = yield from bot.async_cmds.whois('gawel')
         """
         return asyncio.async(self.async_whois(nick=nick.lower(),
                              timeout=timeout))
@@ -218,8 +218,8 @@ class Async(object):
 
         .. code-block:: py
 
-            result = yield from bot.async.who('gawel')
-            result = yield from bot.async.who('#irc3')
+            result = yield from bot.async_cmds.who('gawel')
+            result = yield from bot.async_cmds.who('#irc3')
         """
         target = target.lower()
         if target.startswith('#'):
@@ -233,7 +233,7 @@ class Async(object):
 
         .. code-block:: py
 
-            result = yield from bot.async.ison('gawel', 'irc3')
+            result = yield from bot.async_cmds.ison('gawel', 'irc3')
         """
         nicknames = [n.lower() for n in nicknames]
         self.context.send_line('ISON :{0}'.format(' '.join(nicknames)))
@@ -246,6 +246,6 @@ class Async(object):
 
         .. code-block:: py
 
-            result = yield from bot.async.names('#irc3')
+            result = yield from bot.async_cmds.names('#irc3')
         """
         return self.async_names(channel=channel.lower(), timeout=timeout)
