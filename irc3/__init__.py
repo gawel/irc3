@@ -176,15 +176,24 @@ class IrcBot(base.IrcObject):
 
     @asyncio.coroutine
     def process_queue(self):
+        max_lines_per_second = self.config.max_lines_per_second
         while True:
-            time = int(self.loop.time()) + 1
-            for i in range(self.config.max_lines_per_second):
+            if max_lines_per_second == 0:
+                delay = .001
                 future, data = yield from self.queue.get()
                 future.set_result(True)
                 self.send(data)
-            if self.loop.time() < time:
-                yield from asyncio.sleep(time - self.loop.time(),
-                                         loop=self.loop)
+            else:
+                delay = 1. / max_lines_per_second
+                time = int(self.loop.time()) + 1
+                for i in range(max_lines_per_second):
+                    yield from asyncio.sleep(delay, loop=self.loop)
+                    future, data = yield from self.queue.get()
+                    future.set_result(True)
+                    self.send(data)
+                if self.loop.time() < time:
+                    delay = time - self.loop.time()
+            yield from asyncio.sleep(delay, loop=self.loop)
 
     def send(self, data):
         """send data to the server"""
