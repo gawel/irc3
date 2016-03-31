@@ -69,7 +69,6 @@ class Fifo(object):
     def watch_fd(self, channel, fd, *args):
         while True:
             data = True
-            msgs = []
             while data:
                 try:
                     data = fd.readline()
