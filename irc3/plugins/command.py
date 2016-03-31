@@ -300,11 +300,11 @@ class Commands(dict):
                 self.context.notice(
                     client if use_client else client.nick,
                     "Another task is already running. "
-                    "Please be patient and don't flood me")
+                    "Please be patient and don't flood me", nowait=True)
             elif not self.handles[uid].done() and self.antiflood:
                 self.context.notice(
                     client if use_client else client.nick,
-                    "Please be patient and don't flood me")
+                    "Please be patient and don't flood me", nowait=True)
             else:
                 if not PY3:  # pragma: no cover
                     # back to unicode

@@ -18,12 +18,14 @@ class TestCTCP(BotTestCase):
         bot = self.callFTU(autojoins=['foo'])
         plugin = bot.get_plugin(CTCP)
 
-        bot.config['async'] = True
         bot.dispatch(':gawel!user@host PRIVMSG irc3 :\x01FOO\x01')
         self.assertTrue(plugin.handle is not None, plugin.handle)
         bot.dispatch(':gawel!user@host PRIVMSG irc3 :\x01FOO\x01')
         bot.dispatch(':gawel!user@host PRIVMSG irc3 :\x01FOO\x01')
 
-        bot.config['async'] = False
+        # flood
         bot.dispatch(':gawel!user@host PRIVMSG irc3 :\x01FOO\x01')
-        self.assertSent([])
+        bot.dispatch(':gawel!user@host PRIVMSG irc3 :\x01FOO\x01')
+        bot.dispatch(':gawel!user@host PRIVMSG irc3 :\x01FOO\x01')
+        bot.dispatch(':gawel!user@host PRIVMSG irc3 :\x01FOO\x01')
+        self.assertSent(['NOTICE gawel :\x01FOO bar\x01'] * 3)

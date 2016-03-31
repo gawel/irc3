@@ -275,12 +275,9 @@ class IrcObject(object):
         """callback is run with each arg but run a call per second"""
         if isinstance(callback, string_types):
             callback = getattr(self, callback)
-        call_later = self.loop.call_later
-        i = 0
-        for i, arg in enumerate(args):
-            call_later(i, callback, *arg)
-        f = asyncio.Future()
-        call_later(i + 1, f.set_result, True)
+        f = None
+        for arg in args:
+            f = callback(*arg)
         return f
 
     def get_ssl_context(self):

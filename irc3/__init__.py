@@ -15,6 +15,7 @@ from . import base
 from irc3.compat import urlopen
 from .compat import text_type
 from .compat import asyncio
+from .compat import Queue
 import venusian
 import time
 
@@ -100,6 +101,7 @@ class IrcBot(base.IrcObject):
         host='localhost',
         url='https://irc3.readthedocs.org/',
         passwords={},
+        max_lines_per_second=3,
         ctcp=dict(
             version='irc3 {version} - {url}',
             userinfo='{userinfo}',
@@ -117,6 +119,10 @@ class IrcBot(base.IrcObject):
 
     def __init__(self, *ini, **config):
         super(IrcBot, self).__init__(*ini, **config)
+        self.queue = None
+        if self.config.async:
+            self.queue = Queue(loop=self.loop)
+            self.create_task(self.process_queue())
         self._ip = self._dcc = None
         # auto include the autojoins plugin if needed (for backward compat)
         if 'autojoins' in self.config and \
@@ -157,9 +163,28 @@ class IrcBot(base.IrcObject):
             ).format(**self.config))
             self.notify('connection_made')
 
-    def send_line(self, data):
+    def send_line(self, data, nowait=False):
         """send a line to the server. replace CR by spaces"""
-        self.send(data.replace('\n', ' ').replace('\r', ' '))
+        data = data.replace('\n', ' ').replace('\r', ' ')
+        f = asyncio.Future(loop=self.loop)
+        if self.queue is not None and nowait is False:
+            self.queue.put_nowait((f, data))
+        else:
+            self.send(data.replace('\n', ' ').replace('\r', ' '))
+            f.set_result(True)
+        return f
+
+    @asyncio.coroutine
+    def process_queue(self):
+        while True:
+            time = int(self.loop.time()) + 1
+            for i in range(self.config.max_lines_per_second):
+                future, data = yield from self.queue.get()
+                future.set_result(True)
+                self.send(data)
+            if self.loop.time() < time:
+                yield from asyncio.sleep(time - self.loop.time(),
+                                         loop=self.loop)
 
     def send(self, data):
         """send data to the server"""
@@ -169,7 +194,7 @@ class IrcBot(base.IrcObject):
         self.protocol.write(data)
         self.dispatch(data, iotype='out')
 
-    def privmsg(self, target, message):
+    def privmsg(self, target, message, nowait=False):
         """send a privmsg to target"""
         if message:
             messages = utils.split_message(message, self.config.max_length)
@@ -177,10 +202,12 @@ class IrcBot(base.IrcObject):
                 for message in messages:
                     target.send_line(message)
             elif target:
+                f = None
                 for message in messages:
-                    self.send_line('PRIVMSG %s :%s' % (target, message))
+                    f = self.send_line('PRIVMSG %s :%s' % (target, message))
+                return f
 
-    def notice(self, target, message):
+    def notice(self, target, message, nowait=False):
         """send a notice to target"""
         if message:
             messages = utils.split_message(message, self.config.max_length)
@@ -188,26 +215,36 @@ class IrcBot(base.IrcObject):
                 for message in messages:
                     target.action(message)
             elif target:
+                f = None
                 for message in messages:
-                    self.send_line('NOTICE %s :%s' % (target, message))
+                    f = self.send_line('NOTICE %s :%s' % (target, message),
+                                       nowait=nowait)
+                return f
 
-    def ctcp(self, target, message):
+    def ctcp(self, target, message, nowait=False):
         """send a ctcp to target"""
         if target and message:
             messages = utils.split_message(message, self.config.max_length)
+            f = None
             for message in messages:
-                self.send_line('PRIVMSG %s :\x01%s\x01' % (target, message))
+                f = self.send_line('PRIVMSG %s :\x01%s\x01' % (target,
+                                                               message),
+                                   nowait=nowait)
+            return f
 
-    def ctcp_reply(self, target, message):
+    def ctcp_reply(self, target, message, nowait=False):
         """send a ctcp reply to target"""
         if target and message:
             messages = utils.split_message(message, self.config.max_length)
+            f = None
             for message in messages:
-                self.send_line('NOTICE %s :\x01%s\x01' % (target, message))
+                f = self.send_line('NOTICE %s :\x01%s\x01' % (target, message),
+                                   nowait=nowait)
+            return f
 
     def mode(self, target, *data):
         """set user or channel mode"""
-        self.send_line('MODE %s %s' % (target, ' '.join(data)))
+        self.send_line('MODE %s %s' % (target, ' '.join(data)), nowait=True)
 
     def join(self, target):
         """join a channel"""
@@ -215,36 +252,36 @@ class IrcBot(base.IrcObject):
             target.strip(self.server_config['CHANTYPES']))
         if password:
             target += ' ' + password
-        self.send_line('JOIN %s' % target)
+        self.send_line('JOIN %s' % target, nowait=True)
 
     def part(self, target, reason=None):
         """quit a channel"""
         if reason:
             target += ' :' + reason
-        self.send_line('PART %s' % target)
+        self.send_line('PART %s' % target, nowait=True)
 
     def kick(self, channel, target, reason=None):
         """kick target from channel"""
         if reason:
             target += ' :' + reason
-        self.send_line('KICK %s %s' % (channel, target))
+        self.send_line('KICK %s %s' % (channel, target), nowait=True)
 
     def invite(self, target, channel):
         """invite target to a channel"""
-        self.send_line('INVITE %s %s' % (target, channel))
+        self.send_line('INVITE %s %s' % (target, channel), nowait=True)
 
     def topic(self, channel, topic=None):
         """change or request the topic of a channel"""
         if topic:
             channel += ' :' + topic
-        self.send_line('TOPIC %s' % channel)
+        self.send_line('TOPIC %s' % channel, nowait=True)
 
     def away(self, message=None):
         """mark ourself as away"""
         cmd = 'AWAY'
         if message:
             cmd += ' :' + message
-        self.send_line(cmd)
+        self.send_line(cmd, nowait=True)
 
     def unaway(self):
         """mask ourself as no longer away"""
@@ -262,7 +299,7 @@ class IrcBot(base.IrcObject):
         return self.config.nick
 
     def set_nick(self, nick):
-        self.send_line('NICK ' + nick)
+        self.send_line('NICK ' + nick, nowait=True)
 
     nick = property(get_nick, set_nick, doc='nickname get/set')
 

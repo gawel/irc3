@@ -45,28 +45,15 @@ class CTCP(object):
         bot.attach_events(self.event)
         self.bot = bot
 
-    def send_replies(self):
-        replies = []
+    def clear_queue(self):
+        self.bot.log.info('CTCP clear queue')
         while not self.queue.empty():
-            target, ctcp = self.queue.get_nowait()
-            data = self.bot.config.ctcp[ctcp].format(now=datetime.now(),
-                                                     **self.bot.config)
-            replies.append((target, '%s %s' % (ctcp.upper(), data)))
-        if replies:
-            self.bot.call_many(self.bot.ctcp_reply, replies)
+            self.queue.get_nowait()
         self.handle = None
 
     def handle_flood(self):
         self.bot.log.warn('CTCP Flood detected. '
                           'Ignoring requests for 30s')
-        # reset queue
-        self.queue = Queue(loop=self.bot.loop)
-
-        # cancel handle to ignore current queue
-        if self.handle is not None:
-            self.handle.cancel()
-        self.handle = None
-
         # ignore events for 30s
         self.bot.detach_events(self.event)
         self.bot.loop.call_later(30, self.bot.attach_events, self.event)
@@ -80,8 +67,7 @@ class CTCP(object):
                 self.handle_flood()
             else:
                 if self.handle is None:
-                    self.handle = self.bot.loop.call_later(
-                        2, self.send_replies)
-                if not self.bot.config.async:
-                    # used for testing
-                    self.send_replies()
+                    self.handle = self.bot.loop.call_later(1, self.clear_queue)
+                data = self.bot.config.ctcp[lctcp].format(now=datetime.now(),
+                                                          **self.bot.config)
+                self.bot.ctcp_reply(mask.nick, '%s %s' % (lctcp.upper(), data))

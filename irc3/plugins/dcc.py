@@ -54,7 +54,7 @@ def dcc_command(*func, **predicates):
 class Commands(command.Commands):
     """DCC CHAT commands plugin"""
 
-    requires = ['irc3.plugins.command']
+    requires = [command.__name__]
 
     @irc3.dcc_event(r'(\x01ACTION\s+|{re_cmd})(?P<cmd>\w+)'
                     r'((\s(?P<data>\S.*)|\x01)|(\x01|$))')
