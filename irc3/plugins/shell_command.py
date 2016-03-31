@@ -14,8 +14,19 @@ Allow to quickly add commands map to a shell command.
 The bot will print stdout/stderr
 
 ..
+    >>> import os
+    >>> import shutil
     >>> from irc3.testing import IrcBot
     >>> from irc3.testing import ini2config
+    >>> try:
+    ...     shutil.rmtree('/tmp/myscripts')
+    ... except:
+    ...     pass
+    >>> script = '/tmp/myscripts/demo'
+    >>> os.makedirs('/tmp/myscripts')
+    >>> with open(script, 'w') as fd:
+    ...     _ = fd.write('echo $IRC3_COMMAND_ARGS')
+    >>> os.chmod(script, 0o0744)
 
 Usage::
 
@@ -26,21 +37,33 @@ Usage::
     ... [irc3.plugins.shell_command]
     ... myscript = /tmp/myscript
     ... # optional command configuration
-    ... myscript.permission = runmyscrypt  # default permission is admin
-    ... myscript.public = false  # default is true
+    ... myscript.permission = runmyscrypt
+    ... myscript.public = false
+    ... # register a directory
+    ... myscripts = /tmp/myscripts
+    ... # optional commands configuration for the directory
+    ... myscripts.permission = runmyscrypts
     ... """)
     >>> bot = IrcBot(**config)
 
 Then the uname command will be available::
 
-    >>> bot.test(':gawel!user@host PRIVMSG #chan :!help myscript')
-    PRIVMSG #chan :Run $ /tmp/myscript
-    PRIVMSG #chan :!myscript [<args>...]
+    >>> bot.test(':gawel!user@host PRIVMSG irc3 :!help myscript')
+    PRIVMSG gawel :Run $ /tmp/myscript
+    PRIVMSG gawel :!myscript [<args>...]
 
     >>> bot.test(':gawel!user@host PRIVMSG #chan :!myscript')
+    PRIVMSG gawel :You can only use the 'myscript' command in private.
+
+    >>> bot.test(':gawel!user@host PRIVMSG irc3 :!myscript')
 
 If the user provides some arguments then those will be available as an
 environment var (to avoid shell injection) names ``IRC3_COMMAND_ARGS``
+
+...
+
+    >>> bot.get_plugin(Commands)['demo'][0]
+    {'permission': 'runmyscrypts'}
 '''
 
 
@@ -54,7 +77,7 @@ class Shell(object):
         self.context = context
         self.config = self.context.config[__name__]
         for k, v in self.config.items():
-            if v.startswith('#') or '.' in k:
+            if (isinstance(v, str) and v.startswith('#')) or '.' in k:
                 continue
             dirname = os.path.abspath(v)
             if os.path.isdir(dirname):
@@ -64,11 +87,11 @@ class Shell(object):
                         binary = os.path.join(root, filename)
                         if os.access(binary, os.X_OK):
                             name = os.path.splitext(filename)[0]
-                            self.register_command(name, binary)
+                            self.register_command(name, binary, skey=k)
             else:
                 self.register_command(k, v)
 
-    def register_command(self, k, v):
+    def register_command(self, k, v, skey=None):
         meth = partial(self.shell_command, v)
         meth.__name__ = k
         meth.__doc__ = '''Run $ %s
@@ -76,7 +99,7 @@ class Shell(object):
         ''' % (v, k)
         p = {'permission': 'admin'}
         for opt in ('permission', 'public'):
-            opt_key = '%s.%s' % (k, opt)
+            opt_key = '%s.%s' % (skey or k, opt)
             if opt_key in self.config:
                 p[opt] = self.config[opt_key]
         self.log.debug('Register command %s: $ %s', k, v)
