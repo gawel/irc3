@@ -7,9 +7,9 @@ from irc3.compat import text_type
 from functools import partial
 from irc3.plugins.command import Commands
 __doc__ = '''
-==========================================
-:mod:`irc3.plugins.shell_command` Fifo plugin
-==========================================
+=================================================
+:mod:`irc3.plugins.shell_command` Shell commands
+=================================================
 
 Allow to quickly add commands map to a shell command.
 The bot will print stdout/stderr
