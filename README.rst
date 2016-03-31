@@ -19,7 +19,12 @@ A plugable irc client library based on python's `asyncio
    :target: http://thenounproject.com/term/hydra/46963/
 
 
-Require python 2.7, 3.2+
+Require python 3.3+
+
+Pyton 2 is no longer supported but you if you don't have a choice you can use
+an older version::
+
+    $ pip install irc3<0.9
 
 Source: https://github.com/gawel/irc3/
 
