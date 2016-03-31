@@ -252,13 +252,13 @@ class IrcBot(base.IrcObject):
             target.strip(self.server_config['CHANTYPES']))
         if password:
             target += ' ' + password
-        self.send_line('JOIN %s' % target, nowait=True)
+        self.send_line('JOIN %s' % target)
 
     def part(self, target, reason=None):
         """quit a channel"""
         if reason:
             target += ' :' + reason
-        self.send_line('PART %s' % target, nowait=True)
+        self.send_line('PART %s' % target)
 
     def kick(self, channel, target, reason=None):
         """kick target from channel"""
@@ -268,20 +268,20 @@ class IrcBot(base.IrcObject):
 
     def invite(self, target, channel):
         """invite target to a channel"""
-        self.send_line('INVITE %s %s' % (target, channel), nowait=True)
+        self.send_line('INVITE %s %s' % (target, channel))
 
     def topic(self, channel, topic=None):
         """change or request the topic of a channel"""
         if topic:
             channel += ' :' + topic
-        self.send_line('TOPIC %s' % channel, nowait=True)
+        self.send_line('TOPIC %s' % channel)
 
     def away(self, message=None):
         """mark ourself as away"""
         cmd = 'AWAY'
         if message:
             cmd += ' :' + message
-        self.send_line(cmd, nowait=True)
+        self.send_line(cmd)
 
     def unaway(self):
         """mask ourself as no longer away"""
