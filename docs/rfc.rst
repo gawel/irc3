@@ -1271,7 +1271,7 @@ Example:
 ERR_NICK
 --------
 
-Match ``^:(?P<srv>\S+) (?P<retcode>(432|433|436)) (?P<me>\S+) (?P<nick>\S+) :(?P<data>.*)``
+Match ``^(@(?P<tags>\S+) )?:(?P<srv>\S+) (?P<retcode>(432|433|436)) (?P<me>\S+) (?P<nick>\S+) :(?P<data>.*)``
 
 Example:
 
@@ -1780,7 +1780,7 @@ Example:
 CTCP
 ----
 
-Match ``^:(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) {nick} :(?P<ctcp>\S+.*)$``
+Match ``^(@(?P<tags>\S+) )?:(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) {nick} :(?P<ctcp>\S+.*)$``
 
 Example:
 
@@ -1793,7 +1793,7 @@ Example:
 INVITE
 ------
 
-Match ``^:(?P<mask>\S+!\S+@\S+) INVITE {nick} :?(?P<channel>\S+)$``
+Match ``^(@(?P<tags>\S+) )?:(?P<mask>\S+!\S+@\S+) INVITE {nick} :?(?P<channel>\S+)$``
 
 Example:
 
@@ -1806,7 +1806,7 @@ Example:
 JOIN
 ----
 
-Match ``^:(?P<mask>\S+) JOIN :?(?P<channel>\S+)``
+Match ``^(@(?P<tags>\S+) )?:(?P<mask>\S+) JOIN :?(?P<channel>\S+)``
 
 Example:
 
@@ -1819,7 +1819,7 @@ Example:
 JOIN_PART_QUIT
 --------------
 
-Match ``^:(?P<mask>\S+) (?P<event>JOIN|PART|QUIT)\s*:*(?P<channel>\S*)(\s+:(?P<data>.*)|$)``
+Match ``^(@(?P<tags>\S+) )?:(?P<mask>\S+) (?P<event>JOIN|PART|QUIT)\s*:*(?P<channel>\S*)(\s+:(?P<data>.*)|$)``
 
 Example:
 
@@ -1832,7 +1832,7 @@ Example:
 KICK
 ----
 
-Match ``^:(?P<mask>\S+) (?P<event>KICK)\s+(?P<channel>\S+)\s*(?P<target>\S+)(\s+:(?P<data>.*)|$)``
+Match ``^(@(?P<tags>\S+) )?:(?P<mask>\S+) (?P<event>KICK)\s+(?P<channel>\S+)\s*(?P<target>\S+)(\s+:(?P<data>.*)|$)``
 
 Example:
 
@@ -1845,7 +1845,7 @@ Example:
 MODE
 ----
 
-Match ``^:(?P<mask>\S+) (?P<event>MODE)\s+(?P<target>\S+)\s+(?P<modes>\S+)(\s+(?P<data>.*)|$)``
+Match ``^(@(?P<tags>\S+) )?:(?P<mask>\S+) (?P<event>MODE)\s+(?P<target>\S+)\s+(?P<modes>\S+)(\s+(?P<data>.*)|$)``
 
 Example:
 
@@ -1858,7 +1858,7 @@ Example:
 MY_PRIVMSG
 ----------
 
-Match ``^:(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) (?P<target>(#\S+|{nick})) :{nick}[:,\s]\s*(?P<data>\S+.*)$``
+Match ``^(@(?P<tags>\S+) )?:(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) (?P<target>(#\S+|{nick})) :{nick}[:,\s]\s*(?P<data>\S+.*)$``
 
 Example:
 
@@ -1871,7 +1871,7 @@ Example:
 NEW_NICK
 --------
 
-Match ``^:(?P<nick>\S+) NICK :?(?P<new_nick>\S+)``
+Match ``^(@(?P<tags>\S+) )?:(?P<nick>\S+) NICK :?(?P<new_nick>\S+)``
 
 Example:
 
@@ -1884,7 +1884,7 @@ Example:
 PART
 ----
 
-Match ``^:(?P<mask>\S+) PART (?P<channel>\S+)(\s+:(?P<data>.*)|$)``
+Match ``^(@(?P<tags>\S+) )?:(?P<mask>\S+) PART (?P<channel>\S+)(\s+:(?P<data>.*)|$)``
 
 Example:
 
@@ -1910,7 +1910,7 @@ Example:
 PONG
 ----
 
-Match ``^:(?P<server>\S+) PONG (?P=server) :?(?P<data>.*)``
+Match ``^(@(?P<tags>\S+) )?:(?P<server>\S+) PONG (?P=server) :?(?P<data>.*)``
 
 Example:
 
@@ -1923,7 +1923,7 @@ Example:
 PRIVMSG
 -------
 
-Match ``^:(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) (?P<target>\S+) :\s*(?P<data>\S+.*)$``
+Match ``^(@(?P<tags>\S+) )?:(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) (?P<target>\S+) :\s*(?P<data>\S+.*)$``
 
 Example:
 
@@ -1936,7 +1936,7 @@ Example:
 QUIT
 ----
 
-Match ``^:(?P<mask>\S+) QUIT(\s+:(?P<data>.*)|$)``
+Match ``^(@(?P<tags>\S+) )?:(?P<mask>\S+) QUIT(\s+:(?P<data>.*)|$)``
 
 Example:
 
@@ -1949,7 +1949,7 @@ Example:
 TOPIC
 -----
 
-Match ``^:(?P<mask>\S+!\S+@\S+) TOPIC (?P<channel>\S+) :(?P<data>\S+.*)$``
+Match ``^(@(?P<tags>\S+) )?:(?P<mask>\S+!\S+@\S+) TOPIC (?P<channel>\S+) :(?P<data>\S+.*)$``
 
 Example:
 
