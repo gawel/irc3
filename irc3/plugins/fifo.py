@@ -85,7 +85,7 @@ class Fifo(object):
 
     def create_fifo(self, channel):
         if channel is None:
-            path = os.path.join(self.runpath, 'raw')
+            path = os.path.join(self.runpath, ':raw')
         else:
             path = os.path.join(self.runpath, channel.strip('#&+'))
         if not os.path.exists(path):
@@ -94,7 +94,7 @@ class Fifo(object):
         fd = os.fdopen(fileno)
         meth = partial(self.watch_fd, channel, fd)
         self.context.create_task(meth())
-        self.log.debug("%s's fifo is %s %r", channel or 'raw', path, fd)
+        self.log.debug("%s's fifo is %s %r", channel or ':raw', path, fd)
         return meth
 
     @irc3.event(irc3.rfc.JOIN)
