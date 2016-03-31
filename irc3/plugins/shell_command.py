@@ -51,26 +51,38 @@ class Shell(object):
     requires = [Commands.__module__]
 
     def __init__(self, context):
-        self.log = logging.getLogger(__name__)
+        self.log = context.log
         self.context = context
         self.config = self.context.config[__name__]
-        commands = self.context.get_plugin(Commands)
-        predicates = {'permission': 'admin'}
         for k, v in self.config.items():
             if v.startswith('#') or '.' in k:
                 continue
-            meth = partial(self.shell_command, v)
-            meth.__name__ = k
-            meth.__doc__ = '''Run $ %s
-            %%%%%s [<args>...]
-            ''' % (v, k)
-            p = predicates.copy()
-            for opt in ('permission', 'public'):
-                opt_key = '%s.%s' % (k, opt)
-                if opt_key in self.config:
-                    p[opt] = self.config[opt_key]
-            self.log.debug('Register command %s(%r): $ %s', k, p, v)
-            commands[k] = (predicates, asyncio.coroutine(meth))
+            dirname = os.path.abspath(v)
+            if os.path.isdir(dirname):
+                self.log.debug('Scanning for scripts in %s', dirname)
+                for root, dirs, filenames in os.walk(dirname):
+                    for filename in filenames:
+                        binary = os.path.join(root, filename)
+                        if os.access(binary, os.X_OK):
+                            name = os.path.splitext(filename)[0]
+                            self.register_command(name, binary)
+            else:
+                self.register_command(k, v)
+
+    def register_command(self, k, v):
+        meth = partial(self.shell_command, v)
+        meth.__name__ = k
+        meth.__doc__ = '''Run $ %s
+        %%%%%s [<args>...]
+        ''' % (v, k)
+        p = {'permission': 'admin'}
+        for opt in ('permission', 'public'):
+            opt_key = '%s.%s' % (k, opt)
+            if opt_key in self.config:
+                p[opt] = self.config[opt_key]
+        self.log.debug('Register command %s: $ %s', k, v)
+        commands = self.context.get_plugin(Commands)
+        commands[k] = (p, asyncio.coroutine(meth))
 
     def shell_command(self, command, mask, target, args, **kwargs):
         env = os.environ.copy()

@@ -339,7 +339,8 @@ class Commands(dict):
             if isinstance(msgs, string_types):
                 msgs = [msgs]
             handle = self.context.call_many('privmsg', iterator(msgs))
-            self.handles[uid] = handle
+            if handle is not None:
+                self.handles[uid] = handle
 
     @command
     def help(self, mask, target, args):
