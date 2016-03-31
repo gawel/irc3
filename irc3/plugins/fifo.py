@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
 import irc3
-import logging
 from irc3 import asyncio
 from functools import partial
 __doc__ = '''
@@ -36,15 +35,15 @@ When your bot will join a channel it will create a fifo::
 
     >>> bot.test(':irc3!user@host JOIN #channel')
     >>> print(os.listdir('/tmp/run/irc3'))
-    ['raw', 'channel']
+    [':raw', 'channel']
 
 You'll be able to print stuff to a channel from a shell::
 
     $ cat /etc/passwd > /tmp/run/irc3/channel
 
-You can also send raw irc commands using the ``raw`` file::
+You can also send raw irc commands using the ``:raw`` file::
 
-    $ echo JOIN \#achannel > /tmp/run/irc3/raw
+    $ echo JOIN \#achannel > /tmp/run/irc3/:raw
 '''
 
 
@@ -52,7 +51,6 @@ You can also send raw irc commands using the ``raw`` file::
 class Fifo(object):
 
     def __init__(self, context):
-        self.log = logging.getLogger(__name__)
         self.context = context
         self.config = self.context.config[__name__]
         self.send_blank_line = self.config.get('send_blank_line', True)
@@ -94,7 +92,8 @@ class Fifo(object):
         fd = os.fdopen(fileno)
         meth = partial(self.watch_fd, channel, fd)
         self.context.create_task(meth())
-        self.log.debug("%s's fifo is %s %r", channel or ':raw', path, fd)
+        self.context.log.debug("%s's fifo is %s %r",
+                               channel or ':raw', path, fd)
         return meth
 
     @irc3.event(irc3.rfc.JOIN)

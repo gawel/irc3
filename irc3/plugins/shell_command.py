@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
 import irc3
-import logging
 from irc3 import asyncio
 from irc3.compat import text_type
 from functools import partial
