@@ -1,8 +1,16 @@
-0.8.10 (unreleased)
+0.9.0 (unreleased)
 ===================
 
-- Nothing changed yet.
+- WARNING: we do no longer support python2. python3.3+ is required.
 
+- WARNING: realname is now username and userinfo is now realname in config
+
+- Introduce some plugins: fifo, shell_commands, pager
+
+- Add ``flood_burst`` and ``flood_rate`` options. Queue outgoing messages in a
+  single queue handle by ``send_line('...', nowait=False)``.
+
+- ``bot.async`` is now aliased to ``bot.async_cmds`` to be able to use ``await``
 
 0.8.9 (2016-02-23)
 ==================
