@@ -96,16 +96,17 @@ class IrcBot(base.IrcObject):
     defaults = dict(
         base.IrcObject.defaults,
         nick='irc3',
-        realname='irc3',
-        userinfo='Irc bot based on irc3 http://irc3.readthedocs.org',
+        username='irc3',
+        realname='Irc bot based on irc3 http://irc3.readthedocs.org',
         host='localhost',
+        mode=0,
         url='https://irc3.readthedocs.org/',
         passwords={},
         flood_burst=4,
         flood_rate=1,
         ctcp=dict(
             version='irc3 {version} - {url}',
-            userinfo='{userinfo}',
+            userinfo='{realname}',
             time='{now:%c}',
         ),
         # freenode config as default for testing
@@ -120,6 +121,18 @@ class IrcBot(base.IrcObject):
 
     def __init__(self, *ini, **config):
         super(IrcBot, self).__init__(*ini, **config)
+        if 'userinfo' in self.config or \
+           ('realname' in self.config and 'user' not in self.config):
+            # Backward compat. Remove me in 2017
+            self.log.fatal('realname has been renamed to username.')
+            self.log.fatal('userinfo has been renamed to realname.')
+            self.log.fatal('Please update your config with something like:.')
+            if 'realname' in self.config:
+                self.log.fatal('username = %(realname)s', self.config)
+            if 'userinfo' in self.config:
+                self.log.fatal('realname = %(userinfo)s', self.config)
+            import sys
+            sys.exit(-1)
         self.queue = None
         if self.config.async:
             self.queue = Queue(loop=self.loop)
@@ -159,7 +172,7 @@ class IrcBot(base.IrcObject):
             if self.config.get('password'):
                 self._send('PASS {password}'.format(**self.config))
             self.send((
-                'USER {realname} {host} {host} :{userinfo}\r\n'
+                'USER {username} {mode} * :{realname}\r\n'
                 'NICK {nick}\r\n'
             ).format(**self.config))
             self.notify('connection_made')
