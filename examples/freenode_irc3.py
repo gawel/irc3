@@ -56,7 +56,7 @@ class FeedsHook(object):
 @cron('*/15 * * * *')
 def auto_retweet(bot):
     """retweet author tweets about irc3 and pypi releases"""
-    conn = bot.get_social_connection(network='twitter')
+    conn = bot.get_social_connection(id='twitter')
     dirname = os.path.expanduser('~/.irc3/twitter/{nick}'.format(**bot.config))
 
     if not os.path.isdir(dirname):
