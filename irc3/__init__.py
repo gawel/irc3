@@ -120,9 +120,12 @@ class IrcBot(base.IrcObject):
     )
 
     def __init__(self, *ini, **config):
+        update_config_needed = False
+        if 'userinfo' in config or \
+           ('realname' in config and 'user' not in config):
+            update_config_needed = True
         super(IrcBot, self).__init__(*ini, **config)
-        if 'userinfo' in self.config or \
-           ('realname' in self.config and 'user' not in self.config):
+        if update_config_needed:
             # Backward compat. Remove me in 2017
             self.log.fatal('realname has been renamed to username.')
             self.log.fatal('userinfo has been renamed to realname.')
