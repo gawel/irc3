@@ -1,5 +1,5 @@
 ============================================================
-irc3. plugable irc client library based on python's asyncio
+irc3. pluggable irc client library based on python's asyncio
 ============================================================
 
 .. image:: https://travis-ci.org/gawel/irc3.png?branch=master
@@ -7,7 +7,7 @@ irc3. plugable irc client library based on python's asyncio
 .. image:: https://coveralls.io/repos/gawel/irc3/badge.png?branch=master
   :target: https://coveralls.io/r/gawel/irc3?branch=master
 
-A plugable irc client library based on python's `asyncio
+A pluggable irc client library based on python's `asyncio
 <http://docs.python.org/dev/library/asyncio.html>`_.
 
 
@@ -19,9 +19,9 @@ A plugable irc client library based on python's `asyncio
    :target: http://thenounproject.com/term/hydra/46963/
 
 
-Require python 3.3+
+Requires python 3.3+
 
-Pyton 2 is no longer supported but you if you don't have a choice you can use
+Python 2 is no longer supported, but you if you don't have a choice you can use
 an older version::
 
     $ pip install irc3<0.9
