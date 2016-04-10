@@ -81,7 +81,7 @@ class Whois(AsyncEvents):
         {'match': "(?i)^:\S+ 312 \S+ {nick} (?P<server>\S+) "
                   ":(?P<server_desc>.*)"},
         {'match': "(?i)^:\S+ 317 \S+ {nick} (?P<idle>[0-9]+).*"},
-        {'match': "(?i)^:\S+ 319 \S+ {nick} :(?P<channels>.*)"},
+        {'match': "(?i)^:\S+ 319 \S+ {nick} :(?P<channels>.*)", 'multi': True},
         {'match': "(?i)^:\S+ 330 \S+ {nick} (?P<account>\S+) "
                   ":(?P<account_desc>.*)"},
         {'match': "(?i)^:\S+ 671 \S+ {nick} :(?P<connection>.*)"},
