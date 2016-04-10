@@ -30,7 +30,7 @@ Then you're able to use it in a plugin:
 
         def __init__(self, bot):
             self.bot = bot
-            self.whois = Whois(context)
+            self.whois = Whois(bot)
 
         def do_whois(self):
             # remember {nick} in the regexp? Here it is
