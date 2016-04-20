@@ -16,4 +16,4 @@ exclude Dockerfile
 exclude docker
 exclude docker/Dockerfile
 exclude docker/Makefile
-include LICENCE
+include LICENSE
