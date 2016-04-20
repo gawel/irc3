@@ -1,5 +1,5 @@
-0.9.0 (unreleased)
-===================
+0.9.0 (2016-04-20)
+==================
 
 - WARNING: we do no longer support python2. python3.3+ is required.
 
