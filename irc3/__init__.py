@@ -104,6 +104,7 @@ class IrcBot(base.IrcObject):
         passwords={},
         flood_burst=4,
         flood_rate=1,
+        flood_rate_delay=1,
         ctcp=dict(
             version='irc3 {version} - {url}',
             userinfo='{realname}',
@@ -194,7 +195,8 @@ class IrcBot(base.IrcObject):
     @asyncio.coroutine
     def process_queue(self):
         flood_burst = self.config.flood_burst
-        flood_rate = 1. / float(self.config.flood_rate)
+        delay = float(self.config.flood_rate_delay)
+        flood_rate = delay / float(self.config.flood_rate)
         while True:
             if flood_burst == 0:
                 future, data = yield from self.queue.get()
