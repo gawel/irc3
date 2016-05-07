@@ -32,6 +32,15 @@ def cmd_view(bot, *args):
     return 'Done'
 
 
+@command.command
+def cmd_arg(bot, *args):
+    """test command
+
+        %%cmd_arg <arg>
+    """
+    return 'Done'
+
+
 class TestCommands(BotTestCase):
 
     name = 'irc3.plugins.command'
@@ -71,12 +80,12 @@ class TestCommands(BotTestCase):
         bot.include(__name__)
         # For direct messages
         bot.dispatch(':bar!user@host PRIVMSG foo :!help')
-        self.assertSent(
-            ['PRIVMSG bar :Available commands: !cmd_view, !help, !ping'])
+        self.assertSent(['PRIVMSG bar :Available commands: ' \
+                        '!cmd_arg, !cmd_view, !help, !ping'])
         # channel messages
         bot.dispatch(':bar!user@host PRIVMSG #chan :!help')
-        self.assertSent(
-            ['PRIVMSG #chan :Available commands: !cmd_view, !help, !ping'])
+        self.assertSent(['PRIVMSG #chan :Available commands: ' \
+                        '!cmd_arg, !cmd_view, !help, !ping'])
 
     def test_help_with_url(self):
         bot = self.callFTU(nick='foo', **{
@@ -124,6 +133,15 @@ class TestCommands(BotTestCase):
         bot.dispatch(':bar!user@host PRIVMSG foo :!ping  ')
         self.assertSent(
             ['NOTICE bar :PONG bar!']*3)
+
+    def test_command_argument_space(self):
+        bot = self.callFTU(nick='foo')
+        bot.include(__name__)
+        bot.dispatch(':bar!user@host PRIVMSG foo :!cmd_arg test')
+        bot.dispatch(':bar!user@host PRIVMSG foo :!cmd_arg  test')
+        bot.dispatch(':bar!user@host PRIVMSG foo :!cmd_arg   test')
+        bot.dispatch(':bar!user@host PRIVMSG foo :!cmd_arg   test ')
+        self.assertSent(['PRIVMSG bar :Done'] * 4)
 
     def test_private_command(self):
         bot = self.callFTU()
