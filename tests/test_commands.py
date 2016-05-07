@@ -80,11 +80,11 @@ class TestCommands(BotTestCase):
         bot.include(__name__)
         # For direct messages
         bot.dispatch(':bar!user@host PRIVMSG foo :!help')
-        self.assertSent(['PRIVMSG bar :Available commands: ' \
+        self.assertSent(['PRIVMSG bar :Available commands: '
                         '!cmd_arg, !cmd_view, !help, !ping'])
         # channel messages
         bot.dispatch(':bar!user@host PRIVMSG #chan :!help')
-        self.assertSent(['PRIVMSG #chan :Available commands: ' \
+        self.assertSent(['PRIVMSG #chan :Available commands: '
                         '!cmd_arg, !cmd_view, !help, !ping'])
 
     def test_help_with_url(self):
