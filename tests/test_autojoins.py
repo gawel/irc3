@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from irc3.testing import BotTestCase
+from irc3.testing import BotTestCase, MagicMock
 from irc3.plugins.autojoins import AutoJoins
 
 
@@ -62,3 +62,10 @@ class TestAutojoin(BotTestCase):
         self.assertNotIn('#foo', plugin.handles)
 
         bot.notify('connection_lost')
+
+    def test_autojoin_delay(self):
+        bot = self.callFTU(autojoins=['#foo'], autojoin_delay=3)
+        bot.loop.call_later = MagicMock()
+        bot.notify('connection_made')
+        bot.dispatch(':hobana.freenode.net 422 irc3 :No MOTD.')
+        self.assertTrue(bot.loop.call_later.called)
