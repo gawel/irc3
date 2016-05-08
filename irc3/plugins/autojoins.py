@@ -29,8 +29,12 @@ class AutoJoins(object):
     def __init__(self, bot):
         self.bot = bot
         self.channels = utils.as_list(self.bot.config.get('autojoins', []))
+        self.delay = self.bot.config.get('autojoin_delay', 0)
         self.handles = {}
         self.timeout = 240
+        if not isinstance(self.delay, (int, float)):  # pragma: no cover
+            self.bot.log.error('Wrong autojoin_delay value: %r', self.delay)
+            self.delay = 0
 
     def connection_lost(self):  # pragma: no cover
         for timeout, handle in self.handles.values():
@@ -38,7 +42,10 @@ class AutoJoins(object):
         self.handles = {}
 
     def server_ready(self):
-        self.join()
+        if not self.delay:
+            self.join()
+        else:
+            self.bot.loop.call_later(self.delay, self.join)
 
     def join(self, channel=None):
         if channel is None:
