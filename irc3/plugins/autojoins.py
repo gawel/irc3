@@ -32,20 +32,54 @@ class AutoJoins(object):
         self.delay = self.bot.config.get('autojoin_delay', 0)
         self.handles = {}
         self.timeout = 240
+        self.joined = set()
+        self.delayed_join = None
         if not isinstance(self.delay, (int, float)):  # pragma: no cover
             self.bot.log.error('Wrong autojoin_delay value: %r', self.delay)
             self.delay = 0
 
-    def connection_lost(self):  # pragma: no cover
+    @classmethod
+    def reload(cls, old):
+        if hasattr(old, "joined"):
+            old_channels = old.joined
+        else:  # pragma: no cover
+            # old version of plugin
+            old_channels = frozenset(old.channels)
+
+        new = cls(old.bot)
+        new_channels = frozenset(new.channels)
+        part_channels = old_channels - new_channels
+        join_channels = new_channels - old_channels
+        # join to new channels
+        for channel in join_channels:
+            new.join(channel)
+
+        # part from old channels
+        for channel in part_channels:
+            new.part(channel)
+        return new
+
+    def before_reload(self):  # pragma: no cover
+        self.stop_tasks()
+
+    def stop_tasks(self):  # pragma: no cover
+        if self.delayed_join is not None:
+            self.delayed_join.cancel()
+            self.delayed_join = None
+
         for timeout, handle in self.handles.values():
             handle.cancel()
         self.handles = {}
+
+    def connection_lost(self):  # pragma: no cover
+        self.stop_tasks()
 
     def server_ready(self):
         if not self.delay:
             self.join()
         else:
-            self.bot.loop.call_later(self.delay, self.join)
+            task = self.bot.loop.call_later(self.delay, self.join)
+            self.delayed_join = task
 
     def join(self, channel=None):
         if channel is None:
@@ -61,6 +95,14 @@ class AutoJoins(object):
             else:
                 self.bot.log.info('Trying to join %s', channel)
             self.bot.join(channel)
+            self.joined.add(channel)
+
+    def part(self, channel):
+        channel = utils.as_channel(channel)
+        self.bot.log.info('Leaving channel %s', channel)
+        self.bot.part(channel)
+        if channel in self.joined:  # pragma: no cover
+            self.joined.remove(channel)
 
     @irc3.event(irc3.rfc.KICK)
     def on_kick(self, mask, channel, target, **kwargs):
@@ -85,3 +127,5 @@ class AutoJoins(object):
             timeout = 2
         handle = self.bot.loop.call_later(timeout, self.join, channel)
         self.handles[channel] = timeout, handle
+        if channel in self.joined:
+            self.joined.remove(channel)

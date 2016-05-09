@@ -69,3 +69,12 @@ class TestAutojoin(BotTestCase):
         bot.notify('connection_made')
         bot.dispatch(':hobana.freenode.net 422 irc3 :No MOTD.')
         self.assertTrue(bot.loop.call_later.called)
+
+    def test_autojoin_reload(self):
+        bot = self.callFTU(autojoins=['#foo', '#bar'])
+        bot.notify('connection_made')
+        bot.dispatch(':hobana.freenode.net 422 irc3 :No MOTD.')
+        self.assertSent(['JOIN #foo', 'JOIN #bar'])
+        bot.config['autojoins'] = ['#foo', '#foo2']
+        bot.reload()
+        self.assertSent(['JOIN #foo2', 'PART #bar'])
