@@ -17,6 +17,7 @@ except ImportError:  # pragma: no cover
 MagicMock = mock.MagicMock
 patch = mock.patch
 call = mock.call
+PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 passwd_ini = """
 [irc.freenode.net]
@@ -101,6 +102,8 @@ class IrcBot(irc3.IrcBot):
 
 class IrcTestCase(TestCase):
 
+    project_path = PROJECT_PATH
+
     def patch_requests(self, **kwargs):
         self.patcher = patch('requests.Session.request')
         self.addCleanup(self.patcher.stop)
@@ -108,6 +111,7 @@ class IrcTestCase(TestCase):
 
         filename = kwargs.pop('filename', None)
         if filename:
+            filename = os.path.join(self.project_path, filename)
             with open(filename, 'rb') as feed:
                 content = feed.read()
             for k, v in kwargs.items():
