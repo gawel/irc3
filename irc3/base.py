@@ -369,6 +369,8 @@ class IrcObject(object):
 
         Options:
 
+        -h, --help          Display this help and exit
+        --version           Output version information and exit
         --logdir DIRECTORY  Log directory to use instead of stderr
         --logdate           Show datetimes in console output
         --host HOST         Server name or ip
@@ -386,7 +388,7 @@ class IrcObject(object):
         import docopt
         import textwrap
         args = argv or sys.argv[1:]
-        args = docopt.docopt(textwrap.dedent(doc), args)
+        args = docopt.docopt(textwrap.dedent(doc), args, version=version)
         cfg = utils.parse_config(
             cls.server and 'server' or 'bot', *args['<config>'])
         cfg.update(
