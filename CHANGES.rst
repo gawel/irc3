@@ -1,4 +1,4 @@
-0.9.0 (2016-05-22)
+0.9.1 (unreleased)
 ==================
 
 - Added autojoin_delay option. Handle reload in autojoin plugin.
