@@ -1,3 +1,14 @@
+0.9.1 (unreleased)
+==================
+
+- Added autojoin_delay option. Handle reload in autojoin plugin.
+
+- Added flood_rate_delay option.
+
+- Added --help and --version CLI options.
+
+- Fixed #91 bug with command arguments and spaces
+
 0.9.0 (2016-04-20)
 ==================
 
