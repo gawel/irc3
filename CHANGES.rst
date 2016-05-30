@@ -1,8 +1,7 @@
 0.9.2 (unreleased)
 ==================
 
-- Nothing changed yet.
-
+- Fixed flood_burst sending one extra line (#92)
 
 0.9.1 (2016-05-22)
 ==================
