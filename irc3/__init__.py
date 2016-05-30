@@ -205,7 +205,7 @@ class IrcBot(base.IrcObject):
                 yield from asyncio.sleep(.001, loop=self.loop)
             else:
                 lines = []
-                for i in range(flood_burst + 1):
+                for i in range(flood_burst):
                     future, data = yield from self.queue.get()
                     future.set_result(True)
                     lines.append(data)
