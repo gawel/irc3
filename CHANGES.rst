@@ -1,4 +1,4 @@
-0.9.3 (unreleased)
+0.9.3 (2016-05-31)
 ==================
 
 - New release due to release problem (broken pypi)
