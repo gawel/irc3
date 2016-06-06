@@ -34,7 +34,7 @@ Usage::
 When your bot will join a channel it will create a fifo::
 
     >>> bot.test(':irc3!user@host JOIN #channel')
-    >>> print(os.listdir('/tmp/run/irc3'))
+    >>> print(sorted(os.listdir('/tmp/run/irc3')))
     [':raw', 'channel']
 
 You'll be able to print stuff to a channel from a shell::
