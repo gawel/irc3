@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
 import irc3
-from irc3 import asyncio
-from functools import partial
 __doc__ = '''
 ==========================================
 :mod:`irc3.plugins.fifo` Fifo plugin
@@ -50,6 +48,9 @@ You can also send raw irc commands using the ``:raw`` file::
 @irc3.plugin
 class Fifo(object):
 
+    BLOCK_SIZE = 1024
+    MAX_BUFFER_SIZE = 800
+
     def __init__(self, context):
         self.context = context
         self.config = self.context.config[__name__]
@@ -61,25 +62,64 @@ class Fifo(object):
 
         self.loop = self.context.loop
         self.fifos = {}
+        self.buffers = {}
         self.create_fifo(None)
 
-    @asyncio.coroutine
-    def watch_fd(self, channel, fd, *args):
+    @classmethod
+    def read_fd(cls, fd):  # pragma: no cover
+        # this required for python < 3.5
+        # for more info see https://www.python.org/dev/peps/pep-0475/
         while True:
-            data = True
-            while data:
-                try:
-                    data = fd.readline()
-                except (IOError, OSError):
-                    break
-                if data:
-                    if not self.send_blank_line and not data.strip():
-                        continue
-                    if channel is None:
-                        self.context.send_line(data)
-                    else:
-                        self.context.privmsg(channel, data)
-            yield from irc3.asyncio.sleep(.2, loop=self.loop)
+            try:
+                return os.read(fd, cls.BLOCK_SIZE)
+            except InterruptedError:
+                continue
+            except BlockingIOError:
+                return b""
+
+    def handle_line(self, line, channel):
+            if not line:
+                return
+
+            line = line.decode("utf8")
+            if not self.send_blank_line and not line.strip():
+                return
+
+            if channel is None:
+                self.context.send_line(line)
+            else:
+                self.context.privmsg(channel, line)
+
+    def handle_data(self, data, channel):
+        if not data:
+            return
+
+        prev = self.buffers.get(channel, b"")
+        lines = (prev + data).splitlines(True)
+        last = lines[-1]
+        for line in lines[:-1]:
+            line = line.rstrip(b'\r\n')
+            self.handle_line(line, channel)
+
+        if last.endswith(b'\n'):
+            line = last.rstrip(b'\r\n')
+            self.handle_line(line, channel)
+            self.buffers[channel] = b""
+            return
+
+        if len(last) > self.MAX_BUFFER_SIZE:
+            self.handle_line(last, channel)
+            self.buffers[channel] = b""
+        else:
+            self.buffers[channel] = last
+
+    def watch_fd(self, fd, channel):
+        reading = True
+
+        while reading:
+            data = self.read_fd(fd)
+            reading = len(data) == self.BLOCK_SIZE
+            self.handle_data(data, channel)
 
     def create_fifo(self, channel):
         if channel is None:
@@ -88,13 +128,11 @@ class Fifo(object):
             path = os.path.join(self.runpath, channel.strip('#&+'))
         if not os.path.exists(path):
             os.mkfifo(path)
-        fileno = os.open(path, os.O_RDONLY | os.O_NDELAY)
-        fd = os.fdopen(fileno)
-        meth = partial(self.watch_fd, channel, fd)
-        self.context.create_task(meth())
+        fd = os.open(path, os.O_RDWR | os.O_NONBLOCK)
+        self.loop.add_reader(fd, self.watch_fd, fd, channel)
         self.context.log.debug("%s's fifo is %s %r",
                                channel or ':raw', path, fd)
-        return meth
+        return fd
 
     @irc3.event(irc3.rfc.JOIN)
     def join(self, mask=None, channel=None, **kwargs):
