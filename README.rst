@@ -28,12 +28,10 @@ an older version::
 
 Source: https://github.com/gawel/irc3/
 
-Docs: https://irc3.readthedocs.org/
+Docs: https://irc3.readthedocs.io/
 
 Irc: irc://irc.freenode.net/irc3 (`www
 <https://kiwiirc.com/client/irc.freenode.net/?nick=irc3|?&theme=basic#irc3>`_)
 
 Twitter: `@python_irc3 <https://twitter.com/python_irc3>`_
-
-You like it ? => https://www.gittip.com/gawel/
 
