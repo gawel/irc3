@@ -78,19 +78,19 @@ class Fifo(object):
                 return b""
 
     def handle_line(self, line, channel):
-            if not line:
-                return
+        if not line:
+            return
 
-            line = line.decode("utf8")
-            if not self.send_blank_line and not line.strip():
-                return
+        line = line.decode("utf8")
+        if not self.send_blank_line and not line.strip():
+            return
 
-            if channel is None:
-                self.context.send_line(line)
-            else:
-                self.context.privmsg(channel, line)
+        if channel is None:
+            self.context.send_line(line)
+        else:
+            self.context.privmsg(channel, line)
 
-    def handle_data(self, data, channel):
+    def data_received(self, data, channel):
         if not data:
             return
 
@@ -119,7 +119,7 @@ class Fifo(object):
         while reading:
             data = self.read_fd(fd)
             reading = len(data) == self.BLOCK_SIZE
-            self.handle_data(data, channel)
+            self.data_received(data, channel)
 
     def create_fifo(self, channel):
         if channel is None:
