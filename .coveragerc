@@ -4,8 +4,9 @@ include =
     */irc3/*/*.py
 omit =
     conftest.py
-    */tests*
-    */docs/conf.py
+    .tox/*
+    tests/*
+    docs/conf.py
     */examples/social*
     */examples/mycrons*
     */examples/mycommands*
@@ -19,7 +20,6 @@ omit =
     */lib/python*
     */lib-python*
     */lib_pypy*
-    */src*
 
 [report]
 exclude_lines =
