@@ -13,6 +13,7 @@ test_requires = [
     'twitter',
     'aiocron',
     'redis',
+    'pytest'
 ]
 
 install_requires_py33 = [
@@ -53,6 +54,8 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=install_requires,
+    tests_require=test_requires,
+    setup_requires=["pytest-runner"],
     extras_require={
         ':python_version=="3.3"': install_requires_py33,
         'test': test_requires,
