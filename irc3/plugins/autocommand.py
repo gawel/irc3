@@ -25,7 +25,7 @@ This example will authorize you in FreeNode IRC network.
 Here's another, more complicated example.
 
     >>> bot = IrcBot(autocommand=[
-    ...     'PRIVMSG Q AUTH user password', 'MODE {nick} +x', '/sleep 2',
+    ...     'AUTH user password', 'MODE {nick} +x', '/sleep 2',
     ...     'PRIVMSG Q INVITE #inviteonly'
     ... ])
     >>> bot.include('irc3.plugins.autocommand')
@@ -35,6 +35,50 @@ delay will request invite to ``#inviteonly`` channel.
 '''
 
 
+class SimpleCommand:
+
+    def __init__(self, cmd):
+        self.cmd = cmd
+
+    @asyncio.coroutine
+    def execute(self, bot):
+        send_cmd = self.cmd.format(nick=bot.nick)
+        bot.send_line(send_cmd)
+
+
+class SleepCommand:
+
+    SLEEP_RE = re.compile(r"^/sleep\s+(?P<time>[\d\.]+)\s*$", re.IGNORECASE)
+    IS_SLEEP_RE = re.compile(r"/sleep\b", re.IGNORECASE)
+
+    def __init__(self, time):
+        if isinstance(time, (int, float)):
+            self.time = time
+        else:
+            raise TypeError("Wrong type of argument")
+
+    @classmethod
+    def is_match(cls, test_str):
+        return bool(cls.IS_SLEEP_RE.match(test_str))
+
+    @classmethod
+    def parse(cls, cmd_str):
+        sleep_m = cls.SLEEP_RE.match(cmd_str)
+        if sleep_m is not None:
+            try:
+                val = float(sleep_m.groupdict()['time'])
+            except ValueError:
+                raise ValueError("Wrong argument for /sleep command")
+            else:
+                return cls(val)
+        else:
+            raise ValueError("Wrong usage of /sleep command")
+
+    @asyncio.coroutine
+    def execute(self, bot):
+        yield from asyncio.sleep(self.time, loop=bot.loop)
+
+
 @irc3.plugin
 class AutoCommand:
 
@@ -42,11 +86,23 @@ class AutoCommand:
         'irc3.plugins.core',
     ]
 
-    SLEEP_RE = re.compile(r"^/sleep\s+(?P<time>[\d\.]+)\s*$", re.IGNORECASE)
-
     def __init__(self, bot):
         self.bot = bot
-        self.commands = utils.as_list(self.bot.config.get('commands', []))
+        cmds = utils.as_list(self.bot.config.get('commands', []))
+        self.commands = [self.parse_command(cmd) for cmd in cmds]
+
+    @staticmethod
+    def parse_command(command):
+        if not command:
+            return
+
+        if command.startswith('/'):
+            if SleepCommand.is_match(command):
+                return SleepCommand.parse(command)
+            else:
+                raise ValueError("Unknown command {cmd}".format(cmd=command))
+        else:
+            return SimpleCommand(command)
 
     def server_ready(self):
         # async deprecated since 3.4.4
@@ -55,22 +111,4 @@ class AutoCommand:
     @asyncio.coroutine
     def execute_commands(self):
         for command in self.commands:
-            yield from self.process_command(command)
-
-    @asyncio.coroutine
-    def process_command(self, command):
-        if not command:
-            return
-
-        if command.startswith('/'):
-            sleep_m = self.SLEEP_RE.match(command)
-            if sleep_m is not None:
-                try:
-                    val = float(sleep_m.groupdict()['time'])
-                except ValueError:
-                    self.bot.log.error("Wrong /sleep value")
-                else:
-                    yield from asyncio.sleep(val, loop=self.bot.loop)
-        else:
-            cmd = command.format(nick=self.bot.nick)
-            self.bot.send_line(cmd)
+            yield from command.execute(self.bot)
