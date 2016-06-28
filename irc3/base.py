@@ -97,7 +97,11 @@ class IrcObject(object):
 
         self.loop = self.config.loop
         if self.loop is None:
-            self.loop = asyncio.get_event_loop()
+            try:
+                self.loop = asyncio.get_event_loop()
+            except RuntimeError:
+                self.loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(self.loop)
 
         # python 3.4.1 do not have a create_task method. check for it
         self.create_task = getattr(self.loop, 'create_task', self.create_task)
@@ -321,12 +325,12 @@ class IrcObject(object):
         """Register handlers for UNIX signals (SIGHUP/SIGINT)"""
         try:
             self.loop.add_signal_handler(signal.SIGHUP, self.SIGHUP)
-        except AttributeError:  # pragma: no cover
+        except (RuntimeError, AttributeError):  # pragma: no cover
             # windows
             pass
         try:
             self.loop.add_signal_handler(signal.SIGINT, self.SIGINT)
-        except NotImplementedError:  # pragma: no cover
+        except (RuntimeError, NotImplementedError):  # pragma: no cover
             # annaconda
             pass
 
