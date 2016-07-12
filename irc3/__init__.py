@@ -123,7 +123,7 @@ class IrcBot(base.IrcObject):
     def __init__(self, *ini, **config):
         update_config_needed = False
         if 'userinfo' in config or \
-           ('realname' in config and 'user' not in config):
+           ('realname' in config and 'username' not in config):
             update_config_needed = True
         super(IrcBot, self).__init__(*ini, **config)
         if update_config_needed:
