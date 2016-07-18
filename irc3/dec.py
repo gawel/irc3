@@ -93,7 +93,7 @@ def dcc_event(regexp, callback=None, iotype='in',
 def extend(func):
     """Allow to extend a bot:
 
-    Create a module with some usefull routine:
+    Create a module with some useful routine:
 
     .. literalinclude:: ../examples/myextends.py
     ..
