@@ -18,7 +18,10 @@ try:
 except ImportError:  # pragma: no cover
     version = ''
 else:
-    version = pkg_resources.get_distribution('irc3').version
+    try:
+        version = pkg_resources.get_distribution('irc3').version
+    except pkg_resources.DistributionNotFound:
+        version = ''
 
 
 class Registry(object):
