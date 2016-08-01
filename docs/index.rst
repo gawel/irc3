@@ -58,7 +58,7 @@ Check the help of the ``irc3`` command.
 
     $ irc3 -h
 
-If you're enjoying it, you can check for more detailled docs below. And some
+If you're enjoying it, you can check for more detailed docs below. And some
 more examples here: https://github.com/gawel/irc3/tree/master/examples
 
 Documentation
