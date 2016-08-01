@@ -10,7 +10,7 @@ Using pip::
 Quick start
 ===========
 
-irc3 provide a basic template to help you to quickly test a bot.
+irc3 provides a basic template to help you to quickly test a bot.
 Here is how to create a bot named ``mybot``.
 
 Create a new directory and cd to it:
@@ -26,9 +26,9 @@ Then use the template:
 
     $ python -m irc3.template mybot
 
-This will create an almost ready to use ``config.ini`` file and a and a simple
-plugin name ``mybot_plugin.py`` to say «Hi» when the bot or someone else join a
-channel and an ``echo`` command.
+This will create an almost ready to use ``config.ini`` file and a simple
+plugin named ``mybot_plugin.py`` that says «Hi» when the bot or someone else joins a
+channel and includes an ``echo`` command.
 
 Here is what the config file will looks like:
 
@@ -46,7 +46,7 @@ You may have to edit:
 
 - your irc mask in the ``irc3.plugins.command.mask`` section
 
-Once you're done with editing run:
+Once you're done with editing, run:
 
 .. code-block:: sh
 
@@ -58,7 +58,7 @@ Check the help of the ``irc3`` command.
 
     $ irc3 -h
 
-If you're enjoying it you can check for more detailled docs below. And some
+If you're enjoying it, you can check for more detailed docs below. And some
 more examples here: https://github.com/gawel/irc3/tree/master/examples
 
 Documentation
