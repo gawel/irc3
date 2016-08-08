@@ -24,7 +24,7 @@ Requires python 3.3+
 Python 2 is no longer supported, but if you don't have a choice you can use
 an older version::
 
-    $ pip install irc3<0.9
+    $ pip install "irc3<0.9"
 
 Source: https://github.com/gawel/irc3/
 
