@@ -142,6 +142,10 @@ class IrcBot(base.IrcObject):
             self.queue = Queue(loop=self.loop)
             self.create_task(self.process_queue())
         self._ip = self._dcc = None
+        # auto include the sasl plugin if needed
+        if 'sasl_username' in self.config and \
+           'irc3.plugins.sasl' not in self.registry.includes:
+            self.include('irc3.plugins.sasl')
         # auto include the autojoins plugin if needed (for backward compat)
         if 'autojoins' in self.config and \
            'irc3.plugins.autojoins' not in self.registry.includes:
@@ -175,6 +179,7 @@ class IrcBot(base.IrcObject):
             self.protocol.encoding = self.encoding
             if self.config.get('password'):
                 self._send('PASS {password}'.format(**self.config))
+            self.notify('connection_ready')
             self.send((
                 'USER {username} {mode} * :{realname}\r\n'
                 'NICK {nick}\r\n'

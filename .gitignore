@@ -5,6 +5,7 @@ build
 _build
 .bzr
 .bzrignore
+.eggs
 .cache
 .chutifab
 .coverage
