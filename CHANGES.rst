@@ -1,4 +1,4 @@
-0.9.4 (unreleased)
+0.9.4 (2016-09-15)
 ==================
 
 - Added SASL Auth support
