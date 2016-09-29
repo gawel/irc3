@@ -34,7 +34,10 @@ def read(*rnames):
 setup(
     name='irc3',
     version=version,
-    description="plugable irc client library based on asyncio",
+    description=(
+        "plugable irc client library based on asyncio "
+        "with DCC and SASL support"
+    ),
     long_description=read('README.rst'),
     classifiers=[
         'Intended Audience :: Developers',
@@ -45,7 +48,7 @@ setup(
         'Topic :: Communications :: Chat :: Internet Relay Chat',
         'Development Status :: 5 - Production/Stable',
     ],
-    keywords='irc asyncio',
+    keywords='irc dcc asyncio',
     author='Gael Pasgrimaud',
     author_email='gael@gawel.org',
     url='https://github.com/gawel/irc3/',
