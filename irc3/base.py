@@ -180,7 +180,7 @@ class IrcObject(object):
             regexp = getattr(e.regexp, 're', e.regexp)
             iotype = e.iotype
             if e in all_events[iotype].get(regexp, []):
-                all_events[e.iotype][regexp].remove(e)
+                all_events[iotype][regexp].remove(e)
                 if not all_events[iotype][regexp]:
                     del all_events[iotype][regexp]
                     # need to delete from self.events_re
