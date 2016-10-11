@@ -242,7 +242,8 @@ class IrcBot(base.IrcObject):
             elif target:
                 f = None
                 for message in messages:
-                    f = self.send_line('PRIVMSG %s :%s' % (target, message))
+                    f = self.send_line('PRIVMSG %s :%s' % (target, message),
+                                       nowait=nowait)
                 return f
 
     def notice(self, target, message, nowait=False):
