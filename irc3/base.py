@@ -295,9 +295,9 @@ class IrcObject(object):
                 return True
             else:
                 if self.server:
-                    context = create_default_context(ssl.Purpose.SERVER_AUTH)
-                else:
                     context = create_default_context(ssl.Purpose.CLIENT_AUTH)
+                else:
+                    context = create_default_context(ssl.Purpose.SERVER_AUTH)
                 verify_mode = self.config.ssl_verify
                 if verify_mode is not False:
                     if not isinstance(verify_mode, int):
