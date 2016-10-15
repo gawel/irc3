@@ -24,7 +24,7 @@ API
 
 
 @irc3d.plugin
-class Core(object):
+class Core:
 
     requires = [
         'irc3d.plugins.userlist',

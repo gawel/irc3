@@ -12,7 +12,7 @@ def plugin(wrapped):
     return wrapped
 
 
-class event(object):
+class event:
     """register a method or function an irc event callback::
 
         >>> @event('^:\S+ 353 [^&#]+(?P<channel>\S+) :(?P<nicknames>.*)')

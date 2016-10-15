@@ -4,7 +4,7 @@ import functools
 import re
 
 
-class event(object):
+class event:
 
     iotype = 'in'
     iscoroutine = True
@@ -84,7 +84,7 @@ def async_events(context, events, send_line=None,
     return task
 
 
-class AsyncEvents(object):
+class AsyncEvents:
     """Asynchronious events"""
 
     timeout = 30

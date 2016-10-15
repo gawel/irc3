@@ -39,7 +39,7 @@ And it should work::
 
 
 @irc3.plugin
-class Human(object):
+class Human:
 
     requires = [
         __name__.replace('human', 'core'),

@@ -37,7 +37,7 @@ Returning casefolded strings::
 
 
 @irc3.plugin
-class Casefold(object):
+class Casefold:
 
     def __init__(self, bot):
         self.bot = bot

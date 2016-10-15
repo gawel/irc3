@@ -21,7 +21,7 @@ API
 '''
 
 
-class Page(object):
+class Page:
 
     def __init__(self, mask, iterator, first_page=4, lines_per_page=10):
         self.mask = mask
@@ -59,7 +59,7 @@ class Page(object):
 
 
 @irc3.plugin
-class Paginate(object):
+class Paginate:
     """Pagination plugin"""
 
     requires = [command.__module__]

@@ -5,7 +5,7 @@ from irc3.plugins import cron
 from irc3.compat import asyncio
 
 
-class MyCron(object):
+class MyCron:
 
     def __init__(self, bot):
         self.bot = bot

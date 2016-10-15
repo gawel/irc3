@@ -32,7 +32,7 @@ Api:
 '''
 
 
-class TwitterAdapter(object):
+class TwitterAdapter:
 
     def __init__(self, bot, conn):
         self.bot = bot
@@ -76,7 +76,7 @@ class TwitterAdapter(object):
 
 
 @irc3.plugin
-class Social(object):
+class Social:
     """The social plugin"""
 
     requires = [

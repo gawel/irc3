@@ -131,7 +131,7 @@ Available options
 '''
 
 
-class free_policy(object):
+class free_policy:
     """Default policy"""
     def __init__(self, bot):
         self.context = bot
@@ -140,7 +140,7 @@ class free_policy(object):
         return meth(client, target, args)
 
 
-class mask_based_policy(object):
+class mask_based_policy:
     """Allow only valid masks. Able to take care or permissions"""
 
     key = __name__ + '.masks'
@@ -378,7 +378,7 @@ class Commands(dict):
         return '<Commands %s>' % sorted([self.cmd + k for k in self.keys()])
 
 
-class Done(object):
+class Done:
 
     def done(self):
         return True

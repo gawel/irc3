@@ -13,7 +13,7 @@ Same as :mod:`~irc3.plugins.command` but for servers
 '''
 
 
-class server_policy(object):
+class server_policy:
     """Default server policy"""
     def __init__(self, context):
         self.context = context

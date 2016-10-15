@@ -67,7 +67,7 @@ environment var (to avoid shell injection) names ``IRC3_COMMAND_ARGS``
 
 
 @irc3.plugin
-class Shell(object):
+class Shell:
 
     requires = [Commands.__module__]
 

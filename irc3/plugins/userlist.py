@@ -79,7 +79,7 @@ class Channel(set):
 
 
 @plugin
-class Userlist(object):
+class Userlist:
 
     def __init__(self, context):
         self.context = context

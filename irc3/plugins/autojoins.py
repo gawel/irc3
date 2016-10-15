@@ -20,7 +20,7 @@ Usage::
 
 
 @irc3.plugin
-class AutoJoins(object):
+class AutoJoins:
 
     requires = [
         'irc3.plugins.core',

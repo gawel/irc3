@@ -33,7 +33,7 @@ Try to send a ``CTCP FOO``::
 
 
 @irc3.plugin
-class CTCP(object):
+class CTCP:
     """ctcp replies"""
 
     def __init__(self, bot):

@@ -4,7 +4,7 @@ import irc3
 
 
 @irc3.plugin
-class Plugin(object):
+class Plugin:
 
     def __init__(self, bot):
         self.bot = bot

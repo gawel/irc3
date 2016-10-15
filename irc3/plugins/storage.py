@@ -58,7 +58,7 @@ Then use it::
 
 You can use an instance as key::
 
-    >>> class MyPlugin(object):
+    >>> class MyPlugin:
     ...     pass
     >>> plugin = MyPlugin()
     >>> bot.db[plugin] = dict(key='value')
@@ -124,7 +124,7 @@ Api
 '''
 
 
-class Shelve(object):
+class Shelve:
 
     def __init__(self, uri=None, **kwargs):
         self.filename = uri[9:]
@@ -151,7 +151,7 @@ class Shelve(object):
         self.db.close()
 
 
-class JSON(object):
+class JSON:
 
     def __init__(self, uri=None, **kwargs):
         self.filename = uri[7:]
@@ -183,7 +183,7 @@ class JSON(object):
         self.sync()
 
 
-class Redis(object):
+class Redis:
 
     def __init__(self, uri=None, **kwargs):
         ConnectionPool = irc3.utils.maybedotted(
@@ -222,7 +222,7 @@ class Redis(object):
 
 
 @irc3.plugin
-class Storage(object):
+class Storage:
 
     backends = {
         'shelve': Shelve,

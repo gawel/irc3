@@ -22,7 +22,7 @@ else:
         version = ''
 
 
-class Registry(object):
+class Registry:
     """Store (and hide from api) plugins events and stuff"""
 
     def __init__(self):
@@ -57,7 +57,7 @@ class Registry(object):
                 yield match, events[regexp]
 
 
-class IrcObject(object):
+class IrcObject:
 
     nick = None
     server = False

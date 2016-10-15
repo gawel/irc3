@@ -19,7 +19,7 @@ Usage::
 '''
 
 
-class RawLog(object):
+class RawLog:
 
     def __init__(self, context):
         self.context = context

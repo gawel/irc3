@@ -30,7 +30,7 @@ Available handlers:
 '''
 
 
-class file_handler(object):
+class file_handler:
     """Write logs to file in ~/.irc3/logs
     """
 
@@ -67,7 +67,7 @@ class file_handler(object):
 
 
 @irc3.plugin
-class Logger(object):
+class Logger:
     """Logger plugin. Use the :class:~file_handler handler by default
     """
 

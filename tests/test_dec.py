@@ -10,7 +10,7 @@ class OldStyleClass:
 
 
 @irc3.plugin
-class NewStyleClass(object):
+class NewStyleClass:
     def __init__(self, bot):
         self.bot = bot
 

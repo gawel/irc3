@@ -127,7 +127,7 @@ def parse(feedparser, args):
 
 
 @irc3.plugin
-class Feeds(object):
+class Feeds:
     """Feeds plugin"""
 
     PoolExecutor = ThreadPoolExecutor

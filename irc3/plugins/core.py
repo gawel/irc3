@@ -21,7 +21,7 @@ Usage::
 '''
 
 
-class Core(object):
+class Core:
 
     def __init__(self, bot):
         self.bot = bot

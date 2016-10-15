@@ -25,7 +25,7 @@ Then you're able to use it in a plugin:
 
 .. code-block:: py
 
-    class MyPlugin(object):
+    class MyPlugin:
 
         def __init__(self, bot):
             self.bot = bot
@@ -185,7 +185,7 @@ class Names(AsyncEvents):
 
 
 @dec.plugin
-class Async(object):
+class Async:
     """Asynchronious plugin.
     Extend the bot with some common commands using
     :class:`~irc3.async.AsyncEvents`

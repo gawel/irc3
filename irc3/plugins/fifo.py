@@ -46,7 +46,7 @@ You can also send raw irc commands using the ``:raw`` file::
 
 
 @irc3.plugin
-class Fifo(object):
+class Fifo:
 
     BLOCK_SIZE = 1024
     MAX_BUFFER_SIZE = 800

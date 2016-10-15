@@ -10,7 +10,7 @@ from irc3.plugins.cron import cron
 from irc3.plugins.command import command
 import irc3
 
-class P(object):
+class P:
 
     requires = [
         'irc3.plugins.cron',

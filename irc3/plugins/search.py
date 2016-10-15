@@ -11,7 +11,7 @@ __doc__ = '''
 
 
 @irc3.plugin
-class Search(object):
+class Search:
 
     requires = [
         __name__.replace('search', 'command'),

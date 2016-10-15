@@ -25,7 +25,7 @@ Usage::
 
 
 @irc3.plugin
-class Sasl(object):
+class Sasl:
 
     def __init__(self, bot):
         self.bot = bot

@@ -20,7 +20,7 @@ else:
 DCC_TYPES = ('chat', 'get', 'send')
 
 
-class DCCManager(object):
+class DCCManager:
     """Manage DCC connections"""
 
     def __init__(self, bot):

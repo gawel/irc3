@@ -16,7 +16,7 @@ Add an ``uptime`` command.
 
 
 @irc3.plugin
-class Uptime(object):
+class Uptime:
 
     requires = [
         __name__.replace('uptime', 'command'),
