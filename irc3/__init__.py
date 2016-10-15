@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 from urllib.request import urlopen
 from ipaddress import ip_address
 from collections import deque

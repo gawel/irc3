@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 from irc3.utils import wraps_with_context
 from irc3.compat import asyncio
 import venusian

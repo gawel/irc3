@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 
 TIMESTAMPED_FMT = '%(asctime)s %(levelname)-4s %(name)-10s %(message)s'
 

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 from datetime import datetime
 from irc3.compat import Queue
 from irc3.compat import QueueFull

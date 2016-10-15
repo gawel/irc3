@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 from irc3.async import AsyncEvents
 from irc3.compat import asyncio
 from irc3 import utils

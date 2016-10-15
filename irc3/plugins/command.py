@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-from __future__ import print_function
 from irc3.compat import asyncio
 from irc3 import utils
 from collections import defaultdict

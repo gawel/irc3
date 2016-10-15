@@ -37,13 +37,10 @@ def main():
     _re_sub = re.compile('(?P<m><[^>]+>)')
 
     out.write('''
-from __future__ import unicode_literals
-
-
 class retcode(int):
     name = None
     re = None
-''')
+'''.lstrip())
 
     valids = set()
     for i, item in sorted(items):

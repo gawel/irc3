@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 from irc3.testing import BotTestCase
 from irc3.compat import asyncio
 from irc3.dcc.client import DCCSend

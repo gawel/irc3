@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 from unittest import TestCase
 import irc3
 import irc3d

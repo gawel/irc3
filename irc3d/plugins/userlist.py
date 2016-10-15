@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 from irc3.plugins import userlist
 from irc3 import utils
 from irc3 import rfc
