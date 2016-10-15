@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from irc3 import testing
+import pytest
 import sys
 import os
 
@@ -8,7 +9,6 @@ try:
     from redis.client import StrictRedis
     StrictRedis().flushdb()
 except (ImportError, ConnectionError):
-    import pytest
     import re
     req_redis = re.compile(".*#[^#]*\s*require?\s*redis\s*$", re.IGNORECASE)
 
