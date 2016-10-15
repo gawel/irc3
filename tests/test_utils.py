@@ -8,16 +8,14 @@ from irc3.testing import ini2config
 import irc3.plugins
 
 
-class TestHash(TestCase):
-
-    def test_hash(self):
-        config = ini2config('''
+def test_hash():
+    config = ini2config('''
 [bot]
 autojoins =
     ${hash}irc3
     ${hash}${hash}irc3
 ''')
-        assert config['autojoins'] == ['#irc3', '##irc3']
+    assert config['autojoins'] == ['#irc3', '##irc3']
 
 
 class TestUtils(TestCase):
@@ -61,6 +59,7 @@ class TestUtils(TestCase):
 
 
 class TestSplit(TestCase):
+
     def callFTU(self, messages, max_length=10):
         return list(split_message(' '.join(messages), max_length))
 
