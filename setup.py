@@ -9,7 +9,9 @@ version = '0.9.5.dev0'
 
 install_requires = ['venusian>=1.0', 'docopt']
 test_requires = [
-    'feedparser', 'requests',
+    'pytest-asyncio',
+    'feedparser',
+    'requests',
     'twitter',
     'aiocron',
     'redis',
