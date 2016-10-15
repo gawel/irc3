@@ -1,8 +1,9 @@
 0.9.5 (unreleased)
 ==================
 
-- Nothing changed yet.
+- ``.privmsg(nowait=True)`` now really don't wait
 
+- clean up some old py2/3 compat code
 
 0.9.4 (2016-09-15)
 ==================
