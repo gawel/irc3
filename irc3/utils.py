@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from unicodedata import normalize
-from .compat import configparser
 from .compat import asyncio
 from . import tags
+import configparser
 import importlib
 import functools
 import textwrap

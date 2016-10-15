@@ -2,7 +2,6 @@
 import os
 import irc3
 from irc3 import asyncio
-from irc3.compat import text_type
 from functools import partial
 from irc3.plugins.command import Commands
 __doc__ = '''
@@ -115,6 +114,6 @@ class Shell(object):
             stderr=asyncio.subprocess.STDOUT)
         yield from proc.wait()
         lines = yield from proc.stdout.read()
-        if not isinstance(lines, text_type):
+        if not isinstance(lines, str):
             lines = lines.decode('utf8')
         return lines.split(u'\n')

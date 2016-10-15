@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+from urllib.request import urlopen
 from ipaddress import ip_address
 from collections import deque
 from .dcc import DCCManager
@@ -12,8 +13,6 @@ from . import config
 from . import utils
 from . import rfc
 from . import base
-from irc3.compat import urlopen
-from .compat import text_type
 from .compat import asyncio
 from .compat import Queue
 import venusian
@@ -42,15 +41,9 @@ class IrcConnection(asyncio.Protocol):
         for line in lines:
             self.factory.dispatch(line)
 
-    def encode(self, data):
-        """Encode data with bot's encoding"""
-        if isinstance(data, text_type):
-            data = data.encode(self.encoding)
-        return data
-
     def write(self, data):
         if data is not None:
-            data = self.encode(data)
+            data = data.encode(self.encoding)
             if not data.endswith(b'\r\n'):
                 data = data + b'\r\n'
             self.transport.write(data)
@@ -140,7 +133,7 @@ class IrcBot(base.IrcObject):
         self.queue = None
         if self.config.async:
             self.queue = Queue(loop=self.loop)
-            self.create_task(self.process_queue())
+            self.awaiting_queue = self.create_task(self.process_queue())
         self._ip = self._dcc = None
         # auto include the sasl plugin if needed
         if 'sasl_username' in self.config and \

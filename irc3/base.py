@@ -7,10 +7,8 @@ import logging
 import logging.config
 from . import utils
 from . import config
-from .compat import isclass
 from .compat import asyncio
 from .compat import reload_module
-from .compat import string_types
 from collections import defaultdict
 
 try:
@@ -122,7 +120,7 @@ class IrcObject(object):
         includes = self.registry.includes
         reloading = self.registry.reloading
 
-        if isinstance(ob, string_types):
+        if isinstance(ob, str):
             ob_name = ob
             ob = utils.maybedotted(ob_name)
             if ob_name not in plugins:
@@ -205,7 +203,7 @@ class IrcObject(object):
                 # we have to manualy check for plugins. venusian no longer
                 # support to attach both a class and methods
                 for klass in list(module.__dict__.values()):
-                    if not isclass(klass):
+                    if not isinstance(klass, type):
                         continue
                     if klass.__module__ == module.__name__:
                         if getattr(klass, self.plugin_category, False) is True:
@@ -280,7 +278,7 @@ class IrcObject(object):
 
     def call_many(self, callback, args):
         """callback is run with each arg but run a call per second"""
-        if isinstance(callback, string_types):
+        if isinstance(callback, str):
             callback = getattr(self, callback)
         f = None
         for arg in args:

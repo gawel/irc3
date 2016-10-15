@@ -4,7 +4,6 @@ import struct
 from collections import deque
 from functools import partial
 from irc3.compat import asyncio
-from irc3.compat import text_type
 
 
 class DCCBase(asyncio.Protocol):
@@ -91,15 +90,9 @@ class DCCChat(DCCBase):
         for line in lines:
             self.bot.dispatch(line, iotype='dcc_in', client=self)
 
-    def encode(self, data):
-        """Encode data with bot's encoding"""
-        if isinstance(data, text_type):
-            data = data.encode(self.encoding)
-        return data
-
     def write(self, data):
         if data is not None:
-            data = self.encode(data)
+            data = data.encode(self.encoding)
             if not data.endswith(b'\r\n'):
                 data = data + b'\r\n'
             self.transport.write(data)

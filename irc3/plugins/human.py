@@ -6,7 +6,7 @@ import stat
 import json
 import codecs
 import random
-from irc3.compat import urlopen
+from urllib.request import urlopen
 __doc__ = '''
 ==========================================
 :mod:`irc3.plugins.human` Human plugin

@@ -42,5 +42,3 @@ class TestProtocol(unittest.TestCase):
         conn.transport.write.assert_called_with(b'm1\r\n')
         conn.write('m2\r\n')
         conn.transport.write.assert_called_with(b'm2\r\n')
-        conn.write(b'm3\r\n')
-        conn.transport.write.assert_called_with(b'm3\r\n')

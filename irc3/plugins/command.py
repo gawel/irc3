@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from __future__ import print_function
-from irc3.compat import PY3
-from irc3.compat import string_types
 from irc3.compat import asyncio
 from irc3 import utils
 from collections import defaultdict
@@ -306,13 +304,6 @@ class Commands(dict):
                     client if use_client else client.nick,
                     "Please be patient and don't flood me", nowait=True)
             else:
-                if not PY3:  # pragma: no cover
-                    # back to unicode
-                    for k, v in args.items():
-                        if isinstance(v, list):
-                            args[k] = [s.decode(encoding) for s in v]
-                        elif v not in (None, True, False):
-                            args[k] = v.decode(encoding)
                 # get command result
                 res = self.guard(predicates, meth, client, target, args=args)
 
@@ -336,7 +327,7 @@ class Commands(dict):
             def iterator(msgs):
                 for msg in msgs:
                     yield to, msg
-            if isinstance(msgs, string_types):
+            if isinstance(msgs, str):
                 msgs = [msgs]
             handle = self.context.call_many('privmsg', iterator(msgs))
             if handle is not None:

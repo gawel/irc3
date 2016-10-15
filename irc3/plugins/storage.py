@@ -3,7 +3,6 @@ import os
 import json
 import irc3
 import shelve
-from ..compat import PY3
 __doc__ = '''
 ==========================================
 :mod:`irc3.plugins.storage` Storage plugin
@@ -201,9 +200,8 @@ class Redis(object):
         if not keys:
             raise KeyError()
         values = self.db.hmget(key, keys)
-        if PY3:
-            keys = [k.decode('utf8') for k in keys]
-            values = [v.decode('utf8') for v in values]
+        keys = [k.decode('utf8') for k in keys]
+        values = [v.decode('utf8') for v in values]
         values = dict(zip(keys, values))
         return values
 

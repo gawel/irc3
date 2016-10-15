@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from irc3.compat import text_type
 import functools
 import string
 import irc3
@@ -62,13 +61,10 @@ class Casefold(object):
             upper_chars = string.ascii_uppercase
 
         table_in = (ord(char) for char in upper_chars)
-        self._lower_trans = dict(zip(table_in, text_type(lower_chars)))
+        self._lower_trans = dict(zip(table_in, lower_chars))
         return
 
     def casefold(self, in_str):
         """Casefold the given string, with the current server's casemapping."""
-        is_str = isinstance(in_str, str)
-        folded = text_type(in_str).translate(self._lower_trans)
-        if is_str:
-            return str(folded)
+        folded = in_str.translate(self._lower_trans)
         return folded

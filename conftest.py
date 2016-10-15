@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from irc3 import testing
 import sys
 import os
 
@@ -18,3 +19,22 @@ except (ImportError, ConnectionError):
 
 dirname = os.path.dirname(__file__)
 sys.path.append(os.path.join(dirname, 'examples'))
+
+
+@pytest.fixture(scope="function")
+def cls_event_loop(request, event_loop):
+    request.cls.loop = event_loop
+    request.cls.config['loop'] = event_loop
+    yield
+    request.cls.config.pop('loop')
+
+
+@pytest.fixture(scope="function")
+def irc3_bot_factory(request, event_loop):
+    def _bot(**config):
+        config['loop'] = event_loop
+        _b['b'] = testing.IrcBot(**config)
+        return _b['b']
+    _b = {}
+    yield _bot
+    _b['b'].SIGINT()

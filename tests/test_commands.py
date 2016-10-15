@@ -3,8 +3,6 @@ from irc3.testing import BotTestCase
 from irc3.plugins import command
 from irc3.plugins import dcc
 from irc3.compat import asyncio
-from irc3.compat import PY34
-from irc3.compat import u
 from irc3 import utils
 import tempfile
 import unittest
@@ -49,9 +47,8 @@ class TestCommands(BotTestCase):
 
     config = dict(includes=[name])
 
-    @unittest.skipIf(not PY34, 'Only test async on PY3')
     def test_async_plugin(self):
-        bot = self.callFTU(nick='foo', loop=asyncio.get_event_loop())
+        bot = self.callFTU(nick='foo', loop=asyncio.new_event_loop())
         bot.include('async_command')
         plugin = bot.get_plugin(command.Commands)
         mask = utils.IrcString('a@a.com')
@@ -187,7 +184,7 @@ class TestCommands(BotTestCase):
 
     def test_unicode(self):
         bot = self.callFTU(nick='nono')
-        bot.dispatch(u(':bar!user@host PRIVMSG nono :!ping eé'))
+        bot.dispatch(':bar!user@host PRIVMSG nono :!ping eé')
         self.assertSent(['PRIVMSG bar :Invalid arguments.'])
 
     def test_invalid_arguments(self):

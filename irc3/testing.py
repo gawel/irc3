@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 from unittest import TestCase
 import irc3
 import irc3d
-from irc3.compat import PY3
 from irc3.compat import asyncio
 import tempfile
 import time
@@ -32,8 +31,7 @@ token_secret=token_secret
 
 
 def ini2config(data, type='bot'):
-    if PY3:
-        data = data.encode('utf8')
+    data = data.encode('utf8')
     with tempfile.NamedTemporaryFile(prefix='irc3-') as fd:
         fd.write(data)
         fd.flush()
@@ -86,17 +84,12 @@ class IrcBot(irc3.IrcBot):
         self.dispatch(data)
         if show:
             for line in self.sent:  # pragma: no cover
-                if PY3:
-                    print(line)
-                else:
-                    print(line.encode('utf8'))
+                print(line)
 
     @property
     def sent(self):
         values = [tuple(c)[0][0] for c in self.protocol.write.call_args_list]
         self.protocol.write.reset_mock()
-        if not PY3:  # pragma: no cover
-            return [v.encode('utf8') for v in values]
         return values
 
 

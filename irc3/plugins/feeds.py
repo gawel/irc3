@@ -4,7 +4,6 @@ import os
 import time
 import irc3
 import datetime
-from irc3.compat import isclass
 from irc3.compat import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from operator import itemgetter
@@ -153,7 +152,7 @@ class Feeds(object):
 
         hook = config.get('hook', default_hook)
         hook = irc3.utils.maybedotted(hook)
-        if isclass(hook):
+        if isinstance(hook, type):
             hook = hook(bot)
         self.hook = hook
 

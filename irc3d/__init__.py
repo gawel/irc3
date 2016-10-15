@@ -6,7 +6,6 @@ from os import path
 from irc3 import base
 from irc3 import utils
 from irc3 import config
-from irc3.compat import text_type
 from irc3.compat import asyncio
 from irc3.compat import Queue
 from collections import defaultdict
@@ -68,12 +67,6 @@ class IrcClient(asyncio.Protocol):
         for line in lines:
             self.factory.dispatch(line, client=self)
 
-    def encode(self, data):
-        """Encode data with bot's encoding"""
-        if isinstance(data, text_type):  # pragma: no cover
-            data = data.encode(self.encoding)
-        return data
-
     def fwrite(self, messages, **kwargs):
         kwargs['c'] = self
         if not isinstance(messages, (list, tuple)):
@@ -85,7 +78,7 @@ class IrcClient(asyncio.Protocol):
     def write(self, data):
         if data is not None:
             self.factory.dispatch(data, client=self, iotype='out')
-            data = self.encode(data)
+            data = data.encode(self.encoding)
             if not data.endswith(b'\r\n'):
                 data = data + b'\r\n'
             self.transport.write(data)

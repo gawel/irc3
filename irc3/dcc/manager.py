@@ -3,7 +3,6 @@ import os
 from functools import partial
 from collections import defaultdict
 from irc3.compat import asyncio
-from irc3.compat import isclass
 from irc3.compat import PY35
 from irc3.utils import slugify
 from irc3.utils import maybedotted
@@ -68,7 +67,7 @@ class DCCManager(object):
 
     def create(self, name_or_class, mask, filepath=None, **kwargs):
         """Create a new DCC connection. Return an ``asyncio.Protocol``"""
-        if isclass(name_or_class):
+        if isinstance(name_or_class, type):
             name = name_or_class.type
             protocol = name_or_class
         else:
@@ -118,7 +117,7 @@ class DCCManager(object):
 
     def is_allowed(self, name_or_class, mask):  # pragma: no cover
         """Return True is a new connection is allowed"""
-        if isclass(name_or_class):
+        if isinstance(name_or_class, type):
             name = name_or_class.type
         else:
             name = name_or_class

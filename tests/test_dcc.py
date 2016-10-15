@@ -8,8 +8,10 @@ from irc3.plugins.dcc import dcc_command
 from irc3 import dcc_event
 from irc3 import utils
 import tempfile
+import pytest
 import shutil
 import os
+
 
 log = {'in': [], 'out': []}
 
@@ -45,11 +47,10 @@ def chat_ready(client):
     client.loop.call_later(.1, client.idle_timeout_reached)
 
 
+@pytest.mark.usefixtures('cls_event_loop')
 class TestChat(BotTestCase):
 
-    loop = asyncio.new_event_loop()
-    config = dict(loop=loop,
-                  includes=['irc3.plugins.dcc'],
+    config = dict(includes=['irc3.plugins.dcc'],
                   dcc={'ip': '127.0.0.1'})
     mask = utils.IrcString('gawel@gawel!bearstech.com')
     dmask = utils.IrcString('gawel@gawel!127.0.0.1')
@@ -89,10 +90,9 @@ class TestChat(BotTestCase):
         assert len(log['out']) == 6
 
 
+@pytest.mark.usefixtures('cls_event_loop')
 class DCCTestCase(BotTestCase):
 
-    loop = asyncio.new_event_loop()
-    config = dict(loop=loop)
     dmask = utils.IrcString('gawel@gawel!127.0.0.1')
 
     def callDCCFTU(self, *args, **kwargs):
