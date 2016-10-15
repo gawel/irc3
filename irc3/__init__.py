@@ -47,19 +47,18 @@ class IrcConnection(asyncio.Protocol):
                 data = data + b'\r\n'
             self.transport.write(data)
 
-    def connection_lost(self, exc):  # pragma: no cover
+    def connection_lost(self, exc):
         self.factory.log.critical('connection lost (%s): %r',
                                   id(self.transport),
                                   exc)
         self.factory.notify('connection_lost')
         if not self.closed:
-            self.closed = True
             self.close()
             # wait a few before reconnect
             self.factory.loop.call_later(
                 2, self.factory.create_connection)
 
-    def close(self):  # pragma: no cover
+    def close(self):
         if not self.closed:
             self.factory.log.critical('closing old transport (%r)',
                                       id(self.transport))
@@ -116,9 +115,9 @@ class IrcBot(base.IrcObject):
         update_config_needed = False
         if 'userinfo' in config or \
            ('realname' in config and 'username' not in config):
-            update_config_needed = True
+            update_config_needed = True  # pragma: no cover
         super(IrcBot, self).__init__(*ini, **config)
-        if update_config_needed:
+        if update_config_needed:  # pragma: no cover
             # Backward compat. Remove me in 2017
             self.log.fatal('realname has been renamed to username.')
             self.log.fatal('userinfo has been renamed to realname.')
