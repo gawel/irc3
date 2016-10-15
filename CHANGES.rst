@@ -1,4 +1,4 @@
-0.9.5 (unreleased)
+0.9.5 (2016-10-15)
 ==================
 
 - ``.privmsg(nowait=True)`` now really don't wait
