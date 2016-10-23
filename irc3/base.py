@@ -301,6 +301,8 @@ class IrcObject:
                     if not isinstance(verify_mode, int):
                         # CERT_NONE / CERT_OPTIONAL / CERT_REQUIRED
                         verify_mode = getattr(ssl, verify_mode.upper())
+                    if verify_mode == ssl.CERT_NONE:
+                        context.check_hostname = False
                     context.verify_mode = verify_mode
                 return context
         return None

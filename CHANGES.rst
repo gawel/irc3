@@ -1,7 +1,7 @@
 0.9.6 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Fixed #118: ssl context.check_hostname must be False when using CERT_NONE
 
 
 0.9.5 (2016-10-15)
