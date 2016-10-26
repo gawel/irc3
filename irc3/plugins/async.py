@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from irc3.async import AsyncEvents
-from irc3.compat import asyncio
 from irc3 import utils
 from irc3 import dec
 __doc__ = """
@@ -164,6 +163,26 @@ class IsOn(AsyncEvents):
         return value
 
 
+class Topic(AsyncEvents):
+
+    send_line = 'TOPIC {channel}{topic}'
+
+    events = (
+        {"match": ("(?i)^:\S+ (?P<retcode>(331|332|TOPIC))"
+                   "(:?\s+\S+\s+|\s+){channel} :(?P<topic>.*)"),
+         "final": True},
+    )
+
+    def process_results(self, results=None, **value):
+        for res in results:
+            status = res.get('retcode', '')
+            if status.upper() in ('332', 'TOPIC'):
+                value['topic'] = res.get('topic')
+            else:
+                value['topic'] = None
+            return value
+
+
 class Names(AsyncEvents):
 
     send_line = 'NAMES {channel}'
@@ -197,6 +216,7 @@ class Async:
         self.async_whois = Whois(context)
         self.async_who_channel = WhoChannel(context)
         self.async_who_nick = WhoNick(context)
+        self.async_topic = Topic(context)
         self.async_ison = IsOn(context)
         self.async_names = Names(context)
 
@@ -208,8 +228,7 @@ class Async:
 
             result = yield from bot.async_cmds.whois('gawel')
         """
-        return asyncio.async(self.async_whois(nick=nick.lower(),
-                             timeout=timeout))
+        return self.async_whois(nick=nick.lower(), timeout=timeout)
 
     @dec.extend
     def who(self, target, timeout=20):
@@ -225,6 +244,13 @@ class Async:
             return self.async_who_channel(channel=target, timeout=timeout)
         else:
             return self.async_who_nick(nick=target, timeout=timeout)
+
+    def topic(self, channel, topic=None, timeout=20):
+        if not topic:
+            topic = ''
+        else:
+            topic = ' ' + topic.strip()
+        return self.async_topic(channel=channel, topic=topic, timeout=timeout)
 
     @dec.extend
     def ison(self, *nicknames, **kwargs):

@@ -75,6 +75,30 @@ def test_who_nick(irc3_bot_factory):
 
 
 @pytest.mark.asyncio
+def test_topic(irc3_bot_factory):
+    bot = irc3_bot_factory(includes=['irc3.plugins.async'])
+    assert len(bot.registry.events_re['in']) == 0
+    task = bot.async_cmds.topic('#chan', topic='test', timeout=.1)
+    assert len(bot.registry.events_re['in']) > 0
+    bot.dispatch(':localhost TOPIC #chan :test')
+    result = yield from task
+    assert result['timeout'] is False
+    assert result['topic'] == 'test'
+
+
+@pytest.mark.asyncio
+def test_no_topic(irc3_bot_factory):
+    bot = irc3_bot_factory(includes=['irc3.plugins.async'])
+    assert len(bot.registry.events_re['in']) == 0
+    task = bot.async_cmds.topic('#chan', timeout=.1)
+    assert len(bot.registry.events_re['in']) > 0
+    bot.dispatch(':localhost 331 me #chan :Not topic')
+    result = yield from task
+    assert result['timeout'] is False
+    assert result['topic'] is None
+
+
+@pytest.mark.asyncio
 def test_ison(irc3_bot_factory):
     bot = irc3_bot_factory(includes=['irc3.plugins.async'])
     assert len(bot.registry.events_re['in']) == 0
