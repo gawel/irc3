@@ -26,7 +26,7 @@ class TopicPlugin:
         self.bot.log.warn('Topic for #irc3_dev is %(topic)s', result)
 
     @command
-    def topic(self, bot, target, args):
+    def topic(self, mask, target, args):
         """Set topic
 
         %%topic <topic>...
@@ -36,7 +36,7 @@ class TopicPlugin:
 
     @command
     @irc3.asyncio.coroutine
-    def aiotopic(self, bot, target, args):
+    def aiotopic(self, mask, target, args):
         """Set topic and get result the async way
 
         %%aiotopic [<topic>...]
