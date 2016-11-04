@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
-import json
+
+try:
+    import ujson as json
+except ImportError:
+    import json
+
 import irc3
 import shelve
 __doc__ = '''
