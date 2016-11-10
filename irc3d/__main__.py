@@ -1,4 +1,5 @@
 import sys
+import getpass
 from irc3d import IrcServer
 
 
@@ -12,17 +13,18 @@ def main():  # pragma: no cover
             host, port = hp.split(':')
         else:
             port = hp
+    user = getpass.getuser()
     config = dict(
         servername='test_server',
         host=host,
         port=int(port),
         raw=True,
-        opers=dict(oper='oper'),
+        opers={user: user},
         includes=['irc3d.plugins.core'],
     )
     print((
-        'Starting irc3d test server on {0}:{1} with oper/oper as IrcOp'
-    ).format(host, port))
+        'Starting irc3d test server on {0}:{1} with {2}/{2} as IrcOp'
+    ).format(host, port, user))
     server = IrcServer.from_config(config)
     try:
         server.run()
