@@ -36,6 +36,7 @@ class server_policy:
 def command(*func, **predicates):
     predicates.setdefault('commands', __name__ + '.ServerCommands')
     predicates.setdefault('venusian_category', __name__)
+    predicates['use_shlex'] = False
     if func:
         func = func[0]
         attach_command(func, **predicates)

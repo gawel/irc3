@@ -13,6 +13,7 @@ import os
 
 @command.command(permission='myperm',
                  show_in_help_list=False,
+                 use_shlex=False,
                  options_first=True)
 @dcc.dcc_command(options_first=True)
 def cmd(bot, *args):
@@ -139,6 +140,12 @@ class TestCommands(BotTestCase):
         bot.dispatch(':bar!user@host PRIVMSG foo :!cmd_arg   test')
         bot.dispatch(':bar!user@host PRIVMSG foo :!cmd_arg   test ')
         self.assertSent(['PRIVMSG bar :Done'] * 4)
+
+    def test_command_argument_shlex(self):
+        bot = self.callFTU(nick='foo')
+        bot.include(__name__)
+        bot.dispatch(':bar!user@host PRIVMSG foo :!cmd_arg   "test test" ')
+        self.assertSent(['PRIVMSG bar :Done'])
 
     def test_private_command(self):
         bot = self.callFTU()

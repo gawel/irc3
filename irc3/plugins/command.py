@@ -7,6 +7,7 @@ import venusian
 import fnmatch
 import logging
 import docopt
+import shlex
 import irc3
 import sys
 import re
@@ -254,6 +255,14 @@ class Commands(dict):
         self.handles = defaultdict(Done)
         self.tasks = defaultdict(Done)
 
+    def split_command(self, data, use_shlex=True):
+        if data:
+            if use_shlex:
+                return shlex.split(data)
+            else:
+                return data.split()
+        return []
+
     @irc3.event((r'(@(?P<tags>\S+) )?:(?P<mask>\S+) PRIVMSG (?P<target>\S+) '
                  r':{re_cmd}(?P<cmd>\w+)(\s+(?P<data>\S.*)|(\s*$))'))
     def on_command(self, cmd, mask=None, target=None, client=None, **kw):
@@ -280,7 +289,8 @@ class Commands(dict):
         if data:
             if not isinstance(data, str):  # pragma: no cover
                 data = data.encode(encoding)
-        data = data and data.split() or []
+        data = self.split_command(
+            data, use_shlex=predicates.get('use_shlex', True))
         docopt_args = dict(help=False)
         if "options_first" in predicates:
             docopt_args.update(options_first=predicates["options_first"])

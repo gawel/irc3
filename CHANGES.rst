@@ -3,6 +3,8 @@
 
 - Added ``bot.async_cmds.topic()``
 
+- Use shlex to parse command args by default
+
 
 0.9.6 (2016-10-24)
 ==================
