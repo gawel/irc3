@@ -1,4 +1,4 @@
-0.9.7 (unreleased)
+0.9.7 (2016-12-07)
 ==================
 
 - Added ``bot.async_cmds.topic()``
