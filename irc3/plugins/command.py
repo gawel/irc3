@@ -289,8 +289,12 @@ class Commands(dict):
         if data:
             if not isinstance(data, str):  # pragma: no cover
                 data = data.encode(encoding)
-        data = self.split_command(
-            data, use_shlex=predicates.get('use_shlex', True))
+        try:
+            data = self.split_command(
+                data, use_shlex=predicates.get('use_shlex', True))
+        except ValueError as e:
+            self.context.privmsg(to, 'Invalid arguments: {}.'.format(e))
+            return
         docopt_args = dict(help=False)
         if "options_first" in predicates:
             docopt_args.update(options_first=predicates["options_first"])
