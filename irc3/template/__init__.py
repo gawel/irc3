@@ -34,5 +34,6 @@ def main(nick=None, user=None, dest=None):
     with open(filename, 'w') as fd:
         fd.write(data)
 
+
 if __name__ == '__main__':
     main()

@@ -40,6 +40,7 @@ def main():
 class retcode(int):
     name = None
     re = None
+
 '''.lstrip())
 
     valids = set()
@@ -156,6 +157,7 @@ class retcode(int):
         if i in valids:
             out.write('    %(num)s: %(name)s,\n' % item)
     out.write('}\n')
+
 
 if __name__ == '__main__':
     main()

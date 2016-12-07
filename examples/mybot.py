@@ -88,5 +88,6 @@ def main():
     bot = irc3.IrcBot.from_config(config)
     bot.run(forever=True)
 
+
 if __name__ == '__main__':
     main()

@@ -2,6 +2,7 @@ class retcode(int):
     name = None
     re = None
 
+
 RPL_TRACELINK = retcode(200)
 RPL_TRACELINK.name = "RPL_TRACELINK"
 RPL_TRACELINK.re = (

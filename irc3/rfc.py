@@ -23,6 +23,7 @@ class raw(str):
                 r.server.re = regexp.split(' ', 1)[1]
         return r
 
+
 CONNECTED = raw.new('CONNECTED',
                     r'^:(?P<srv>\S+) (376|422) (?P<me>\S+) :(?P<data>.*)')
 

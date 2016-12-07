@@ -354,4 +354,5 @@ class Logger(logging.getLoggerClass()):
         handler.setFormatter(formatter)
         self.addHandler(handler)
 
+
 logging.setLoggerClass(Logger)
