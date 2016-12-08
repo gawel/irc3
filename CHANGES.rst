@@ -1,7 +1,7 @@
 0.9.8 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Command aliases support
 
 
 0.9.7 (2016-12-07)

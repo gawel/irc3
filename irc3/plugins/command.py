@@ -204,7 +204,13 @@ def attach_command(func, depth=2, **predicates):
         if not plugin.case_sensitive:
             cmd_name = cmd_name.lower()
         plugin[cmd_name] = (predicates, callback)
-        obj.log.debug('Register command %r', cmd_name)
+        aliases = predicates.get('aliases', None)
+        if aliases is not None:
+            for alias in aliases:
+                plugin.aliases[alias] = cmd_name
+            obj.log.debug('Register command %r %r', cmd_name, aliases)
+        else:
+            obj.log.debug('Register command %r', cmd_name)
     info = venusian.attach(func, callback,
                            category=category, depth=depth)
 
@@ -255,6 +261,8 @@ class Commands(dict):
         self.handles = defaultdict(Done)
         self.tasks = defaultdict(Done)
 
+        self.aliases = {}
+
     def split_command(self, data, use_shlex=True):
         if data:
             if use_shlex:
@@ -268,6 +276,7 @@ class Commands(dict):
     def on_command(self, cmd, mask=None, target=None, client=None, **kw):
         if not self.case_sensitive:
             cmd = cmd.lower()
+        cmd = self.aliases.get(cmd, cmd)
         predicates, meth = self.get(cmd, (None, None))
         if meth is not None:
             if predicates.get('public', True) is False and target.is_channel:
@@ -357,6 +366,7 @@ class Commands(dict):
             # both !help !foo and !help foo
             if args.startswith(self.context.config.cmd):
                 args = args[len(self.context.config.cmd):]
+            args = self.aliases.get(args, args)
             predicates, meth = self.get(args, (None, None))
             if meth is not None:
                 doc = meth.__doc__ or ''
@@ -372,6 +382,9 @@ class Commands(dict):
                             buf = None
                         line = line.replace('%%', self.context.config.cmd)
                         yield line
+                aliases = predicates.get('aliases', None)
+                if aliases is not None:
+                    yield 'Aliases: {0}'.format(','.join(sorted(aliases)))
             else:
                 yield ('No such command. Try %shelp for an '
                        'overview of all commands.'

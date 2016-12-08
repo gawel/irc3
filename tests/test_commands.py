@@ -12,6 +12,7 @@ import os
 
 
 @command.command(permission='myperm',
+                 aliases=['cmd_alias'],
                  show_in_help_list=False,
                  use_shlex=False,
                  options_first=True)
@@ -114,6 +115,17 @@ class TestCommands(BotTestCase):
         bot = self.callFTU(**{'cmd': '$'})
         bot.dispatch(':bar!user@host PRIVMSG foo :$ping')
         self.assertSent(['NOTICE bar :PONG bar!'])
+
+    def test_command_alias(self):
+        bot = self.callFTU(nick='nono')
+        bot.include(__name__)
+        bot.dispatch(':adm!user@host PRIVMSG #chan :!cmd_alias')
+        self.assertSent(['PRIVMSG #chan :Done'])
+        bot.dispatch(':adm!user@host PRIVMSG #chan :!help cmd_alias')
+        self.assertSent([
+            'PRIVMSG #chan :Test command',
+            'PRIVMSG #chan :!cmd',
+            'PRIVMSG #chan :Aliases: cmd_alias'])
 
     def test_weird_chars(self):
         bot = self.callFTU(nick='foo', **{
