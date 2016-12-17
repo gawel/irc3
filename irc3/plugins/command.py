@@ -272,7 +272,7 @@ class Commands(dict):
         return []
 
     @irc3.event((r'(@(?P<tags>\S+) )?:(?P<mask>\S+) PRIVMSG (?P<target>\S+) '
-                 r':{re_cmd}(?P<cmd>\w+)(\s+(?P<data>\S.*)|(\s*$))'))
+                 r':{re_cmd}(?P<cmd>[\w-]+)(\s+(?P<data>\S.*)|(\s*$))'))
     def on_command(self, cmd, mask=None, target=None, client=None, **kw):
         if not self.case_sensitive:
             cmd = cmd.lower()
