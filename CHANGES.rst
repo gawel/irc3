@@ -1,4 +1,4 @@
-0.9.8 (unreleased)
+0.9.8 (2017-01-03)
 ==================
 
 - Command aliases support (#121)
