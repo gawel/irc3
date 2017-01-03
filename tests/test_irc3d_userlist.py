@@ -74,6 +74,9 @@ class TestServerUserList(testing.ServerTestCase):
         self.assertSent(s.client2, ':irc3!uclient1@127.0.0.1 NICK client1')
         self.assertSent(s.client3, ':irc3!uclient1@127.0.0.1 NICK client1')
 
+        s.client2.dispatch('NICK client1')
+        self.assertSent(s.client2, ':irc.com 433 client2 client1 :Nickname is already in use')
+
         s.client1.reset()
         s.client1.dispatch('NAMES #irc')
         self.assertSent(s.client1,

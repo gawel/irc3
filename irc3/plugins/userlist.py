@@ -148,6 +148,7 @@ class Userlist:
                 channel.remove(nick)
                 clients.update(channel)
                 channel.add(new_nick)
+        del self.nicks[nick]
         self.broadcast(client=client, clients=clients, **kwargs)
 
     @event(rfc.RPL_NAMREPLY)

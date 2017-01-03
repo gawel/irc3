@@ -147,6 +147,10 @@ class ServerUserlist(userlist.Userlist):
             %%NICK <nick>
         """
         new_nick = args['<nick>']
+        if new_nick in self.nicks:
+            client.fwrite(rfc.ERR_NICKNAMEINUSE, nick=new_nick)
+            return
+
         self.nicks[new_nick] = client
         if client.registered:
             nick = client.nick
