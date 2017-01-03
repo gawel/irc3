@@ -1,7 +1,11 @@
 0.9.8 (unreleased)
 ==================
 
-- Command aliases support
+- Command aliases support (#121)
+
+- Add quakenet plugin (#99)
+
+- Allow dash character in command
 
 
 0.9.7 (2016-12-07)
