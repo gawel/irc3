@@ -19,12 +19,12 @@ Usage::
 
 This example will authorize you in FreeNode IRC network.
 
-    >>> bot = IrcBot(autocommand=['PRIVMSG NickServ IDENTIFY nick password'])
+    >>> bot = IrcBot(autocommands=['PRIVMSG NickServ IDENTIFY nick password'])
     >>> bot.include('irc3.plugins.autocommand')
 
 Here's another, more complicated example.
 
-    >>> bot = IrcBot(autocommand=[
+    >>> bot = IrcBot(autocommands=[
     ...     'AUTH user password', 'MODE {nick} +x', '/sleep 2',
     ...     'PRIVMSG Q INVITE #inviteonly'
     ... ])
@@ -88,7 +88,7 @@ class AutoCommand:
 
     def __init__(self, bot):
         self.bot = bot
-        cmds = utils.as_list(self.bot.config.get('commands', []))
+        cmds = utils.as_list(self.bot.config.get('autocommands', []))
         self.commands = [self.parse_command(cmd) for cmd in cmds]
 
     @staticmethod
