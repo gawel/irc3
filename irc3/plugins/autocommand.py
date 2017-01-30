@@ -7,17 +7,17 @@ __doc__ = '''
 :mod:`irc3.plugins.autocommand` Autocommand plugin
 ==================================================
 
-Plugin allows send IRC commands after connecting to server. This could
-be usable for authorization, cloaking, requesting invite to invite only channel
-and other use cases. Also, plugin allows to set delay between IRC commands via
-``/sleep`` command.
+This plugin allows to send IRC commands to the server after connecting.
+This could be usable for authorization, cloaking, requesting invite to invite
+only channel and other use cases.
+It also allows to set delays between IRC commands via the ``/sleep`` command.
 
 ..
     >>> from irc3.testing import IrcBot
 
 Usage::
 
-This example will authorize you in FreeNode IRC network.
+This example will authorize on Freenode.
 
     >>> bot = IrcBot(autocommands=['PRIVMSG NickServ IDENTIFY nick password'])
     >>> bot.include('irc3.plugins.autocommand')
@@ -30,8 +30,8 @@ Here's another, more complicated example.
     ... ])
     >>> bot.include('irc3.plugins.autocommand')
 
-It will authorize bot in QuakeNet IRC network, cloak and then after 3 seconds
-delay will request invite to ``#inviteonly`` channel.
+It will authorize on QuakeNet, cloak and request an invite to ``#inviteonly``
+after a 2 second delay.
 '''
 
 
