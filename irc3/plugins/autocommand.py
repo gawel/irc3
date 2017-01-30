@@ -12,6 +12,10 @@ This could be usable for authorization, cloaking, requesting invite to invite
 only channel and other use cases.
 It also allows to set delays between IRC commands via the ``/sleep`` command.
 
+..
+    >>> from irc3.testing import IrcBot
+    >>> from irc3.testing import ini2config
+
 Usage::
 
 This example will authorize on Freenode:
