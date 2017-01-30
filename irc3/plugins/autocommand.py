@@ -12,23 +12,34 @@ This could be usable for authorization, cloaking, requesting invite to invite
 only channel and other use cases.
 It also allows to set delays between IRC commands via the ``/sleep`` command.
 
-..
-    >>> from irc3.testing import IrcBot
-
 Usage::
 
-This example will authorize on Freenode.
+This example will authorize on Freenode:
 
-    >>> bot = IrcBot(autocommands=['PRIVMSG NickServ IDENTIFY nick password'])
-    >>> bot.include('irc3.plugins.autocommand')
+    >>> config = ini2config("""
+    ... [bot]
+    ... includes =
+    ...     irc3.plugins.autocommand
+    ...
+    ... autocommands =
+    ...     PRIVMSG NickServ IDENTIFY nick password
+    ... """)
+    >>> bot = IrcBot(**config)
 
-Here's another, more complicated example.
+Here's another, more complicated example:
 
-    >>> bot = IrcBot(autocommands=[
-    ...     'AUTH user password', 'MODE {nick} +x', '/sleep 2',
-    ...     'PRIVMSG Q INVITE #inviteonly'
-    ... ])
-    >>> bot.include('irc3.plugins.autocommand')
+    >>> config = ini2config("""
+    ... [bot]
+    ... includes =
+    ...     irc3.plugins.autocommand
+    ...
+    ... autocommands =
+    ...     AUTH user password
+    ...     MODE {nick} +x
+    ...     /sleep 2
+    ...     PRIVMSG Q INVITE #inviteonly
+    ... """)
+    >>> bot = IrcBot(**config)
 
 It will authorize on QuakeNet, cloak and request an invite to ``#inviteonly``
 after a 2 second delay.
