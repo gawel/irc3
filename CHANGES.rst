@@ -1,7 +1,9 @@
-0.9.9 (unreleased)
+1.0.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Added storage.getlist()/setlist()
+
+- Improve autocommands
 
 
 0.9.8 (2017-01-03)

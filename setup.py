@@ -5,7 +5,7 @@ import codecs
 from setuptools import setup
 from setuptools import find_packages
 
-version = '0.9.9.dev0'
+version = '1.0.0.dev0'
 
 install_requires = ['venusian>=1.0', 'docopt']
 test_requires = [
@@ -46,6 +46,7 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'License :: OSI Approved :: MIT License',
         'Topic :: Communications :: Chat :: Internet Relay Chat',
         'Development Status :: 5 - Production/Stable',

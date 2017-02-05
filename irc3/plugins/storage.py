@@ -60,6 +60,10 @@ Then use it::
     KeyError: 'mykey'
     >>> 'mykey' in bot.db
     False
+    >>> bot.db.setlist('mylist', ['foo', 'bar'])
+    >>> bot.db.getlist('mylist')
+    ['foo', 'bar']
+    >>> del bot.db['mylist']
 
 You can use an instance as key::
 
@@ -89,8 +93,17 @@ You can also use shelve::
     {'key': 'value'}
     >>> del bot.db['mykey']
     >>> bot.db.get('mykey')
+    >>> bot.db.setlist('mylist', ['foo', 'bar'])
+    >>> bot.db.getlist('mylist')
+    ['foo', 'bar']
+    >>> del bot.db['mylist']
 
 ..
+    >>> bot.db.getlist('mylist', ['foo', 'bar'])
+    ['foo', 'bar']
+    >>> bot.db.setlist('mylist', ['foo', 'bar'])
+    >>> bot.db.setlist('mylist', ['foo', 'bar'])
+    >>> del bot.db['mylist']
     >>> bot.db.SIGINT()
 
 
@@ -119,6 +132,10 @@ Then use it::
     Traceback (most recent call last):
       ...
     KeyError: 'mykey'
+    >>> bot.db.setlist('mylist', ['foo', 'bar'])
+    >>> bot.db.getlist('mylist')
+    ['foo', 'bar']
+    >>> del bot.db['mylist']
 
 Api
 ===
@@ -270,6 +287,15 @@ class Storage:
         else:
             return self[key_]
 
+    def getlist(self, key_, default=None):
+        """Get storage value (as list) for key or return default"""
+        if key_ not in self:
+            return default
+        else:
+            value = self[key_]
+            value = [(int(i), v) for i, v in value.items()]
+            return [v for k, v in sorted(value)]
+
     def set(self, key_, **kwargs):
         """Update storage value for key with kwargs"""
         stored = self.get(key_, dict())
@@ -280,6 +306,13 @@ class Storage:
                 changed = True
         if changed:
             self[key_] = stored
+
+    def setlist(self, key_, value):
+        """Update storage value (as list)"""
+        value = dict([(str(i), v) for i, v in enumerate(value)])
+        if key_ in self:
+            del self[key_]
+        self.set(key_, **value)
 
     def __setitem__(self, key, value):
         """Set storage value for key"""
