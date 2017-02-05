@@ -1,4 +1,4 @@
-1.0.0 (unreleased)
+1.0.0 (2017-02-05)
 ==================
 
 - Added storage.getlist()/setlist()
