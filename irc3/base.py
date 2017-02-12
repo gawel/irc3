@@ -2,6 +2,7 @@
 import os
 import sys
 import ssl
+import aiosocks
 import signal
 import logging
 import logging.config
@@ -316,11 +317,43 @@ class IrcObject:
         else:
             self.log.debug('Starting {nick}...'.format(**self.config))
             factory = self.loop.create_connection
+            ssl_context = self.get_ssl_context()
+            args = {
+                'host': self.config.host,
+                'port': self.config.port,
+                'ssl': ssl_context}
+
+            if any(k in self.config for k in ('socks4_proxy', 'socks5_proxy')):
+                ver = [k for k in self.config.keys() if 'socks' in k][0][5]
+                auth = addr = None
+
+                if ver == '4':
+                    if ':' in self.config.socks4_proxy:
+                        host, port = self.config.socks4_proxy.split(':')
+                        addr = aiosocks.Socks4Addr(host, port)
+                elif ver == '5':
+                    if ':' in self.config.socks5_proxy:
+                        host, port = self.config.socks5_proxy.split(':')
+                        addr = aiosocks.Socks5Addr(host, port)
+
+                if all(k in self.config for k in ('socks_user', 'socks_pass')):
+                    if ver == '4':
+                        auth = aiosocks.Socks4Auth(
+                            self.config.socks_user, self.config.socks_pass)
+                    else:
+                        auth = aiosocks.Socks5Auth(
+                            self.config.socks_user, self.config.socks_pass)
+
+                if addr:
+                    args = {
+                        'proxy': addr,
+                        'proxy_auth': auth,
+                        'dst': (self.config.host, self.config.port),
+                        'ssl': ssl_context}
+                    factory = aiosocks.create_connection
+
         t = asyncio.Task(
-            factory(
-                protocol, self.config.host,
-                self.config.port, ssl=self.get_ssl_context()),
-            loop=self.loop)
+            factory(protocol, **args), loop=self.loop)
         t.add_done_callback(self.connection_made)
         return self.loop
 
