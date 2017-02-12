@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import aiosocks
 from functools import partial
 from collections import defaultdict
 from irc3.compat import asyncio
@@ -97,9 +98,39 @@ class DCCManager:
             bot=self.bot, loop=self.loop, **kwargs)
 
         if kwargs['port']:
+            factory = self.loop.create_connection
+            cfg = self.bot.config
+            args = {'host': cfg.host, 'port': cfg.port}
+
+            if any(k in cfg for k in ('socks4_proxy', 'socks5_proxy')):
+                ver = [k for k in cfg.keys() if 'socks' in k][0][5]
+                auth = addr = None
+
+                if ver == '4' in cfg.socks4_proxy:
+                    if ':' in cfg.socks4_proxy:
+                        host, port = cfg.socks4_proxy.split(':')
+                        addr = aiosocks.Socks4Addr(host, int(port))
+                elif ver == '5':
+                    if ':' in cfg.socks5_proxy:
+                        host, port = cfg.socks5_proxy.split(':')
+                        addr = aiosocks.Socks5Addr(host, int(port))
+
+                if all(k in cfg for k in ('socks_user', 'socks_pass')):
+                    if ver == '4':
+                        auth = aiosocks.Socks4Auth(
+                            cfg.socks_user, cfg.socks_pass)
+                    else:
+                        auth = aiosocks.Socks5Auth(
+                            cfg.socks_user, cfg.socks_pass)
+                if addr:
+                    args = {
+                        'proxy': addr,
+                        'proxy_auth': auth,
+                        'dst': (cfg.host, cfg.port)}
+                    factory = aiosocks.create_connection
+
             task = asyncio.async(
-                self.loop.create_connection(f.factory, f.host, f.port),
-                loop=self.loop)
+                factory(f.factory, **args), loop=self.loop)
             task.add_done_callback(partial(self.created, f))
         else:
             task = asyncio.async(
