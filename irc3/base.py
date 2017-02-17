@@ -316,7 +316,7 @@ class IrcObject:
         else:
             self.log.debug('Starting {nick}...'.format(**self.config))
             factory = self.loop.create_connection
-        if self.config.sock_factory:
+        if self.config.get('sock_factory'):
             sock_factory = utils.maybedotted(self.config.sock_factory)
             args = dict(
                 sock=sock_factory(self, self.config.host, self.config.port)

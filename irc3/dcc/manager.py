@@ -96,7 +96,7 @@ class DCCManager:
             bot=self.bot, loop=self.loop, **kwargs)
 
         if kwargs['port']:
-            if self.bot.config.dcc_sock_factory:
+            if self.bot.config.get('dcc_sock_factory'):
                 sock_factory = maybedotted(self.bot.config.dcc_sock_factory)
                 args = dict(sock=sock_factory(self.bot, f.host, f.port))
             else:
