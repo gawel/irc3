@@ -316,11 +316,18 @@ class IrcObject:
         else:
             self.log.debug('Starting {nick}...'.format(**self.config))
             factory = self.loop.create_connection
-        t = asyncio.Task(
-            factory(
-                protocol, self.config.host,
-                self.config.port, ssl=self.get_ssl_context()),
-            loop=self.loop)
+        if self.config.sock_factory:
+            sock_factory = utils.maybedotted(self.config.sock_factory)
+            args = dict(
+                sock=sock_factory(self, self.config.host, self.config.port)
+            )
+        else:
+            args = dict(
+                host=self.config.host,
+                port=self.config.port,
+                ssl=self.get_ssl_context()
+            )
+        t = asyncio.Task(factory(protocol, **args), loop=self.loop)
         t.add_done_callback(self.connection_made)
         return self.loop
 

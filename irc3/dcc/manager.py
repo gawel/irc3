@@ -2,7 +2,6 @@
 import os
 from functools import partial
 from collections import defaultdict
-from irc3.compat import asyncio
 from irc3.compat import PY35
 from irc3.utils import slugify
 from irc3.utils import maybedotted
@@ -97,15 +96,18 @@ class DCCManager:
             bot=self.bot, loop=self.loop, **kwargs)
 
         if kwargs['port']:
-            task = asyncio.async(
-                self.loop.create_connection(f.factory, f.host, f.port),
-                loop=self.loop)
+            if self.bot.config.dcc_sock_factory:
+                sock_factory = maybedotted(self.bot.config.dcc_sock_factory)
+                args = dict(sock=sock_factory(self.bot, f.host, f.port))
+            else:
+                args = dict(host=f.host, port=f.port)
+            task = self.bot.create_task(
+                self.loop.create_connection(f.factory, **args))
             task.add_done_callback(partial(self.created, f))
         else:
-            task = asyncio.async(
+            task = self.bot.create_task(
                 self.loop.create_server(
-                    f.factory, '0.0.0.0', 0, backlog=1),
-                loop=self.loop)
+                    f.factory, '0.0.0.0', 0, backlog=1))
             task.add_done_callback(partial(self.created, f))
         return f
 

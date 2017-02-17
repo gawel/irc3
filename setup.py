@@ -12,6 +12,7 @@ test_requires = [
     'pytest-asyncio',
     'feedparser',
     'requests',
+    'pysocks',
     'twitter',
     'aiocron',
     'redis',
