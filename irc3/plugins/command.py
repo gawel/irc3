@@ -302,8 +302,11 @@ class Commands(dict):
             data = self.split_command(
                 data, use_shlex=predicates.get('use_shlex', True))
         except ValueError as e:
-            self.context.privmsg(to, 'Invalid arguments: {}.'.format(e))
-            return
+            if predicates.get('quiet', False) is True:
+                return
+            else:
+                self.context.privmsg(to, 'Invalid arguments: {}.'.format(e))
+                return
         docopt_args = dict(help=False)
         if "options_first" in predicates:
             docopt_args.update(options_first=predicates["options_first"])
@@ -311,7 +314,10 @@ class Commands(dict):
         try:
             args = docopt.docopt(doc, [cmd_name] + data, **docopt_args)
         except docopt.DocoptExit:
-            self.context.privmsg(to, 'Invalid arguments.')
+            if predicates.get('quiet', False) is True:
+                return
+            else:
+                self.context.privmsg(to, 'Invalid arguments.')
         else:
             uid = (cmd_name, to)
             use_client = isinstance(client, asyncio.Protocol)
