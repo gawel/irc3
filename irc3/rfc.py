@@ -70,12 +70,12 @@ MY_PRIVMSG = raw.new(
 PRIVMSG = raw.new(
     'PRIVMSG',
     (r'^(@(?P<tags>\S+) )?:(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) '
-     r'(?P<target>\S+) :\s*(?P<data>\S+.*)$'))
+     r'(?P<target>\S+) :(?P<data>.*)$'))
 
 CTCP = raw.new(
     'CTCP',
     ('^(@(?P<tags>\S+) )?:(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) '
-     '{nick} :\x01(?P<ctcp>\S+.*)\x01$'))
+     '{nick} :\x01(?P<ctcp>.*)\x01$'))
 
 INVITE = raw.new(
     'INVITE',
@@ -85,7 +85,7 @@ INVITE = raw.new(
 TOPIC = raw.new(
     'TOPIC',
     (r'^(@(?P<tags>\S+) )?:(?P<mask>\S+!\S+@\S+) '
-     r'TOPIC (?P<channel>\S+) :(?P<data>\S+.*)$'))
+     r'TOPIC (?P<channel>\S+) :(?P<data>.*)$'))
 
 ERR_NICK = raw.new(
     'ERR_NICK',
