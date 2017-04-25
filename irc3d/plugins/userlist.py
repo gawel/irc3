@@ -32,7 +32,7 @@ class ServerUserlist(userlist.Userlist):
         else:
             if self.nicks.get(client.nick):
                 self.QUIT(client,
-                          {'<:reason>': 'Connection reset by peer'})
+                          {'<:reason>': [':Connection reset by peer']})
 
     def get_client(self, nick_or_client):
         if isinstance(nick_or_client, irc3d.IrcClient):
