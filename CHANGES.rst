@@ -1,7 +1,7 @@
 1.0.1 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Add ${#} as a shorter alias for ${hash}.
 
 
 1.0.0 (2017-02-05)
