@@ -97,7 +97,7 @@ class ServerUserlist(userlist.Userlist):
             broadcast=message.format(mask=client.mask, **args),
             channel=args.get('<channel>'),
         )
-        self.part(client.nick, client.mask, **kwargs)
+        self.part(client.nick, client.mask, client=client, **kwargs)
         client.channels.remove(args['<channel>'])
 
     @irc3d.command
