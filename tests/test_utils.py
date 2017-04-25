@@ -14,8 +14,9 @@ def test_hash():
 autojoins =
     ${hash}irc3
     ${hash}${hash}irc3
+    ${#}irc3
 ''')
-    assert config['autojoins'] == ['#irc3', '##irc3']
+    assert config['autojoins'] == ['#irc3', '##irc3', '#irc3']
 
 
 class TestUtils(TestCase):

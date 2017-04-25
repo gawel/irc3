@@ -161,6 +161,7 @@ def parse_config(main_section, *filenames):
     filename = os.path.abspath(filename)
     here = os.path.dirname(filename)
     defaults = dict(here=here, hash='#')
+    defaults['#'] = '#'
 
     config = configparser.ConfigParser(
         defaults, allow_no_value=False,
