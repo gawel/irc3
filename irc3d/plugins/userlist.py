@@ -71,6 +71,8 @@ class ServerUserlist(userlist.Userlist):
 
             %%JOIN <channel>
         """
+        if args['<channel>'] in client.channels:
+            return
         message = ':{mask} JOIN {<channel>}'
         kwargs.update(
             broadcast=message.format(mask=client.mask, **args),
@@ -89,6 +91,8 @@ class ServerUserlist(userlist.Userlist):
 
             %%PART <channel> [<:reason>...]
         """
+        if args['<channel>'] not in client.channels:
+            return
         message = ':{mask} PART {<channel>}'
         if args.get('<:reason>'):
             args['data'] = ' '.join(args['<:reason>'])
@@ -148,7 +152,8 @@ class ServerUserlist(userlist.Userlist):
         """
         new_nick = args['<nick>']
         if new_nick in self.nicks:
-            client.fwrite(rfc.ERR_NICKNAMEINUSE, nick=new_nick)
+            if self.nicks[new_nick] != client:
+                client.fwrite(rfc.ERR_NICKNAMEINUSE, nick=new_nick)
             return
 
         self.nicks[new_nick] = client
