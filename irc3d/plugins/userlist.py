@@ -115,7 +115,7 @@ class ServerUserlist(userlist.Userlist):
         kwargs.update(
             broadcast=message.format(mask=client.mask, **args),
         )
-        self.quit(client.nick, client.mask, **kwargs)
+        self.quit(client.nick, client.mask, client=client, **kwargs)
         client.close()
 
     @irc3d.command
@@ -134,7 +134,7 @@ class ServerUserlist(userlist.Userlist):
             broadcast=message.format(mask=client.mask, **args),
             channel=args.get('<channel>'),
         )
-        self.part(args['<target>'], client.mask, **kwargs)
+        self.part(args['<target>'], client.mask, client=client, **kwargs)
 
     @irc3d.command(permission=None)
     def NICK(self, client, args=None, **kwargs):

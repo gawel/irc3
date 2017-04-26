@@ -140,7 +140,7 @@ class Userlist:
         if client is None:
             self.nicks[new_nick] = new_nick + '!' + nick.host
             nick = nick.nick
-        clients = set()
+        clients = {new_nick}
         for channel in self.channels.values():
             if nick in channel:
                 for nicknames in channel.modes.values():
