@@ -118,7 +118,8 @@ class Userlist:
             channel = self.channels[channel]
             self.broadcast(client=client, clients=channel, **kwargs)
             channel.remove(nick)
-            if True not in [nick in c for c in self.channels.values()]:
+            if client is None and all(
+                    nick not in c for c in self.channels.values()):
                 del self.nicks[nick]
 
     def quit(self, nick, mask, channel=None, client=None, **kwargs):
@@ -139,7 +140,7 @@ class Userlist:
         if client is None:
             self.nicks[new_nick] = new_nick + '!' + nick.host
             nick = nick.nick
-        clients = set()
+        clients = {new_nick}
         for channel in self.channels.values():
             if nick in channel:
                 for nicknames in channel.modes.values():

@@ -71,6 +71,8 @@ class ServerUserlist(userlist.Userlist):
 
             %%JOIN <channel>
         """
+        if args['<channel>'] in client.channels:
+            return
         message = ':{mask} JOIN {<channel>}'
         kwargs.update(
             broadcast=message.format(mask=client.mask, **args),
@@ -89,6 +91,8 @@ class ServerUserlist(userlist.Userlist):
 
             %%PART <channel> [<:reason>...]
         """
+        if args['<channel>'] not in client.channels:
+            return
         message = ':{mask} PART {<channel>}'
         if args.get('<:reason>'):
             args['data'] = ' '.join(args['<:reason>'])
@@ -97,7 +101,7 @@ class ServerUserlist(userlist.Userlist):
             broadcast=message.format(mask=client.mask, **args),
             channel=args.get('<channel>'),
         )
-        self.part(client.nick, client.mask, **kwargs)
+        self.part(client.nick, client.mask, client=client, **kwargs)
         client.channels.remove(args['<channel>'])
 
     @irc3d.command
@@ -115,7 +119,7 @@ class ServerUserlist(userlist.Userlist):
         kwargs.update(
             broadcast=message.format(mask=client.mask, **args),
         )
-        self.quit(client.nick, client.mask, **kwargs)
+        self.quit(client.nick, client.mask, client=client, **kwargs)
         client.close()
 
     @irc3d.command
@@ -126,15 +130,21 @@ class ServerUserlist(userlist.Userlist):
 
             %%KICK <channel> <target> [<:reason>...]
         """
-        message = ':{mask} KICK {<channel>}'
+        target = args['<target>']
+        channel = args['<channel>']
+        target_client = self.get_client(target)
+        if channel not in target_client.channels:
+            return
+        target_client.channels.remove(channel)
+        message = ':{mask} KICK {<channel>} {<target>}'
         if args.get('<:reason>'):
             args['data'] = ' '.join(args['<:reason>'])
             message += ' {data}'
         kwargs.update(
             broadcast=message.format(mask=client.mask, **args),
-            channel=args.get('<channel>'),
+            channel=channel,
         )
-        self.part(args['<target>'], client.mask, **kwargs)
+        self.part(target, client.mask, client=client, **kwargs)
 
     @irc3d.command(permission=None)
     def NICK(self, client, args=None, **kwargs):
@@ -148,7 +158,8 @@ class ServerUserlist(userlist.Userlist):
         """
         new_nick = args['<nick>']
         if new_nick in self.nicks:
-            client.fwrite(rfc.ERR_NICKNAMEINUSE, nick=new_nick)
+            if self.nicks[new_nick] != client:
+                client.fwrite(rfc.ERR_NICKNAMEINUSE, nick=new_nick)
             return
 
         self.nicks[new_nick] = client

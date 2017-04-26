@@ -47,30 +47,49 @@ class TestServerUserList(testing.ServerTestCase):
         s.client1.dispatch('JOIN #irc')
         s.client1.dispatch('JOIN #irc3')
         self.assertEqual(len(s.channels['#irc3']), 1)
+        self.assertEqual(len(s.client1.channels), 2)
         s.client2.dispatch('JOIN #irc3')
         self.assertEqual(len(s.channels['#irc3']), 2)
         self.assertSent(s.client1, ':{mask} JOIN #irc3', s.client2)
+        self.assertSent(s.client2, ':{mask} JOIN #irc3', s.client2)
         self.assertNotSent(s.client3, ':{mask} JOIN #irc3', s.client2)
 
         s.client1.dispatch('KICK #irc3 client2 :Lamer!')
         self.assertEqual(len(s.channels['#irc3']), 1)
-        self.assertSent(s.client2, ':{mask} KICK #irc3 :Lamer!', s.client1)
-        self.assertNotSent(s.client3, ':{mask} KICK #irc3 :Lamer!', s.client1)
+        self.assertEqual(len(s.client1.channels), 2)
+        self.assertEqual(len(s.client2.channels), 0)
+        self.assertSent(
+            s.client1, ':{mask} KICK #irc3 client2 :Lamer!', s.client1)
+        self.assertSent(
+            s.client2, ':{mask} KICK #irc3 client2 :Lamer!', s.client1)
+        self.assertNotSent(
+            s.client3, ':{mask} KICK #irc3 client2 :Lamer!', s.client1)
+
+        s.client1.reset()
+        s.client2.reset()
+        s.client1.dispatch('KICK #irc3 client2 :Lamer!')
+        self.assertNotSent(
+            s.client1, ':{mask} KICK #irc3 client2 :Lamer!', s.client1)
+        self.assertNotSent(
+            s.client2, ':{mask} KICK #irc3 client2 :Lamer!', s.client1)
 
         s.client2.dispatch('JOIN #irc3')
         self.assertEqual(len(s.channels['#irc3']), 2)
 
         s.client1.dispatch('MODE #irc3 +v client2')
+        self.assertSent(s.client1, ':{mask} MODE #irc3 +v client2', s.client1)
         self.assertSent(s.client2, ':{mask} MODE #irc3 +v client2', s.client1)
         self.assertNotSent(
             s.client3, ':{mask} MODE #irc3 +v client2', s.client1)
 
         s.client1.dispatch('NICK irc3')
+        self.assertSent(s.client1, ':client1!uclient1@127.0.0.1 NICK irc3')
         self.assertSent(s.client2, ':client1!uclient1@127.0.0.1 NICK irc3')
         self.assertNotSent(s.client3, ':client1!uclient1@127.0.0.1 NICK irc3')
 
         s.client3.dispatch('JOIN #irc')
         s.client1.dispatch('NICK client1')
+        self.assertSent(s.client1, ':irc3!uclient1@127.0.0.1 NICK client1')
         self.assertSent(s.client2, ':irc3!uclient1@127.0.0.1 NICK client1')
         self.assertSent(s.client3, ':irc3!uclient1@127.0.0.1 NICK client1')
 
@@ -79,7 +98,17 @@ class TestServerUserList(testing.ServerTestCase):
             s.client2,
             ':irc.com 433 client2 client1 :Nickname is already in use')
 
+        s.client2.dispatch('NICK client2')
+        self.assertNotSent(
+            s.client2,
+            ':irc.com 433 client2 client2 :Nickname is already in use')
+
         s.client1.reset()
+        s.client2.reset()
+        s.client1.dispatch('JOIN #irc3')  # JOIN when already on channel
+        self.assertNotSent(s.client1, ':{mask} JOIN #irc3', s.client1)
+        self.assertNotSent(s.client2, ':{mask} JOIN #irc3', s.client1)
+
         s.client1.dispatch('NAMES #irc')
         self.assertSent(s.client1,
                         ':irc.com 353 client1 = #irc :client1 client3')
@@ -87,5 +116,16 @@ class TestServerUserList(testing.ServerTestCase):
         self.assertSent(s.client1, ':irc.com 319 client1 :#irc3')
 
         s.client3.dispatch('PART #irc :Bye')
+        self.assertSent(s.client3, ':{mask} PART #irc :Bye', s.client3)
         self.assertSent(s.client1, ':{mask} PART #irc :Bye', s.client3)
         self.assertNotSent(s.client2, ':{mask} PART #irc :Bye', s.client3)
+        self.assertEqual(len(s.client3.channels), 0)
+        self.assertEqual(len(s.channels['#irc']), 1)
+
+        s.client1.reset()
+        s.client3.reset()
+        s.client3.dispatch('PART #irc :Bye')  # PART when not on channel
+        self.assertNotSent(s.client3, ':{mask} PART #irc :Bye', s.client3)
+        self.assertNotSent(s.client1, ':{mask} PART #irc :Bye', s.client3)
+
+        self.assertEqual(len(s.nicks), 3)

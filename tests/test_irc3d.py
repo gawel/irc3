@@ -58,6 +58,8 @@ class TestServer(testing.ServerTestCase):
         self.assertSent(
             s.client2, ':{mask} PRIVMSG #irc3 :Hello #irc3!', s.client1)
         self.assertNotSent(
+            s.client1, ':{mask} PRIVMSG #irc3 :Hello #irc3!', s.client1)
+        self.assertNotSent(
             s.client3, ':{mask} PRIVMSG #irc3 :Hello #irc3!', s.client1)
 
         s.client1.dispatch('PRIVMSG #irc5 :Hello #irc5!')
