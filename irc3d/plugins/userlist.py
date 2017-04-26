@@ -130,15 +130,21 @@ class ServerUserlist(userlist.Userlist):
 
             %%KICK <channel> <target> [<:reason>...]
         """
-        message = ':{mask} KICK {<channel>}'
+        target = args['<target>']
+        channel = args['<channel>']
+        target_client = self.get_client(target)
+        if channel not in target_client.channels:
+            return
+        target_client.channels.remove(channel)
+        message = ':{mask} KICK {<channel>} {<target>}'
         if args.get('<:reason>'):
             args['data'] = ' '.join(args['<:reason>'])
             message += ' {data}'
         kwargs.update(
             broadcast=message.format(mask=client.mask, **args),
-            channel=args.get('<channel>'),
+            channel=channel,
         )
-        self.part(args['<target>'], client.mask, client=client, **kwargs)
+        self.part(target, client.mask, client=client, **kwargs)
 
     @irc3d.command(permission=None)
     def NICK(self, client, args=None, **kwargs):
