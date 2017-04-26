@@ -66,6 +66,17 @@ class TestServer(testing.ServerTestCase):
         self.assertSent(
             s.client1, ':irc.com 401 client1 #irc5 :No such nick/channel')
 
+        # Test control codes integrity
+        for code in '\x02\x03\x1D\x1F\x16\x0F':
+            for pattern in ('X%sY', '%s'):
+                msg = pattern % (5 * code)
+                s.client1.reset()
+                s.client1.dispatch('PRIVMSG client1 :%s' % msg)
+                self.assertSent(
+                    s.client1,
+                    ':{mask} PRIVMSG client1 :%s' % msg,
+                    s.client1)
+
     def test_motd(self):
         s = self.callFTU(clients=1)
         s.config['testing'] = False
