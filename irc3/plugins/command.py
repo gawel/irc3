@@ -268,7 +268,7 @@ class Commands(dict):
             if use_shlex:
                 return shlex.split(data)
             else:
-                return data.split()
+                return data.split(' ')
         return []
 
     @irc3.event((r'(@(?P<tags>\S+) )?:(?P<mask>\S+) PRIVMSG (?P<target>\S+) '
