@@ -21,7 +21,7 @@ class P:
 
 @pytest.mark.asyncio
 def test_reconn(irc3_bot_factory):
-    cfg = {'verbose': True, 'debug': True}
+    cfg = {'verbose': True, 'debug': True, 'port': 49137}
     bot = irc3_bot_factory(includes=[__name__], **cfg)
     cfg['loop'] = bot.loop
     server = irc3d.IrcServer.from_config(cfg)
