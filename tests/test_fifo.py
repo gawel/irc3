@@ -1,5 +1,6 @@
 from irc3.testing import BotTestCase, MagicMock
 from irc3.plugins.fifo import Fifo
+import shutil
 
 
 class TestFifo(BotTestCase):
@@ -10,9 +11,17 @@ class TestFifo(BotTestCase):
     }
 
     def test_fifo_fake_event_loop(self):
+        try:
+            shutil.rmtree('/tmp/run/irc3')
+        except:
+            pass
         bot = self.callFTU()
         plugin = bot.get_plugin(Fifo)
         plugin.loop = MagicMock()
+
+        with open("/tmp/run/irc3/channel", "wb") as f:
+            f.write(b'-\n')
+
         bot.test(':irc3!user@host JOIN #channel')
         channel_fd = plugin.fifos["#channel"]
 

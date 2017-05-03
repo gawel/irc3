@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import irc3
+from stat import S_ISFIFO
 __doc__ = '''
 ==========================================
 :mod:`irc3.plugins.fifo` Fifo plugin
@@ -126,6 +127,16 @@ class Fifo:
             path = os.path.join(self.runpath, ':raw')
         else:
             path = os.path.join(self.runpath, channel.strip('#&+'))
+        try:
+            mode = os.stat(path).st_mode
+        except OSError:
+            pass
+        else:
+            if not S_ISFIFO(mode):
+                self.context.log.warn(
+                    'file %s created without mkfifo. remove it',
+                    path)
+                os.remove(path)
         if not os.path.exists(path):
             os.mkfifo(path)
         fd = os.open(path, os.O_RDWR | os.O_NONBLOCK)
