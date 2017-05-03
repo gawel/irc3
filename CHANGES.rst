@@ -3,6 +3,10 @@
 
 - Add ${#} as a shorter alias for ${hash}.
 
+- Bug fix in fifo plugin. We now remove the file first if it's not a pipe.
+
+- Fix some irc3d issues with QUIT and KICK command
+
 
 1.0.0 (2017-02-05)
 ==================
