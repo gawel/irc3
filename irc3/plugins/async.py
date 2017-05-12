@@ -254,8 +254,9 @@ class Async:
         """
         Creates and calls a class from WhoChannelFlags with needed match rule for WHO command on channels with modes.
         """
-        # Get regex for modes and preserve order from WHO_CHANNEL_MODES, otherwise resulting dict is wrong
-        regex = [WHO_CHANNEL_MODES[m] for m in modes if m in WHO_CHANNEL_MODES]
+        # Lowercase modes and sort based on WHO_CHANNEL_MODES, otherwise resulting dict is wrong
+        modes = [m.lower() for m in modes if m in WHO_CHANNEL_MODES]
+        regex = [WHO_CHANNEL_MODES[m] for m in modes]
         channel = channel.lower()
         cls = type(
             WhoChannelFlags.__name__,
