@@ -62,16 +62,6 @@ API
 
 """
 
-WHO_CHANNEL_MODES = OrderedDict(
-    u='(?P<user>\S+)',
-    i='(?P<ip>\S+)',
-    h='(?P<host>\S+)',
-    s='(?P<server>\S+)',
-    n='(?P<nick>\S+)',
-    a='(?P<account>\S+)',
-    r=':(?P<realname>.*)',
-)
-
 
 class Whois(AsyncEvents):
 
@@ -139,7 +129,22 @@ class WhoChannel(AsyncEvents):
 
 class WhoChannelFlags(AsyncEvents):
 
-    send_line = 'WHO {channel} c%{modes}'
+    flags = OrderedDict(
+        u="(?P<user>\S+)",
+        i="(?P<ip>\S+)",
+        h="(?P<host>\S+)",
+        s="(?P<server>\S+)",
+        n="(?P<nick>\S+)",
+        a="(?P<account>\S+)",
+        r=":(?P<realname>.*)",
+    )
+
+    send_line = "WHO {channel} c%{flags}"
+
+    events = (
+        {"match": "(?i)^:\S+ (?P<retcode>(315|401)) \S+ {channel} :.*",
+         "final": True},
+    )
 
     def process_results(self, results=None, **value):
         users = []
@@ -250,27 +255,26 @@ class Async:
         self.async_ison = IsOn(context)
         self.async_names = Names(context)
 
-    def async_who_channel_flags(self, channel, modes, timeout):
+    def async_who_channel_flags(self, channel, flags, timeout):
         """
         Creates and calls a class from WhoChannelFlags with needed match rule
-        for WHO command on channels with modes.
+        for WHO command on channels with flags.
         """
-        # Lowercase modes and sort based on WHO_CHANNEL_MODES, otherwise
-        # resulting dict is wrong. Also join modes if it's a sequence.
-        modes = ''.join([m.lower() for m in modes if m in WHO_CHANNEL_MODES])
-        regex = [WHO_CHANNEL_MODES[m] for m in modes]
+        # Lowercase flags and sort based on WhoChannelFlags.flags, otherwise
+        # resulting dict is wrong. Also join flags if it's a sequence.
+        flags = ''.join([f.lower() for f in WhoChannelFlags.flags
+                         if f in flags])
+        regex = [WhoChannelFlags.flags[f] for f in flags]
         channel = channel.lower()
         cls = type(
             WhoChannelFlags.__name__,
             (WhoChannelFlags,),
-            {'events': (
-                {'match': '(?i)^:\S+ 354 \S+ {0}'.format(' '.join(regex)),
-                 'multi': True},
-                {'match': '(?i)^:\S+ (?P<retcode>(315|401)) \S+ {channel} :.*',
-                 'final': True},
+            {"events": WhoChannelFlags.events + (
+                {"match": "(?i)^:\S+ 354 \S+ {0}".format(' '.join(regex)),
+                 "multi": True},
             )}
         )
-        return cls(self.context)(channel=channel, modes=modes, timeout=timeout)
+        return cls(self.context)(channel=channel, flags=flags, timeout=timeout)
 
     @dec.extend
     def whois(self, nick, timeout=20):
@@ -283,19 +287,22 @@ class Async:
         return self.async_whois(nick=nick.lower(), timeout=timeout)
 
     @dec.extend
-    def who(self, target, modes=None, timeout=20):
+    def who(self, target, flags=None, timeout=20):
         """Send a WHO and return a Future which will contain recieved data:
 
         .. code-block:: py
 
             result = yield from bot.async_cmds.who('gawel')
             result = yield from bot.async_cmds.who('#irc3')
+            result = yield from bot.async_cmds.who('#irc3', 'an')
+            # or
+            result = yield from bot.async_cmds.who('#irc3', ['a', 'n'])
         """
         target = target.lower()
         if target.startswith('#'):
-            if modes:
+            if flags:
                 return self.async_who_channel_flags(channel=target,
-                                                    modes=modes,
+                                                    flags=flags,
                                                     timeout=timeout)
             return self.async_who_channel(channel=target, timeout=timeout)
         else:

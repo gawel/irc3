@@ -61,6 +61,25 @@ def test_who_channel(irc3_bot_factory):
 
 
 @pytest.mark.asyncio
+def test_who_channel_flags(irc3_bot_factory):
+    bot = irc3_bot_factory(includes=['irc3.plugins.async'])
+    assert len(bot.registry.events_re['in']) == 0
+    # Test flags 'a' and 'n'
+    task = bot.async_cmds.who('#irc3', 'an')
+    assert len(bot.registry.events_re['in']) == 2
+    bot.dispatch(':card.freenode.net 354 nick irc3 irc3')
+    bot.dispatch(':card.freenode.net 354 nick gael 0')
+    bot.dispatch(':card.freenode.net 315 nick #irc3 :End of /WHO list.')
+    result = yield from task
+    assert result['timeout'] is False
+    assert len(result['users']) == 2
+    assert result['users'][0]['nick'] == 'irc3'
+    assert result['users'][0]['account'] == 'irc3'
+    assert result['users'][1]['nick'] == 'gael'
+    assert result['users'][1]['account'] is None
+
+
+@pytest.mark.asyncio
 def test_who_nick(irc3_bot_factory):
     bot = irc3_bot_factory(includes=['irc3.plugins.async'])
     assert len(bot.registry.events_re['in']) == 0
