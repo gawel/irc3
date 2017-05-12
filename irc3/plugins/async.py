@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
 from irc3.async import AsyncEvents
 from irc3 import utils
 from irc3 import dec
@@ -61,6 +62,16 @@ API
 
 """
 
+WHO_CHANNEL_MODES = OrderedDict(
+    u='(?P<user>\S+)',
+    i='(?P<ip>\S+)',
+    h='(?P<host>\S+)',
+    s='(?P<server>\S+)',
+    n='(?P<nick>\S+)',
+    a='(?P<account>\S+)',
+    r=':(?P<realname>.*)',
+)
+
 
 class Whois(AsyncEvents):
 
@@ -120,6 +131,25 @@ class WhoChannel(AsyncEvents):
             else:
                 res['mask'] = utils.IrcString(
                     '{nick}!{user}@{host}'.format(**res))
+                users.append(res)
+        value['users'] = users
+        value['success'] = value.get('retcode') == '315'
+        return value
+
+
+class WhoChannelFlags(AsyncEvents):
+
+    send_line = 'WHO {channel} c%{modes}'
+
+    def process_results(self, results=None, **value):
+        users = []
+        for res in results:
+            if 'retcode' in res:
+                value.update(res)
+            else:
+                # Works in QuakeNet, don't know about other networks
+                if res.get('account') == '0':
+                    res['account'] = None
                 users.append(res)
         value['users'] = users
         value['success'] = value.get('retcode') == '315'
@@ -220,6 +250,26 @@ class Async:
         self.async_ison = IsOn(context)
         self.async_names = Names(context)
 
+    def async_who_channel_flags(self, channel, modes, timeout):
+        """
+        Creates and calls a class from WhoChannelFlags with needed match rule for WHO command on channels with modes.
+        """
+        # Get regex for modes and preserve order from WHO_CHANNEL_MODES, otherwise resulting dict is wrong
+        regex = [WHO_CHANNEL_MODES[m] for m in modes if m in WHO_CHANNEL_MODES]
+        channel = channel.lower()
+        cls = type(
+            WhoChannelFlags.__name__,
+            (WhoChannelFlags,),
+            {'events': (
+                {'match': '(?i)^:\S+ 354 \S+ {0}'.format(' '.join(regex)),
+                 'multi': True},
+                {'match': '(?i)^:\S+ (?P<retcode>(315|401)) \S+ {channel} :.*',
+                 'final': True},
+            )}
+        )
+        # Join modes if modes is a sequence
+        return cls(self.context)(channel=channel, modes=''.join(modes), timeout=timeout)
+
     @dec.extend
     def whois(self, nick, timeout=20):
         """Send a WHOIS and return a Future which will contain recieved data:
@@ -231,7 +281,7 @@ class Async:
         return self.async_whois(nick=nick.lower(), timeout=timeout)
 
     @dec.extend
-    def who(self, target, timeout=20):
+    def who(self, target, modes=None, timeout=20):
         """Send a WHO and return a Future which will contain recieved data:
 
         .. code-block:: py
@@ -241,6 +291,8 @@ class Async:
         """
         target = target.lower()
         if target.startswith('#'):
+            if modes:
+                return self.async_who_channel_flags(channel=target, modes=modes, timeout=timeout)
             return self.async_who_channel(channel=target, timeout=timeout)
         else:
             return self.async_who_nick(nick=target, timeout=timeout)
