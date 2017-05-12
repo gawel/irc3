@@ -252,10 +252,12 @@ class Async:
 
     def async_who_channel_flags(self, channel, modes, timeout):
         """
-        Creates and calls a class from WhoChannelFlags with needed match rule for WHO command on channels with modes.
+        Creates and calls a class from WhoChannelFlags with needed match rule 
+        for WHO command on channels with modes.
         """
-        # Lowercase modes and sort based on WHO_CHANNEL_MODES, otherwise resulting dict is wrong
-        modes = [m.lower() for m in modes if m in WHO_CHANNEL_MODES]
+        # Lowercase modes and sort based on WHO_CHANNEL_MODES, otherwise
+        # resulting dict is wrong
+        modes = ''.join([m.lower() for m in modes if m in WHO_CHANNEL_MODES])
         regex = [WHO_CHANNEL_MODES[m] for m in modes]
         channel = channel.lower()
         cls = type(
@@ -269,7 +271,7 @@ class Async:
             )}
         )
         # Join modes if modes is a sequence
-        return cls(self.context)(channel=channel, modes=''.join(modes), timeout=timeout)
+        return cls(self.context)(channel=channel, modes=modes, timeout=timeout)
 
     @dec.extend
     def whois(self, nick, timeout=20):
@@ -293,7 +295,9 @@ class Async:
         target = target.lower()
         if target.startswith('#'):
             if modes:
-                return self.async_who_channel_flags(channel=target, modes=modes, timeout=timeout)
+                return self.async_who_channel_flags(channel=target,
+                                                    modes=modes,
+                                                    timeout=timeout)
             return self.async_who_channel(channel=target, timeout=timeout)
         else:
             return self.async_who_nick(nick=target, timeout=timeout)
