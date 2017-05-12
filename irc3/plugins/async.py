@@ -252,7 +252,7 @@ class Async:
 
     def async_who_channel_flags(self, channel, modes, timeout):
         """
-        Creates and calls a class from WhoChannelFlags with needed match rule 
+        Creates and calls a class from WhoChannelFlags with needed match rule
         for WHO command on channels with modes.
         """
         # Lowercase modes and sort based on WHO_CHANNEL_MODES, otherwise
