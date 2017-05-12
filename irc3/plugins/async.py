@@ -256,7 +256,7 @@ class Async:
         for WHO command on channels with modes.
         """
         # Lowercase modes and sort based on WHO_CHANNEL_MODES, otherwise
-        # resulting dict is wrong
+        # resulting dict is wrong. Also join modes if it's a sequence.
         modes = ''.join([m.lower() for m in modes if m in WHO_CHANNEL_MODES])
         regex = [WHO_CHANNEL_MODES[m] for m in modes]
         channel = channel.lower()
@@ -270,7 +270,6 @@ class Async:
                  'final': True},
             )}
         )
-        # Join modes if modes is a sequence
         return cls(self.context)(channel=channel, modes=modes, timeout=timeout)
 
     @dec.extend
