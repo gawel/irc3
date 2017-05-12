@@ -129,15 +129,15 @@ class WhoChannel(AsyncEvents):
 
 class WhoChannelFlags(AsyncEvents):
 
-    flags = OrderedDict(
-        u="(?P<user>\S+)",
-        i="(?P<ip>\S+)",
-        h="(?P<host>\S+)",
-        s="(?P<server>\S+)",
-        n="(?P<nick>\S+)",
-        a="(?P<account>\S+)",
-        r=":(?P<realname>.*)",
-    )
+    flags = OrderedDict([
+        ("u", "(?P<user>\S+)"),
+        ("i", "(?P<ip>\S+)"),
+        ("h", "(?P<host>\S+)"),
+        ("s", "(?P<server>\S+)"),
+        ("n", "(?P<nick>\S+)"),
+        ("a", "(?P<account>\S+)"),
+        ("r", ":(?P<realname>.*)"),
+    ])
 
     send_line = "WHO {channel} c%{flags}"
 
