@@ -61,6 +61,38 @@ def test_who_channel(irc3_bot_factory):
 
 
 @pytest.mark.asyncio
+def test_who_channel_flags(irc3_bot_factory):
+    bot = irc3_bot_factory(includes=['irc3.plugins.async'])
+    assert len(bot.registry.events_re['in']) == 0
+    task = bot.async_cmds.who('#irc3', 'ahinrsu')
+    assert len(bot.registry.events_re['in']) == 2
+    bot.dispatch(
+        ':card.freenode.net 354 nick ~irc3 1.1.1.1 host1 srv1 irc3 0 :0 bot')
+    bot.dispatch(
+        ':card.freenode.net 354 nick ~gael 2.2.2.2 host2 srv2 gawel g :1 g')
+    bot.dispatch(':card.freenode.net 315 nick #irc3 :End of /WHO list.')
+    result = yield from task
+    assert result['timeout'] is False
+    assert len(result['users']) == 2
+    # First user
+    assert result['users'][0]['account'] is None
+    assert result['users'][0]['host'] == 'host1'
+    assert result['users'][0]['ip'] == '1.1.1.1'
+    assert result['users'][0]['nick'] == 'irc3'
+    assert result['users'][0]['realname'] == '0 bot'
+    assert result['users'][0]['server'] == 'srv1'
+    assert result['users'][0]['user'] == '~irc3'
+    # Second user
+    assert result['users'][1]['account'] == 'g'
+    assert result['users'][1]['host'] == 'host2'
+    assert result['users'][1]['ip'] == '2.2.2.2'
+    assert result['users'][1]['nick'] == 'gawel'
+    assert result['users'][1]['realname'] == '1 g'
+    assert result['users'][1]['server'] == 'srv2'
+    assert result['users'][1]['user'] == '~gael'
+
+
+@pytest.mark.asyncio
 def test_who_nick(irc3_bot_factory):
     bot = irc3_bot_factory(includes=['irc3.plugins.async'])
     assert len(bot.registry.events_re['in']) == 0
