@@ -173,3 +173,17 @@ def test_channel_bans(irc3_bot_factory):
     assert result['bans'][0]['mask'] == '*!*@host'
     assert result['bans'][0]['user'] == 'irc3'
     assert result['bans'][0]['timestamp'] == 1494621383
+
+
+@pytest.mark.asyncio
+def test_ctcp(irc3_bot_factory):
+    bot = irc3_bot_factory(includes=['irc3.plugins.async'])
+    assert len(bot.registry.events_re['in']) == 0
+    task = bot.async_cmds.ctcp_async('irc3', 'VERSION')
+    assert len(bot.registry.events_re['in']) == 1
+    bot.dispatch(':irc3!irc3@host1 PRIVMSG nick :\x01VERSION IRC3 Library\x01')
+    result = yield from task
+    assert result['timeout'] is False
+    assert result['mask'] == 'irc3!irc3@host1'
+    assert result['ctcp'] == 'VERSION'
+    assert result['reply'] == 'IRC3 Library'

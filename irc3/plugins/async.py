@@ -262,6 +262,24 @@ class ChannelBans(AsyncEvents):
         return value
 
 
+class CTCP(AsyncEvents):
+
+    send_line = 'PRIVMSG {nick} :\x01{ctcp}\x01'
+
+    events = (
+        {"match": "(?i):(?P<mask>\S+) PRIVMSG \S+ :\x01(?P<ctcp>\S+) "
+                  "(?P<reply>.*)\x01",
+         "final": True},
+    )
+
+    def process_results(self, results=None, **value):
+        """take results list of all events and return first dict"""
+        for res in results:
+            res['mask'] = utils.IrcString(res['mask'])
+            value.update(res)
+            return value
+
+
 @dec.plugin
 class Async:
     """Asynchronious plugin.
@@ -279,6 +297,7 @@ class Async:
         self.async_ison = IsOn(context)
         self.async_names = Names(context)
         self.async_channel_bans = ChannelBans(context)
+        self.async_ctcp = CTCP(context)
 
     def async_who_channel_flags(self, channel, flags, timeout):
         """
@@ -373,3 +392,13 @@ class Async:
         """
         return self.async_channel_bans(channel=channel.lower(),
                                        timeout=timeout)
+
+    @dec.extend
+    def ctcp_async(self, nick, ctcp, timeout=20):
+        """Send a CTCP and return a Future which will contain recieved data:
+
+        .. code-block:: py
+
+            result = yield from bot.async_cmds.ctcp('irc3', 'version')
+        """
+        return self.async_ctcp(nick=nick, ctcp=ctcp.upper(), timeout=timeout)
