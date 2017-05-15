@@ -243,7 +243,7 @@ class CTCP(AsyncEvents):
     send_line = 'PRIVMSG {nick} :\x01{ctcp}\x01'
 
     events = (
-        {"match": "(?i):(?P<mask>\S+) PRIVMSG \S+ :\x01(?P<ctcp>\S+) "
+        {"match": "(?i):(?P<mask>\S+) NOTICE \S+ :\x01(?P<ctcp>\S+) "
                   "(?P<reply>.*)\x01",
          "final": True},
     )
