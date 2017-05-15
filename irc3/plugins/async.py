@@ -238,6 +238,30 @@ class Names(AsyncEvents):
         return value
 
 
+class ChannelBans(AsyncEvents):
+
+    send_line = 'MODE {channel} +b'
+
+    events = (
+        {"match": "(?i)^:\S+ 367 \S+ {channel} (?P<mask>\S+) (?P<user>\S+) "
+                  "(?P<timestamp>\d+)",
+         "multi": True},
+        {"match": "(?i)^:\S+ 368 \S+ {channel} :.*",
+         "final": True},
+    )
+
+    def process_results(self, results=None, **value):
+        bans = []
+        for res in results:
+            # TODO: fix event so this one isn't needed
+            if not res:
+                continue
+            res['timestamp'] = int(res['timestamp'])
+            bans.append(res)
+        value['bans'] = bans
+        return value
+
+
 @dec.plugin
 class Async:
     """Asynchronious plugin.
@@ -254,6 +278,7 @@ class Async:
         self.async_topic = Topic(context)
         self.async_ison = IsOn(context)
         self.async_names = Names(context)
+        self.async_channel_bans = ChannelBans(context)
 
     def async_who_channel_flags(self, channel, flags, timeout):
         """
@@ -337,3 +362,14 @@ class Async:
             result = yield from bot.async_cmds.names('#irc3')
         """
         return self.async_names(channel=channel.lower(), timeout=timeout)
+
+    @dec.extend
+    def channel_bans(self, channel, timeout=20):
+        """Send a MODE +b and return a Future which will contain recieved data:
+
+        .. code-block:: py
+
+            result = yield from bot.async_cmds.channel_bans('#irc3')
+        """
+        return self.async_channel_bans(channel=channel.lower(),
+                                       timeout=timeout)
