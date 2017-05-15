@@ -160,22 +160,6 @@ def test_names(irc3_bot_factory):
 
 
 @pytest.mark.asyncio
-def test_channel_bans(irc3_bot_factory):
-    bot = irc3_bot_factory(includes=['irc3.plugins.async'])
-    assert len(bot.registry.events_re['in']) == 0
-    task = bot.async_cmds.channel_bans('#irc3')
-    assert len(bot.registry.events_re['in']) == 2
-    bot.dispatch(':card.freenode.net 367 nick #irc3 *!*@host irc3 1494621383')
-    bot.dispatch(':card.freenode.net 368 nick #irc3 :End of Channel Ban List')
-    result = yield from task
-    assert result['timeout'] is False
-    assert len(result['bans']) == 1
-    assert result['bans'][0]['mask'] == '*!*@host'
-    assert result['bans'][0]['user'] == 'irc3'
-    assert result['bans'][0]['timestamp'] == 1494621383
-
-
-@pytest.mark.asyncio
 def test_ctcp(irc3_bot_factory):
     bot = irc3_bot_factory(includes=['irc3.plugins.async'])
     assert len(bot.registry.events_re['in']) == 0
