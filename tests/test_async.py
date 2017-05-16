@@ -180,7 +180,7 @@ def test_ctcp(irc3_bot_factory):
     bot = irc3_bot_factory(includes=['irc3.plugins.async'])
     assert len(bot.registry.events_re['in']) == 0
     task = bot.async_cmds.ctcp_async('irc3', 'VERSION')
-    assert len(bot.registry.events_re['in']) == 1
+    assert len(bot.registry.events_re['in']) == 2
     bot.dispatch(':irc3!irc3@host1 NOTICE nick :\x01VERSION IRC3 Library\x01')
     result = yield from task
     assert result['timeout'] is False
