@@ -270,14 +270,18 @@ class CTCP(AsyncEvents):
         {"match": "(?i):(?P<mask>\S+) NOTICE \S+ :\x01(?P<ctcp>\S+) "
                   "(?P<reply>.*)\x01",
          "final": True},
+        {"match": "(?i)^:\S+ (?P<retcode>486) \S+ :(?P<reply>.*)",
+         "final": True}
     )
 
     def process_results(self, results=None, **value):
         """take results list of all events and return first dict"""
         for res in results:
-            res['mask'] = utils.IrcString(res['mask'])
+            if 'mask' in res:
+                res['mask'] = utils.IrcString(res['mask'])
+            value['success'] = res.pop('retcode', None) != '486'
             value.update(res)
-            return value
+        return value
 
 
 @dec.plugin
