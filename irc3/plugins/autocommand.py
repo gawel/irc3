@@ -26,7 +26,7 @@ This example will authorize on Freenode:
     ...     irc3.plugins.autocommand
     ...
     ... autocommands =
-    ...     PRIVMSG NickServ IDENTIFY nick password
+    ...     PRIVMSG NickServ :IDENTIFY nick password
     ... """)
     >>> bot = IrcBot(**config)
 
@@ -41,7 +41,7 @@ Here's another, more complicated example:
     ...     AUTH user password
     ...     MODE {nick} +x
     ...     /sleep 2
-    ...     PRIVMSG Q INVITE #inviteonly
+    ...     PRIVMSG Q :INVITE #inviteonly
     ... """)
     >>> bot = IrcBot(**config)
 
