@@ -237,6 +237,10 @@ class IrcBot(base.IrcObject):
                                        nowait=nowait)
                 return f
 
+    def action(self, target, message, nowait=False):
+        return self.privmsg(target, '\x01ACTION %s\x01' % message,
+                            nowait=nowait)
+
     def notice(self, target, message, nowait=False):
         """send a notice to target"""
         if message:

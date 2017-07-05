@@ -36,6 +36,8 @@ class TestBot(BotTestCase):
         self.assertSent(['PRIVMSG gawel :Youhou!'])
         bot.notice('gawel', 'Youhou!')
         self.assertSent(['NOTICE gawel :Youhou!'])
+        bot.action('gawel', 'does some cool action')
+        self.assertSent(['PRIVMSG gawel :\x01ACTION does some cool action\x01'])
 
     def test_long_message(self):
         bot = self.callFTU(max_length=8)
