@@ -9,7 +9,7 @@ version = '1.0.1.dev0'
 
 install_requires = ['venusian>=1.0', 'docopt']
 test_requires = [
-    'pytest-asyncio',
+    'pytest-asyncio==0.5.0',
     'feedparser',
     'requests',
     'pysocks',
