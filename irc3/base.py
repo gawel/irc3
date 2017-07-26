@@ -327,6 +327,8 @@ class IrcObject:
                 port=self.config.port,
                 ssl=self.get_ssl_context()
             )
+            if self.config.get('vhost'):
+                args["local_addr"] = (self.config.vhost, 0)
         t = asyncio.Task(factory(protocol, **args), loop=self.loop)
         t.add_done_callback(self.connection_made)
         return self.loop
