@@ -125,6 +125,7 @@ Available options
 
     [irc3.plugins.command]
     cmd = !
+    use_shlex = true
     antiflood = true
     casesensitive = true
     guard = irc3.plugins.command.mask_based_policy
@@ -250,6 +251,7 @@ class Commands(dict):
         context.config['cmd'] = self.cmd = config.get('cmd', '!')
         context.config['re_cmd'] = re.escape(self.cmd)
 
+        self.use_shlex = self.config.get('use_shlex', True)
         self.antiflood = self.config.get('antiflood', False)
         self.case_sensitive = self.config.get('casesensitive',
                                               self.case_sensitive)
@@ -263,8 +265,10 @@ class Commands(dict):
 
         self.aliases = {}
 
-    def split_command(self, data, use_shlex=True):
+    def split_command(self, data, use_shlex=None):
         if data:
+            if use_shlex is None:
+                use_shlex = self.use_shlex
             if use_shlex:
                 return shlex.split(data)
             else:
@@ -300,7 +304,7 @@ class Commands(dict):
                 data = data.encode(encoding)
         try:
             data = self.split_command(
-                data, use_shlex=predicates.get('use_shlex', True))
+                data, use_shlex=predicates.get('use_shlex'))
         except ValueError as e:
             self.context.privmsg(to, 'Invalid arguments: {}.'.format(e))
             return
