@@ -267,7 +267,9 @@ class Commands(dict):
 
     def split_command(self, data, use_shlex=None):
         if data:
-            if (use_shlex or self.use_shlex) is True:
+            if use_shlex is None:
+                use_shlex = self.use_shlex
+            if use_shlex:
                 return shlex.split(data)
             else:
                 return data.split(' ')
