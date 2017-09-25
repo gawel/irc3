@@ -304,7 +304,7 @@ class Commands(dict):
         except ValueError as e:
             if not predicates.get('quiet', False):
                 self.context.privmsg(to, 'Invalid arguments: {}.'.format(e))
-                return
+            return
         docopt_args = dict(help=False)
         if "options_first" in predicates:
             docopt_args.update(options_first=predicates["options_first"])
