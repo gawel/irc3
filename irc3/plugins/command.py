@@ -302,9 +302,7 @@ class Commands(dict):
             data = self.split_command(
                 data, use_shlex=predicates.get('use_shlex', True))
         except ValueError as e:
-            if predicates.get('quiet', False) is True:
-                return
-            else:
+            if not predicates.get('quiet', False):
                 self.context.privmsg(to, 'Invalid arguments: {}.'.format(e))
                 return
         docopt_args = dict(help=False)
@@ -314,9 +312,7 @@ class Commands(dict):
         try:
             args = docopt.docopt(doc, [cmd_name] + data, **docopt_args)
         except docopt.DocoptExit:
-            if predicates.get('quiet', False) is True:
-                return
-            else:
+            if not predicates.get('quiet', False):
                 self.context.privmsg(to, 'Invalid arguments.')
         else:
             uid = (cmd_name, to)
