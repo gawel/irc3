@@ -15,7 +15,8 @@ import os
                  aliases=['cmd_alias'],
                  show_in_help_list=False,
                  use_shlex=False,
-                 options_first=True)
+                 options_first=True,
+                 quiet=True)
 @dcc.dcc_command(options_first=True)
 def cmd(bot, *args):
     """Test command
@@ -210,6 +211,12 @@ class TestCommands(BotTestCase):
         bot = self.callFTU(nick='nono')
         bot.dispatch(':bar!user@host PRIVMSG nono :!ping xx')
         self.assertSent(['PRIVMSG bar :Invalid arguments.'])
+
+    def test_invalid_arguments_hides(self):
+        bot = self.callFTU(nick='nono')
+        bot.include(__name__)
+        bot.dispatch(':bar!user@host PRIVMSG #chan :!cmd xx')
+        self.assertNothingSent()
 
     def test_command_case_insensitive(self):
         bot = self.callFTU(nick='nono')
