@@ -15,7 +15,8 @@ import os
                  aliases=['cmd_alias'],
                  show_in_help_list=False,
                  use_shlex=False,
-                 options_first=True)
+                 options_first=True,
+                 quiet=True)
 @dcc.dcc_command(options_first=True)
 def cmd(bot, *args):
     """Test command
@@ -32,7 +33,7 @@ def cmd_view(bot, *args):
     return 'Done'
 
 
-@command.command
+@command.command(quiet=True)
 def cmd_arg(bot, *args):
     """test command
 
@@ -159,6 +160,18 @@ class TestCommands(BotTestCase):
         bot.dispatch(':bar!user@host PRIVMSG foo :!cmd_arg   "test test" ')
         self.assertSent(['PRIVMSG bar :Done'])
 
+    def test_command_argument_quiet(self):
+        bot = self.callFTU(nick='nono')
+        bot.include(__name__)
+        bot.dispatch(':bar!user@host PRIVMSG #chan :!cmd xx')
+        self.assertNothingSent()
+
+    def test_command_argument_quiet_shlex(self):
+        bot = self.callFTU(nick='nono')
+        bot.include(__name__)
+        bot.dispatch(':bar!user@host PRIVMSG #chan :!cmd_arg "test')
+        self.assertNothingSent()
+
     def test_private_command(self):
         bot = self.callFTU()
         bot.dispatch(':bar!user@host PRIVMSG nono :!ping')
@@ -210,6 +223,12 @@ class TestCommands(BotTestCase):
         bot = self.callFTU(nick='nono')
         bot.dispatch(':bar!user@host PRIVMSG nono :!ping xx')
         self.assertSent(['PRIVMSG bar :Invalid arguments.'])
+
+    def test_invalid_arguments_shlex(self):
+        bot = self.callFTU(nick='nono')
+        bot.dispatch(':bar!user@host PRIVMSG nono :!ping "xx')
+        self.assertSent(
+            ['PRIVMSG bar :Invalid arguments: No closing quotation.'])
 
     def test_command_case_insensitive(self):
         bot = self.callFTU(nick='nono')
