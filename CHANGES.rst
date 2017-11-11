@@ -1,6 +1,8 @@
 1.0.1 (unreleased)
 ==================
 
+- Add `command(error_format=callable)` argument.
+
 - Add ${#} as a shorter alias for ${hash}.
 
 - Bug fix in fifo plugin. We now remove the file first if it's not a pipe.
