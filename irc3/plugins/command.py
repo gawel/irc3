@@ -121,6 +121,8 @@ Commands can be coroutines:
 Available options
 =================
 
+The plugin accept the folowing options:
+
 .. code-block:: ini
 
     [irc3.plugins.command]
@@ -129,6 +131,26 @@ Available options
     antiflood = true
     casesensitive = true
     guard = irc3.plugins.command.mask_based_policy
+
+
+Command arguments
+=================
+
+The :func:`command` decorator accept the folowing arguments:
+
+**name**: if set, use this name as the command name instead of the function
+name.
+
+**permission**: if set, this permission will be required to run the command.
+See Guard section
+
+**use_shlex**: if `False`, do not use `shlex` to parse command line.
+
+**options_first**: if `True` use docopt's options_first options. Allow to have
+args that starts with `-` as arguments.
+
+**quiet**: if `True` don't show errors
+
 
 '''
 
