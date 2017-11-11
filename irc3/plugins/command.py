@@ -288,14 +288,9 @@ class Commands(dict):
         self.aliases = {}
 
     def split_command(self, data, use_shlex=None):
-        if data:
-            if use_shlex is None:
-                use_shlex = self.use_shlex
-            if use_shlex:
-                return shlex.split(data)
-            else:
-                return data.split(' ')
-        return []
+        if not data:
+            return []
+        return shlex.split(data) if use_shlex else data.split(' ')
 
     @irc3.event((r'(@(?P<tags>\S+) )?:(?P<mask>\S+) PRIVMSG (?P<target>\S+) '
                  r':{re_cmd}(?P<cmd>[\w-]+)(\s+(?P<data>\S.*)|(\s*$))'))
@@ -314,19 +309,19 @@ class Commands(dict):
 
     def do_command(self, predicates, meth, client, target, data=None, **kw):
         nick = self.context.nick or '-'
-        to = target == nick and client.nick or target
+        to = client.nick if target == nick else target
         doc = meth.__doc__ or ''
         doc = [l.strip() for l in doc.strip().split('\n')]
         doc = [nick + ' ' + l.strip('%%')
                for l in doc if l.startswith('%%')]
         doc = 'Usage:' + '\n    ' + '\n    '.join(doc)
-        encoding = self.context.encoding
         if data:
             if not isinstance(data, str):  # pragma: no cover
+                encoding = self.context.encoding
                 data = data.encode(encoding)
         try:
             data = self.split_command(
-                data, use_shlex=predicates.get('use_shlex'))
+                data, use_shlex=predicates.get('use_shlex', self.use_shlex))
         except ValueError as e:
             if not predicates.get('quiet', False):
                 self.context.privmsg(to, 'Invalid arguments: {}.'.format(e))
@@ -335,9 +330,10 @@ class Commands(dict):
         if "options_first" in predicates:
             docopt_args.update(options_first=predicates["options_first"])
         cmd_name = predicates.get('name', meth.__name__)
+        data.insert(0, cmd_name)
         try:
-            args = docopt.docopt(doc, [cmd_name] + data, **docopt_args)
-        except docopt.DocoptExit:
+            args = docopt.docopt(doc, data, **docopt_args)
+        except docopt.DocoptExit as exc:
             if not predicates.get('quiet', False):
                 self.context.privmsg(to, 'Invalid arguments.')
         else:
