@@ -1,4 +1,4 @@
-1.0.1 (unreleased)
+1.0.1 (2017-11-11)
 ==================
 
 - Add `command(error_format=callable)` argument.
