@@ -65,7 +65,7 @@ class Human:
                 data = data.decode('utf8')
             quotes = json.loads(data)
             quotes = [v['joke'] for v in quotes['value']]
-        except:
+        except Exception:
             self.bot.log.error('Failed to get quotes from api.icndb.com')
             quotes = [u'Hi!', u'lol']
         self.bot.log.info('Initialise %s with %s quotes',
@@ -84,7 +84,7 @@ class Human:
             fd.readline()
             try:
                 message = fd.readline().strip()
-            except:  # pragma: no cover
+            except Exception:  # pragma: no cover
                 pass
 
         message = message or 'Yo!'

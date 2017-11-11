@@ -303,7 +303,7 @@ class ServerUserlist(userlist.Userlist):
         try:
             target = self.nicks[args['<nick>']]
             kwargs.update(target.data)
-        except:
+        except Exception:
             channels = None
             kwargs['nick'] = args['<nick>']
             rpl = [rfc.ERR_NOSUCHNICK]

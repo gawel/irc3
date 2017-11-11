@@ -14,7 +14,7 @@ class Plugin(object):
         self.channel = context.config.channel
         try:
             self.chater = context.config.chater
-        except:
+        except Exception:
             self.chater = None
 
     @irc3.event(irc3.rfc.CONNECTED)

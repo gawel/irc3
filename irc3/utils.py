@@ -348,8 +348,8 @@ class Logger(logging.getLoggerClass()):
             >>> log.set_irc_targets(bot, '#chan', 'admin')
         """
         # get formatter initialized by config (usualy on a NullHandler)
-        l = logging.getLogger('irc')
-        formatter = l.handlers[0].formatter
+        ll = logging.getLogger('irc')
+        formatter = ll.handlers[0].formatter
         # add a handler for the sub logger
         handler = Handler(bot, *targets)
         handler.setFormatter(formatter)

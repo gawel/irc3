@@ -57,7 +57,7 @@ class TwitterAdapter:
             message = ''
             try:
                 res = json.loads(e.response_data.decode('utf8'))
-            except:
+            except Exception:
                 pass
             else:
                 message = ''

@@ -54,7 +54,7 @@ class Page:
     def close(self):
         try:
             self.iterator.close()
-        except:
+        except Exception:
             pass
 
 

@@ -83,7 +83,7 @@ def fetch(args):
         try:
             resp = session.get(feed, timeout=5)
             content = resp.content
-        except:  # pragma: no cover
+        except Exception:  # pragma: no cover
             pass
         else:
             with open(filename, 'wb') as fd:

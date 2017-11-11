@@ -13,7 +13,7 @@ class TestFifo(BotTestCase):
     def test_fifo_fake_event_loop(self):
         try:
             shutil.rmtree('/tmp/run/irc3')
-        except:
+        except Exception:
             pass
         bot = self.callFTU()
         plugin = bot.get_plugin(Fifo)
