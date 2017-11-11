@@ -149,6 +149,10 @@ See Guard section
 **options_first**: if `True` use docopt's options_first options. Allow to have
 args that starts with `-` as arguments.
 
+**error_format**: allow to customize error messages. must be a callable that
+accept keyword arguments `cmd`, `args` and `exc`.
+For example, `error_format="Error for {cmd}".format` will work.
+
 **quiet**: if `True` don't show errors
 
 
@@ -282,6 +286,8 @@ class Commands(dict):
         self.log.debug('Guard: %s', guard.__name__)
         self.guard = guard(context)
 
+        self.error_format = utils.maybedotted(config.get('error_format',
+                                              "Invalid arguments.".format))
         self.handles = defaultdict(Done)
         self.tasks = defaultdict(Done)
 
@@ -330,12 +336,15 @@ class Commands(dict):
         if "options_first" in predicates:
             docopt_args.update(options_first=predicates["options_first"])
         cmd_name = predicates.get('name', meth.__name__)
-        data.insert(0, cmd_name)
         try:
-            args = docopt.docopt(doc, data, **docopt_args)
+            args = docopt.docopt(doc, [cmd_name] + data, **docopt_args)
         except docopt.DocoptExit as exc:
             if not predicates.get('quiet', False):
-                self.context.privmsg(to, 'Invalid arguments.')
+                args = {'cmd': cmd_name, 'args': data,
+                        'args_str': " ".join(data), 'exc': exc}
+                error_format = predicates.get('error_format',
+                                              self.error_format)
+                self.context.privmsg(to, error_format(**args))
         else:
             uid = (cmd_name, to)
             use_client = isinstance(client, asyncio.Protocol)
