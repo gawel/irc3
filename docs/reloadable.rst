@@ -1,6 +1,12 @@
 Reloadable plugins
 ==================
 
+.. note:: if you just want the bot to restart when you change a file during
+    development you can use `hupper <https://pypi.python.org/pypi/huppe>`_::
+
+    $ pip install hupper
+    $ hupper -m irc3 config.ini
+
 irc3 provide a way to reload plugins without restarting the bot.
 
 To do that, your plugin should provide a ``reload`` class method::
