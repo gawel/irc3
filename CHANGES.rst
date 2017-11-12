@@ -1,7 +1,7 @@
 1.0.2 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Add `irc3.__main__` to allow `python -m irc3 config.ini`
 
 
 1.0.1 (2017-11-11)
