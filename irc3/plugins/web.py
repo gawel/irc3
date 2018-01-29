@@ -55,7 +55,7 @@ class Web:
 
     def server_ready(self):
         if self.server is None:
-            server = self.web.Server(self.handler)
+            server = self.web.Server(self.handler, loop=self.context.loop)
             host = self.config.get('host', '127.0.0.1')
             port = int(self.config.get('port', 8080))
             self.context.log.info(
