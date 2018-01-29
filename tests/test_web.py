@@ -21,12 +21,10 @@ class Payload:
 def test_web_handler(irc3_bot_factory, raw_test_server, test_client):
     bot = irc3_bot_factory(includes=['irc3.plugins.web'])
     plugin = bot.get_plugin(web.Web)
-
-    plugin.channels['channel'] = '#channel'
-    handler = plugin.handler
+    plugin.server_ready()
 
     req = make_mocked_request('GET', '/')
-    resp = yield from handler(req)
+    resp = yield from plugin.handler(req)
     assert resp.status == 200
 
 
@@ -34,12 +32,34 @@ def test_web_handler(irc3_bot_factory, raw_test_server, test_client):
 def test_web_handler_post(irc3_bot_factory, raw_test_server, test_client):
     bot = irc3_bot_factory(includes=['irc3.plugins.web'])
     plugin = bot.get_plugin(web.Web)
-    plugin.server_ready()
 
     plugin.channels['channel'] = '#channel'
     handler = plugin.handler
 
     req = make_mocked_request('POST', '/channels/channel',
+                              payload=Payload(b'hi'))
+    resp = yield from handler(req)
+    assert resp.status == 201
+
+
+@pytest.mark.asyncio
+def test_web_handler_post_auth(irc3_bot_factory, raw_test_server, test_client):
+    bot = irc3_bot_factory(**{
+        'includes': ['irc3.plugins.web'],
+        'irc3.plugins.web': {'api_key': 'toomanysecrets'},
+    })
+    plugin = bot.get_plugin(web.Web)
+
+    plugin.channels['channel'] = '#channel'
+    handler = plugin.handler
+
+    req = make_mocked_request('POST', '/channels/channel',
+                              payload=Payload(b'hi'))
+    resp = yield from handler(req)
+    assert resp.status == 403
+
+    req = make_mocked_request('POST', '/channels/channel',
+                              headers={'X-Api-Key': 'toomanysecrets'},
                               payload=Payload(b'hi'))
     resp = yield from handler(req)
     assert resp.status == 201
