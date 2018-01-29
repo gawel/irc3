@@ -10,6 +10,7 @@ version = '1.0.3.dev0'
 install_requires = ['venusian>=1.0', 'docopt']
 test_requires = [
     'pytest-asyncio==0.5.0',
+    'pytest-aiohttp',
     'feedparser',
     'requests',
     'pysocks',
@@ -44,7 +45,6 @@ setup(
     long_description=read('README.rst'),
     classifiers=[
         'Intended Audience :: Developers',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
@@ -66,6 +66,7 @@ setup(
     extras_require={
         ':python_version=="3.3"': install_requires_py33,
         'test': test_requires,
+        'web': ['aiohttp'],
     },
     entry_points='''
     [console_scripts]
