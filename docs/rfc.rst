@@ -1780,7 +1780,7 @@ Example:
 CTCP
 ----
 
-Match ``^(@(?P<tags>\S+) )?:(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) {nick} :(?P<ctcp>\S+.*)$``
+Match ``^(@(?P<tags>\S+) )?:(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) {nick} :(?P<ctcp>.*)$``
 
 Example:
 
@@ -1923,7 +1923,7 @@ Example:
 PRIVMSG
 -------
 
-Match ``^(@(?P<tags>\S+) )?:(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) (?P<target>\S+) :\s*(?P<data>\S+.*)$``
+Match ``^(@(?P<tags>\S+) )?:(?P<mask>\S+!\S+@\S+) (?P<event>(PRIVMSG|NOTICE)) (?P<target>\S+) :(?P<data>.*)$``
 
 Example:
 
@@ -1949,7 +1949,7 @@ Example:
 TOPIC
 -----
 
-Match ``^(@(?P<tags>\S+) )?:(?P<mask>\S+!\S+@\S+) TOPIC (?P<channel>\S+) :(?P<data>\S+.*)$``
+Match ``^(@(?P<tags>\S+) )?:(?P<mask>\S+!\S+@\S+) TOPIC (?P<channel>\S+) :(?P<data>.*)$``
 
 Example:
 
