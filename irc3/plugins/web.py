@@ -34,8 +34,8 @@ This exemple show how to define the web werver config::
 Then you'll be able to post a message to a channel using curl::
 
     $ curl -H "X-Api-Key: toomanysecrets" \
-           --data Hello \
-           http://127.0.0.1:8080/irc3
+      --data Hello \
+      http://127.0.0.1:8080/channels/irc3
 '''
 
 
