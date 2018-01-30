@@ -2,7 +2,7 @@ import asyncio
 import irc3
 __doc__ = '''
 ==========================================
-:mod:`irc3.plugins.cron` Cron plugin
+:mod:`irc3.plugins.web` Web plugin
 ==========================================
 
 Introduce a web interface to post messages
