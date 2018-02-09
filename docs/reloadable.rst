@@ -7,7 +7,7 @@ Reloadable plugins
     $ pip install hupper
     $ hupper -m irc3 config.ini
 
-irc3 provide a way to reload plugins without restarting the bot.
+irc3 provides a way to reload plugins without restarting the bot.
 
 To do that, your plugin should provide a ``reload`` class method::
 
@@ -23,7 +23,7 @@ To do that, your plugin should provide a ``reload`` class method::
             """
             return cls(old.bot)
 
-Plugins can also implement a few hooks to help taking care of reloads::
+Plugins can also implement a few hooks to help take care of reloads::
 
     class Plugin(object):
 
