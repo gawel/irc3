@@ -74,7 +74,7 @@ class Slack:
     def __init__(self, bot):
         self.bot = bot
         self.config = self.bot.config.get(__name__, {})
-        self.channels = self.bot.config.get(f'{__name__}.channels', {})
+        self.channels = self.bot.config.get('{0}.channels'.format(__name__), {})
         self.clean_channels()  # remove has values from channels
         autojoins = set().union(*self.channels.values())
         self.bot.log.debug('Adding to autojoins list: {autojoins}')
@@ -103,9 +103,9 @@ class Slack:
 
     def parse_text(self, message):
         def getChannelById(matchobj):
-            return matchobj.group('readable') or f"#{self.slack_channels[matchobj.group('channelId')]['name']}"
+            return matchobj.group('readable') or '#{0}'.format(self.slack_channels[matchobj.group('channelId')]['name'])
         def getUserById(matchobj):
-            return matchobj.group('readable') or f"@{self.slack_users[matchobj.group('userId')]}"
+            return matchobj.group('readable') or '@{0}'.format(self.slack_users[matchobj.group('userId')])
         def getEmoji(matchobj):
             emoji = matchobj.group('emoji')
             return EMOJIS.get(emoji, emoji)
@@ -150,10 +150,10 @@ class Slack:
                         if msg.type == aiohttp.WSMsgType.TEXT:
                             message = json.loads(msg.data)
                             if message['type'] == 'message' and message.get('subtype') != 'bot_message':
-                                self.bot.log.debug(f'Sending message to irc: {message}')
+                                self.bot.log.debug('Sending message to irc: {0}'.format(message))
                                 user = await self.api_call('users.info', {'user': message['user']})
                                 for channel in self.channels.get(message['channel'], []):
-                                    await self.bot.privmsg(channel, f"<{user['user']['name']}> {self.parse_text(message['text'])}")
+                                    await self.bot.privmsg(channel, '<{0}> {1}'.format(user['user']['name'], self.parse_text(message['text'])))
                         elif msg.type == aiohttp.WSMsgType.CLOSED:
                             break
                         elif msg.type == aiohttp.WSMsgType.ERROR:
@@ -162,7 +162,7 @@ class Slack:
     @irc3.event(r'^(@(?P<tags>\S+) )?:(?P<nick>\S+)!(?P<username>\S+)@(?P<hostmask>\S+) (?P<event>(PRIVMSG|NOTICE)) '
                 r'(?P<target>\S+) :(?P<data>.*)$')
     def on_message(self, target=None, nick=None, data=None, **kwargs):
-        self.bot.log.debug(f'Match Data: {target} {nick} {data} {kwargs}')
+        self.bot.log.debug('Match Data: {target} {nick} {data} {kwargs}'.format(**locals()))
         irc3.asyncio.ensure_future(self.forward_message(target, nick, data))
 
     async def forward_message(self, target, nick, data):
@@ -173,6 +173,6 @@ class Slack:
                     'text': data,
                     'as_user': False,
                     'username': nick,
-                    'icon_url': f'http://api.adorable.io/avatars/48/{nick}.jpg'
+                    'icon_url': 'http://api.adorable.io/avatars/48/{0}.jpg'.format(nick)
                 }
                 await self.api_call('chat.postMessage', data=payload)
