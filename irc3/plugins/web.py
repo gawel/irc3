@@ -7,7 +7,7 @@ __doc__ = '''
 
 Introduce a web interface to post messages
 
-Install aiocron::
+Install aiohttp::
 
     $ pip install aiohttp
 
@@ -17,7 +17,7 @@ Install aiocron::
 
 Usage::
 
-This exemple show how to define the web werver config::
+This example show how to define the web server config::
 
     >>> config = ini2config("""
     ... [bot]
