@@ -2,6 +2,34 @@ import aiohttp
 import irc3
 import json
 import re
+__doc__ = '''
+==========================================
+:mod:`irc3.plugins.slack` Slack plugin
+==========================================
+
+Introduce a slack/irc interface to bridge and post message between slack and irc
+
+Install aiohttp::
+
+    $ pip install aiohttp
+
+Usage
+=====
+
+Create a bridge between slack and irc
+
+..
+    >>> from irc3.testing import IrcBot
+    >>> from irc3.testing import ini2config
+    >>> with open('examples/slack.ini') as slackconfig:
+    >>>     config = ini2config(slackconfig.read())
+    >>> bot = IrcBot(**config)
+
+.. note::
+    
+    Be sure to invite the bot in slack to the channels it should be bridging
+
+'''
 
 EMOJIS = {
   "smile": ":)",
@@ -47,10 +75,18 @@ class Slack:
         self.bot = bot
         self.config = self.bot.config.get(__name__, {})
         self.channels = self.bot.config.get(f'{__name__}.channels', {})
+        self.clean_channels()  # remove has values from channels
+        autojoins = set().union(*self.channels.values())
+        self.bot.log.debug('Adding to autojoins list: {autojoins}')
+        self.bot.config.setdefault('autojoins', []).extend(autojoins)
         self.slack_channels = {}
         self.slack_users = {}
         if 'token' not in self.config:
             self.bot.log.warning('No slack token is set.')
+
+    def clean_channels(self):
+        self.channels.pop('#', None)
+        self.channels.pop('hash', None)
 
     async def api_call(self, method, data=None):
         """Slack API call."""
