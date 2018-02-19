@@ -21,8 +21,16 @@ Create a bridge between slack and irc
 ..
     >>> from irc3.testing import IrcBot
     >>> from irc3.testing import ini2config
-    >>> with open('examples/slack.ini') as slackconfig:
-    >>>     config = ini2config(slackconfig.read())
+    >>> config = ini2config("""
+    ... [bot]
+    ... includes =
+    ...     irc3.plugins.slack
+    ... [irc3.plugins.slack]
+    ... token = xoxb-slackbottoken
+    ... [irc3.plugins.slack.channels]
+    ... slack =
+    ...     ${#}irc
+    ... """)
     >>> bot = IrcBot(**config)
 
 .. note::
