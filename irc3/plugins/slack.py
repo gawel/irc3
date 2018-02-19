@@ -7,7 +7,7 @@ __doc__ = '''
 :mod:`irc3.plugins.slack` Slack plugin
 ==========================================
 
-Introduce a slack/irc interface to bridge and post message between slack and irc
+Introduce a slack/irc interface to bridge messages between slack and irc.
 
 Install aiohttp::
 
@@ -34,7 +34,7 @@ Create a bridge between slack and irc
     >>> bot = IrcBot(**config)
 
 .. note::
-    
+
     Be sure to invite the bot in slack to the channels it should be bridging
 
 '''
@@ -82,7 +82,9 @@ class Slack:
     def __init__(self, bot):
         self.bot = bot
         self.config = self.bot.config.get(__name__, {})
-        self.channels = self.bot.config.get('{0}.channels'.format(__name__), {})
+        self.channels = self.bot.config.get(
+            '{0}.channels'.format(__name__), {}
+        )
         self.clean_channels()  # remove has values from channels
         autojoins = set().union(*self.channels.values())
         self.bot.log.debug('Adding to autojoins list: {autojoins}')
@@ -101,8 +103,13 @@ class Slack:
         async with aiohttp.ClientSession() as session:
             form = aiohttp.FormData(data or {})
             form.add_field('token', self.config['token'])
-            async with session.post('https://slack.com/api/{0}'.format(method), data=form) as response:
-                assert 200 == response.status, ('{0} with {1} failed.'.format(method, data))
+            async with session.post(
+                'https://slack.com/api/{0}'.format(method), data=form
+                    ) as response:
+                if response.status != 200:
+                    raise Exception(
+                        '{0} with {1} failed.'.format(method, data)
+                    )
                 return await response.json()
 
     def server_ready(self):
@@ -110,13 +117,21 @@ class Slack:
         self.bot.log.debug('Listening to Slack')
 
     def parse_text(self, message):
+
         def getChannelById(matchobj):
-            return matchobj.group('readable') or '#{0}'.format(self.slack_channels[matchobj.group('channelId')]['name'])
+            return matchobj.group('readable') or '#{0}'.format(
+                self.slack_channels[matchobj.group('channelId')]['name']
+            )
+
         def getUserById(matchobj):
-            return matchobj.group('readable') or '@{0}'.format(self.slack_users[matchobj.group('userId')])
+            return matchobj.group('readable') or '@{0}'.format(
+                self.slack_users[matchobj.group('userId')]
+            )
+
         def getEmoji(matchobj):
             emoji = matchobj.group('emoji')
             return EMOJIS.get(emoji, emoji)
+
         matches = [
             (r'\n|\r\n|\r', ''),
             (r'<!channel>', '@channel'),
@@ -140,11 +155,15 @@ class Slack:
         for channel in channels.get('channels', []):
             self.slack_channels[channel['id']] = channel
             if channel['name'] in self.channels:
-                self.channels[channel['id']] = self.channels.pop(channel['name'])
+                self.channels[channel['id']] = self.channels.pop(
+                    channel['name']
+                )
         for channel in groups.get('groups', []):
             self.slack_channels[channel['id']] = channel
             if channel['name'] in self.channels:
-                self.channels[channel['id']] = self.channels.pop(channel['name'])
+                self.channels[channel['id']] = self.channels.pop(
+                    channel['name']
+                )
         users = await self.api_call('users.list')
         for user in users['members']:
             self.slack_users[user['id']] = user['name']
@@ -156,21 +175,38 @@ class Slack:
                 async with session.ws_connect(rtm['url']) as ws:
                     async for msg in ws:
                         if msg.type == aiohttp.WSMsgType.TEXT:
-                            message = json.loads(msg.data)
-                            if message['type'] == 'message' and message.get('subtype') != 'bot_message':
-                                self.bot.log.debug('Sending message to irc: {0}'.format(message))
-                                user = await self.api_call('users.info', {'user': message['user']})
-                                for channel in self.channels.get(message['channel'], []):
-                                    await self.bot.privmsg(channel, '<{0}> {1}'.format(user['user']['name'], self.parse_text(message['text'])))
+                            await self._handle_message(json.loads(msg.data))
                         elif msg.type == aiohttp.WSMsgType.CLOSED:
                             break
                         elif msg.type == aiohttp.WSMsgType.ERROR:
                             break
 
-    @irc3.event(r'^(@(?P<tags>\S+) )?:(?P<nick>\S+)!(?P<username>\S+)@(?P<hostmask>\S+) (?P<event>(PRIVMSG|NOTICE)) '
+    async def _handle_message(self, msg):
+        if msg['type'] == 'message' and msg.get('subtype') != 'bot_message':
+            self.bot.log.debug(
+                'Message to irc: {0}'.format(msg)
+            )
+            user = await self.api_call(
+                'users.info',
+                {'user': msg['user']}
+            )
+            for channel in self.channels.get(msg['channel'], []):
+                await self.bot.privmsg(
+                    channel,
+                    '<{0}> {1}'.format(
+                        user['user']['name'],
+                        self.parse_text(msg['text'])
+                    )
+                )
+
+    @irc3.event(r'^(@(?P<tags>\S+) )?:'
+                r'(?P<nick>\S+)!(?P<username>\S+)@(?P<hostmask>\S+) '
+                r'(?P<event>(PRIVMSG|NOTICE)) '
                 r'(?P<target>\S+) :(?P<data>.*)$')
     def on_message(self, target=None, nick=None, data=None, **kwargs):
-        self.bot.log.debug('Match Data: {target} {nick} {data} {kwargs}'.format(**locals()))
+        self.bot.log.debug(
+            'Match Data: {target} {nick} {data} {kwargs}'.format(**locals())
+        )
         irc3.asyncio.ensure_future(self.forward_message(target, nick, data))
 
     async def forward_message(self, target, nick, data):
@@ -181,6 +217,9 @@ class Slack:
                     'text': data,
                     'as_user': False,
                     'username': nick,
-                    'icon_url': 'http://api.adorable.io/avatars/48/{0}.jpg'.format(nick)
+                    'icon_url': (
+                        'http://api.adorable.io/avatars/48/'
+                        '{0}.jpg'
+                    ).format(nick),
                 }
                 await self.api_call('chat.postMessage', data=payload)
