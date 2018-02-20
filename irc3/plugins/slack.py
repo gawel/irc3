@@ -175,29 +175,51 @@ class Slack:
                 async with session.ws_connect(rtm['url']) as ws:
                     async for msg in ws:
                         if msg.type == aiohttp.WSMsgType.TEXT:
-                            await self._handle_message(json.loads(msg.data))
+                            data = json.loads(msg.data)
+                            if data['type'] == 'message':
+                                await self._handle_messages(data)
                         elif msg.type == aiohttp.WSMsgType.CLOSED:
                             break
                         elif msg.type == aiohttp.WSMsgType.ERROR:
                             break
 
-    async def _handle_message(self, msg):
-        if msg['type'] == 'message' and msg.get('subtype') != 'bot_message':
-            self.bot.log.debug(
-                'Message to irc: {0}'.format(msg)
-            )
+    async def _handle_messages(self, msg):
+        self.bot.log.debug(
+            'Message to irc: {0}'.format(msg)
+        )
+        user = None
+        if 'user' in msg:
             user = await self.api_call(
                 'users.info',
                 {'user': msg['user']}
             )
-            for channel in self.channels.get(msg['channel'], []):
-                await self.bot.privmsg(
-                    channel,
-                    '<{0}> {1}'.format(
-                        user['user']['name'],
-                        self.parse_text(msg['text'])
-                    )
+        func = getattr(
+            self,
+            '_handle_{0}'.format(msg.get('subtype', 'default')),
+            None
+        )
+        if func is not None:
+            await func(msg, user=user)
+
+    async def _handle_default(self, msg, user, **kwargs):
+        for channel in self.channels.get(msg['channel'], []):
+            await self.bot.privmsg(
+                channel,
+                '<{0}> {1}'.format(
+                    user['user']['name'],
+                    self.parse_text(msg['text'])
                 )
+            )
+
+    async def _handle_me_message(self, msg, user, **kwargs):
+        for channel in self.channels.get(msg['channel'], []):
+            await self.bot.action(
+                channel,
+                '<{0}> {1}'.format(
+                    user['user']['name'],
+                    self.parse_text(msg['text'])
+                )
+            )
 
     @irc3.event(r'^(@(?P<tags>\S+) )?:'
                 r'(?P<nick>\S+)!(?P<username>\S+)@(?P<hostmask>\S+) '
