@@ -76,6 +76,10 @@ EMOJIS = {
 }
 
 
+class SlackException(Exception):
+    pass
+
+
 @irc3.plugin
 class Slack:
 
@@ -91,8 +95,44 @@ class Slack:
         self.bot.config.setdefault('autojoins', []).extend(autojoins)
         self.slack_channels = {}
         self.slack_users = {}
+        self.matches = [
+            (r'\n|\r\n|\r', ''),
+            (r'<!channel>', '@channel'),
+            (r'<!group>', '@group'),
+            (r'<!everyone>', '@everyone'),
+            (
+                r'<#(?P<channelId>C\w+)\|?(?P<readable>\w+)?>',
+                self.get_channel_by_id
+            ),
+            (
+                r'<@(?P<userId>U\w+)\|?(?P<readable>\w+)?>',
+                self.get_user_by_id
+            ),
+            (
+                r':(?P<emoji>\w+):',
+                self.get_emoji
+            ),
+            (r'<.+?\|(.+?)>', r'\g<0>'),
+            (r'&lt', '<'),
+            (r'&gt', '>'),
+            (r'&amp', '&'),
+        ]
         if 'token' not in self.config:
             self.bot.log.warning('No slack token is set.')
+
+    def get_channel_by_id(self, matchobj):
+        return matchobj.group('readable') or '#{0}'.format(
+            self.slack_channels[matchobj.group('channelId')]['name']
+        )
+
+    def get_user_by_id(self, matchobj):
+        return matchobj.group('readable') or '@{0}'.format(
+            self.slack_users[matchobj.group('userId')]
+        )
+
+    def get_emojis(self, matchobj):
+        emoji = matchobj.group('emoji')
+        return EMOJIS.get(emoji, emoji)
 
     def clean_channels(self):
         self.channels.pop('#', None)
@@ -113,38 +153,9 @@ class Slack:
                 return await response.json()
 
     def server_ready(self):
-        irc3.asyncio.ensure_future(self.connect())
-        self.bot.log.debug('Listening to Slack')
+        self.bot.create_task(self.connect())
 
     def parse_text(self, message):
-
-        def getChannelById(matchobj):
-            return matchobj.group('readable') or '#{0}'.format(
-                self.slack_channels[matchobj.group('channelId')]['name']
-            )
-
-        def getUserById(matchobj):
-            return matchobj.group('readable') or '@{0}'.format(
-                self.slack_users[matchobj.group('userId')]
-            )
-
-        def getEmoji(matchobj):
-            emoji = matchobj.group('emoji')
-            return EMOJIS.get(emoji, emoji)
-
-        matches = [
-            (r'\n|\r\n|\r', ''),
-            (r'<!channel>', '@channel'),
-            (r'<!group>', '@group'),
-            (r'<!everyone>', '@everyone'),
-            (r'<#(?P<channelId>C\w+)\|?(?P<readable>\w+)?>', getChannelById),
-            (r'<@(?P<userId>U\w+)\|?(?P<readable>\w+)?>', getUserById),
-            (r':(?P<emoji>\w+):', getEmoji),
-            (r'<.+?\|(.+?)>', r'\g<0>'),
-            (r'&lt', '<'),
-            (r'&gt', '>'),
-            (r'&amp', '&'),
-        ]
         for match in matches:
             message = re.sub(*match, string=message)
         return message
@@ -169,10 +180,11 @@ class Slack:
             self.slack_users[user['id']] = user['name']
         rtm = await self.api_call('rtm.start')
         if not rtm['ok']:
-            raise Exception('Error connecting to RTM')
+            raise SlackException('Error connecting to RTM')
         while True:
             async with aiohttp.ClientSession() as session:
                 async with session.ws_connect(rtm['url']) as ws:
+                    self.bot.log.debug('Listening to Slack')
                     async for msg in ws:
                         if msg.type == aiohttp.WSMsgType.TEXT:
                             data = json.loads(msg.data)
@@ -225,13 +237,10 @@ class Slack:
                 r'(?P<nick>\S+)!(?P<username>\S+)@(?P<hostmask>\S+) '
                 r'(?P<event>(PRIVMSG|NOTICE)) '
                 r'(?P<target>\S+) :(?P<data>.*)$')
-    def on_message(self, target=None, nick=None, data=None, **kwargs):
+    async def on_message(self, target, nick, data):
         self.bot.log.debug(
             'Match Data: {target} {nick} {data} {kwargs}'.format(**locals())
         )
-        irc3.asyncio.ensure_future(self.forward_message(target, nick, data))
-
-    async def forward_message(self, target, nick, data):
         for channel, irc in self.channels.items():
             if target in irc:
                 payload = {
