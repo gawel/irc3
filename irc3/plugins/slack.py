@@ -130,7 +130,7 @@ class Slack:
             self.slack_users[matchobj.group('userId')]
         )
 
-    def get_emojis(self, matchobj):
+    def get_emoji(self, matchobj):
         emoji = matchobj.group('emoji')
         return EMOJIS.get(emoji, emoji)
 
@@ -140,7 +140,7 @@ class Slack:
 
     async def api_call(self, method, data=None):
         """Slack API call."""
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(loop=self.bot.loop) as session:
             form = aiohttp.FormData(data or {})
             form.add_field('token', self.config['token'])
             async with session.post(
@@ -156,7 +156,7 @@ class Slack:
         self.bot.create_task(self.connect())
 
     def parse_text(self, message):
-        for match in matches:
+        for match in self.matches:
             message = re.sub(*match, string=message)
         return message
 
@@ -182,7 +182,7 @@ class Slack:
         if not rtm['ok']:
             raise SlackException('Error connecting to RTM')
         while True:
-            async with aiohttp.ClientSession() as session:
+            async with aiohttp.ClientSession(loop=self.bot.loop) as session:
                 async with session.ws_connect(rtm['url']) as ws:
                     self.bot.log.debug('Listening to Slack')
                     async for msg in ws:
@@ -237,7 +237,7 @@ class Slack:
                 r'(?P<nick>\S+)!(?P<username>\S+)@(?P<hostmask>\S+) '
                 r'(?P<event>(PRIVMSG|NOTICE)) '
                 r'(?P<target>\S+) :(?P<data>.*)$')
-    async def on_message(self, target, nick, data):
+    async def on_message(self, target=None, nick=None, data=None, **kwargs):
         self.bot.log.debug(
             'Match Data: {target} {nick} {data} {kwargs}'.format(**locals())
         )
