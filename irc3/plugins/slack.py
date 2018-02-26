@@ -1,4 +1,3 @@
-import aiohttp
 import irc3
 import json
 import re
@@ -85,6 +84,9 @@ class Slack:
 
     def __init__(self, bot):
         self.bot = bot
+        self.client = irc3.utils.maybedotted('aiohttp.ClientSession')
+        self.formdata = irc3.utils.maybedotted('aiohttp.FormData')
+        self.msgtype = irc3.utils.maybedotted('aiohttp.WSMsgType')
         self.config = self.bot.config.get(__name__, {})
         self.channels = self.bot.config.get(
             '{0}.channels'.format(__name__), {}
@@ -140,8 +142,8 @@ class Slack:
 
     async def api_call(self, method, data=None):
         """Slack API call."""
-        async with aiohttp.ClientSession(loop=self.bot.loop) as session:
-            form = aiohttp.FormData(data or {})
+        async with self.client(loop=self.bot.loop) as session:
+            form = self.formdata(data or {})
             form.add_field('token', self.config['token'])
             async with session.post(
                 'https://slack.com/api/{0}'.format(method), data=form
@@ -182,17 +184,17 @@ class Slack:
         if not rtm['ok']:
             raise SlackException('Error connecting to RTM')
         while True:
-            async with aiohttp.ClientSession(loop=self.bot.loop) as session:
+            async with self.client(loop=self.bot.loop) as session:
                 async with session.ws_connect(rtm['url']) as ws:
                     self.bot.log.debug('Listening to Slack')
                     async for msg in ws:
-                        if msg.type == aiohttp.WSMsgType.TEXT:
+                        if msg.type == self.msgtype.TEXT:
                             data = json.loads(msg.data)
                             if data['type'] == 'message':
                                 await self._handle_messages(data)
-                        elif msg.type == aiohttp.WSMsgType.CLOSED:
+                        elif msg.type == self.msgtype.CLOSED:
                             break
-                        elif msg.type == aiohttp.WSMsgType.ERROR:
+                        elif msg.type == self.msgtype.ERROR:
                             break
 
     async def _handle_messages(self, msg):
