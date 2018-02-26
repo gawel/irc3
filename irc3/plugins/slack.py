@@ -87,6 +87,9 @@ class Slack:
         self.client = irc3.utils.maybedotted('aiohttp.ClientSession')
         self.formdata = irc3.utils.maybedotted('aiohttp.FormData')
         self.msgtype = irc3.utils.maybedotted('aiohttp.WSMsgType')
+        self.client_response_error= irc3.utils.maybedotted(
+            'aiohttp.client_exceptions.ClientResponseError'
+        )
         self.config = self.bot.config.get(__name__, {})
         self.channels = self.bot.config.get(
             '{0}.channels'.format(__name__), {}
@@ -163,6 +166,29 @@ class Slack:
         return message
 
     async def connect(self):
+        rtm = await self.api_call('rtm.start')
+        if not rtm['ok']:
+            raise SlackException('Error connecting to RTM')
+        await self.get_channels()
+        await self.get_users()
+        try:
+            async with self.client(loop=self.bot.loop) as session:
+                async with session.ws_connect(rtm['url']) as ws:
+                    self.bot.log.debug('Listening to Slack')
+                    async for msg in ws:
+                        if msg.type == self.msgtype.TEXT:
+                            data = json.loads(msg.data)
+                            if data['type'] == 'message':
+                                await self._handle_messages(data)
+                        elif msg.type == self.msgtype.CLOSED:
+                            break
+                        elif msg.type == self.msgtype.ERROR:
+                            break
+        except self.client_response_error as exc:
+            self.bot.log.exception(exc)
+            self.bot.create_task(self.connect())
+
+    async def get_channels():
         channels = await self.api_call('channels.list')
         groups = await self.api_call('groups.list')
         for channel in channels.get('channels', []):
@@ -177,25 +203,11 @@ class Slack:
                 self.channels[channel['id']] = self.channels.pop(
                     channel['name']
                 )
+
+    async def get_users():
         users = await self.api_call('users.list')
         for user in users['members']:
             self.slack_users[user['id']] = user['name']
-        rtm = await self.api_call('rtm.start')
-        if not rtm['ok']:
-            raise SlackException('Error connecting to RTM')
-        while True:
-            async with self.client(loop=self.bot.loop) as session:
-                async with session.ws_connect(rtm['url']) as ws:
-                    self.bot.log.debug('Listening to Slack')
-                    async for msg in ws:
-                        if msg.type == self.msgtype.TEXT:
-                            data = json.loads(msg.data)
-                            if data['type'] == 'message':
-                                await self._handle_messages(data)
-                        elif msg.type == self.msgtype.CLOSED:
-                            break
-                        elif msg.type == self.msgtype.ERROR:
-                            break
 
     async def _handle_messages(self, msg):
         self.bot.log.debug(
