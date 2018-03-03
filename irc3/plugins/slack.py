@@ -75,10 +75,6 @@ EMOJIS = {
 }
 
 
-class SlackException(Exception):
-    pass
-
-
 @irc3.plugin
 class Slack:
 
@@ -151,7 +147,13 @@ class Slack:
             async with session.post(
                 'https://slack.com/api/{0}'.format(method), data=form
                     ) as response:
+                if response.status == 429:
+                    await irc3.asyncio.sleep(
+                        int(response.headers['Retry-After'])
+                    )
+                    return await self.api_call(method, data)
                 if response.status != 200:
+                    self.bot.log.debug('Error: %s', response)
                     raise Exception(
                         '{0} with {1} failed.'.format(method, data)
                     )
@@ -168,8 +170,9 @@ class Slack:
     async def connect(self):
         rtm = await self.api_call('rtm.start')
         if not rtm['ok']:
-            raise SlackException('Error connecting to RTM')
-        await self.get_channels()
+            raise ConnectionError('Error connecting to RTM')
+        await self.get_channels('channels')
+        await self.get_channels('groups')
         await self.get_users()
         try:
             async with self.client(loop=self.bot.loop) as session:
@@ -188,26 +191,47 @@ class Slack:
             self.bot.log.exception(exc)
             self.bot.create_task(self.connect())
 
-    async def get_channels():
-        channels = await self.api_call('channels.list')
-        groups = await self.api_call('groups.list')
-        for channel in channels.get('channels', []):
-            self.slack_channels[channel['id']] = channel
-            if channel['name'] in self.channels:
-                self.channels[channel['id']] = self.channels.pop(
-                    channel['name']
-                )
-        for channel in groups.get('groups', []):
-            self.slack_channels[channel['id']] = channel
-            if channel['name'] in self.channels:
-                self.channels[channel['id']] = self.channels.pop(
-                    channel['name']
-                )
+    async def get_channels(self, what='channels'):
+        self.bot.log.debug('Getting Slack %s', what)
+        cursor = None
+        payload = {'limit': 500}
+        while True:
+            if cursor:
+                payload['cursor'] = cursor
+            channels = await self.api_call(
+                '{0}.list'.format(what),
+                data=payload,
+            )
+            for channel in channels.get(what, []):
+                self.slack_channels[channel['id']] = channel
+                if channel['name'] in self.channels:
+                    self.channels[channel['id']] = self.channels.pop(
+                        channel['name']
+                    )
+            cursor = channels.get(
+                'response_metadata', {}
+            ).get('next_cursor', None)
+            if not cursor:
+                break
 
-    async def get_users():
-        users = await self.api_call('users.list')
-        for user in users['members']:
-            self.slack_users[user['id']] = user['name']
+    async def get_users(self):
+        self.bot.log.debug('Getting Slack users')
+        cursor = None
+        payload = {'limit': 500}
+        while True:
+            if cursor:
+                payload['cursor'] = cursor
+            users = await self.api_call(
+                'users.list',
+                data=payload,
+            )
+            for user in users['members']:
+                self.slack_users[user['id']] = user['name']
+            cursor = users.get(
+                'response_metadata', {}
+            ).get('next_cursor', None)
+            if not cursor:
+                break
 
     async def _handle_messages(self, msg):
         self.bot.log.debug(
