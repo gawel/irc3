@@ -1,4 +1,5 @@
 import irc3
+import irc3.plugins.cron
 import json
 import re
 __doc__ = '''
@@ -8,9 +9,13 @@ __doc__ = '''
 
 Introduce a slack/irc interface to bridge messages between slack and irc.
 
-Install aiohttp::
+Install aiohttp and aiocron::
 
-    $ pip install aiohttp
+    $ pip install aiohttp aiocron
+
+.. note::
+
+    aiocron is used for refreshing the user and channel list
 
 Usage
 =====
@@ -78,6 +83,8 @@ EMOJIS = {
 @irc3.plugin
 class Slack:
 
+    requires = ['irc3.plugins.cron']
+
     def __init__(self, bot):
         self.bot = bot
         self.client = irc3.utils.maybedotted('aiohttp.ClientSession')
@@ -94,8 +101,6 @@ class Slack:
         autojoins = set().union(*self.channels.values())
         self.bot.log.debug('Adding to autojoins list: {autojoins}')
         self.bot.config.setdefault('autojoins', []).extend(autojoins)
-        self.slack_channels = {}
-        self.slack_users = {}
         self.matches = [
             (r'\n|\r\n|\r', ''),
             (r'<!channel>', '@channel'),
@@ -167,13 +172,19 @@ class Slack:
             message = re.sub(*match, string=message)
         return message
 
+    @irc3.plugins.cron.cron('* * * * 0')
+    async def get_users_and_channels(self):
+        self.slack_channels = {}
+        self.slack_users = {}
+        await self.get_channels('channels')
+        await self.get_channels('groups')
+        await self.get_users()
+
     async def connect(self):
         rtm = await self.api_call('rtm.start')
         if not rtm['ok']:
             raise ConnectionError('Error connecting to RTM')
-        await self.get_channels('channels')
-        await self.get_channels('groups')
-        await self.get_users()
+        await self.get_users_and_channels()
         try:
             async with self.client(loop=self.bot.loop) as session:
                 async with session.ws_connect(rtm['url']) as ws:
