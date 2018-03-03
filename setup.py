@@ -17,7 +17,8 @@ test_requires = [
     'twitter',
     'aiocron',
     'redis',
-    'pytest'
+    'pytest',
+    'irc3-plugins-test',
 ]
 
 install_requires_py33 = [

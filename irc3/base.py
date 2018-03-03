@@ -13,7 +13,9 @@ from collections import defaultdict
 
 try:
     import pkg_resources
+    HAS_PKG_RESOURCES = True
 except ImportError:  # pragma: no cover
+    HAS_PKG_RESOURCES = False
     version = ''
 else:
     try:
@@ -199,7 +201,17 @@ class IrcObject:
                 self.log.warn('%s included twice', module)
             else:
                 reg.includes.add(module)
-                module = utils.maybedotted(module)
+                try:
+                    module = utils.maybedotted(module)
+                except LookupError as exc:
+                    if HAS_PKG_RESOURCES:
+                        for entry_point in pkg_resources.iter_entry_points('irc3.loader', module):
+                            module = entry_point.load()
+                            break
+                        else:
+                            raise exc
+                    else:
+                        raise exc
                 # we have to manualy check for plugins. venusian no longer
                 # support to attach both a class and methods
                 for klass in list(module.__dict__.values()):
