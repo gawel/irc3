@@ -13,6 +13,7 @@ from collections import defaultdict
 
 try:
     import pkg_resources
+    from pkg_resources import iter_entry_points
     HAS_PKG_RESOURCES = True
 except ImportError:  # pragma: no cover
     HAS_PKG_RESOURCES = False
@@ -205,10 +206,13 @@ class IrcObject:
                     module = utils.maybedotted(module)
                 except LookupError as exc:
                     if HAS_PKG_RESOURCES:
-                        for entry_point in pkg_resources.iter_entry_points('irc3.loader', module):
-                            module = entry_point.load()
-                            break
-                        else:
+                        entry_points = iter_entry_points(
+                            'irc3.loader',
+                            module
+                        )
+                        try:
+                            module = next(entry_points).load()
+                        except StopIteration:
                             raise exc
                     else:
                         raise exc

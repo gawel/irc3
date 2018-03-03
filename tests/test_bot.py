@@ -158,4 +158,4 @@ class TestBot(BotTestCase):
     def test_pkg_resources_entry_points_exception(self):
         config = dict(includes=['irc3.plugins.badtest'])
         with self.assertRaises(LookupError):
-            bot = self.callFTU(**config)
+            self.callFTU(**config)
