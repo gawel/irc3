@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from irc3.testing import BotTestCase
 from irc3.testing import patch
+from irc3_plugins_test import test
 import logging
 
 
@@ -147,3 +148,14 @@ class TestBot(BotTestCase):
     def test_SIGHUP(self):
         bot = self.callFTU()
         bot.SIGHUP()
+
+    def test_pkg_resources_entry_points(self):
+        config = dict(includes=['irc3.plugins.test'])
+        bot = self.callFTU(**config)
+        plugin = bot.get_plugin(test.test)
+        self.assertEqual(plugin, 'success')
+
+    def test_pkg_resources_entry_points_exception(self):
+        config = dict(includes=['irc3.plugins.badtest'])
+        with self.assertRaises(LookupError):
+            self.callFTU(**config)
