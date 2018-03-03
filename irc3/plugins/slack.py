@@ -118,7 +118,7 @@ class Slack:
                 r':(?P<emoji>\w+):',
                 self.get_emoji
             ),
-            (r'<.+?\|(.+?)>', r'\g<0>'),
+            (r'<.+?\|(.+?)>', r'\g<1>'),
             (r'&lt', '<'),
             (r'&gt', '>'),
             (r'&amp', '&'),
@@ -133,7 +133,7 @@ class Slack:
 
     def get_user_by_id(self, matchobj):
         return matchobj.group('readable') or '@{0}'.format(
-            self.slack_users[matchobj.group('userId')]
+            self.slack_users[matchobj.group('userId')]['name']
         )
 
     def get_emoji(self, matchobj):
