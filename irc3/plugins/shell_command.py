@@ -105,15 +105,15 @@ class Shell:
         commands = self.context.get_plugin(Commands)
         commands[k] = (p, asyncio.coroutine(meth))
 
-    def shell_command(self, command, mask, target, args, **kwargs):
+    async def shell_command(self, command, mask, target, args, **kwargs):
         env = os.environ.copy()
         env['IRC3_COMMAND_ARGS'] = ' '.join(args['<args>'])
-        proc = yield from asyncio.create_subprocess_shell(
+        proc = await asyncio.create_subprocess_shell(
             command, shell=True, env=env,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.STDOUT)
-        yield from proc.wait()
-        lines = yield from proc.stdout.read()
+        await proc.wait()
+        lines = await proc.stdout.read()
         if not isinstance(lines, str):
             lines = lines.decode('utf8')
         return lines.split(u'\n')

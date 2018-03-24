@@ -1,4 +1,3 @@
-import asyncio
 import irc3
 __doc__ = '''
 ==========================================
@@ -70,8 +69,7 @@ class Web:
             if key not in self.channels:
                 self.channels[key] = channel
 
-    @asyncio.coroutine
-    def handler(self, req):
+    async def handler(self, req):
         if req.method == 'POST':
             if self.api_key:
                 if req.headers.get('X-Api-Key') != self.api_key:
@@ -79,7 +77,7 @@ class Web:
             if req.path.startswith('/channels/'):
                 channel = req.path.strip('/').split('/')[-1]
                 if channel in self.channels:
-                    message = yield from req.text()
+                    message = await req.text()
                     self.context.privmsg(self.channels[channel], message)
                     return self.web.Response(status=201)
                 return self.web.Response(status=404)

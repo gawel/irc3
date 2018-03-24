@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-import sys
 import codecs
 from setuptools import setup
 from setuptools import find_packages
@@ -20,14 +19,6 @@ test_requires = [
     'pytest',
     'irc3-plugins-test',
 ]
-
-install_requires_py33 = [
-    'asyncio',
-]
-
-py_ver = sys.version_info[:2]
-if py_ver < (3, 4):
-    install_requires.extend(install_requires_py33)
 
 
 def read(*rnames):
@@ -64,7 +55,6 @@ setup(
     tests_require=test_requires,
     setup_requires=["pytest-runner"],
     extras_require={
-        ':python_version=="3.3"': install_requires_py33,
         'test': test_requires,
         'web': ['aiohttp'],
     },

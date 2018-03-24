@@ -33,7 +33,7 @@ Then you're able to use it in a plugin:
 
         def do_whois(self):
             # remember {nick} in the regexp? Here it is
-            whois = yield from self.whois(nick='gawel')
+            whois = await self.whois(nick='gawel')
             if int(whois['idle']) / 60 > 10:
                 self.bot.privmsg('gawel', 'Wake up dude')
 
@@ -330,7 +330,7 @@ class Async:
 
         .. code-block:: py
 
-            result = yield from bot.async_cmds.whois('gawel')
+            result = await bot.async_cmds.whois('gawel')
         """
         return self.async_whois(nick=nick.lower(), timeout=timeout)
 
@@ -340,11 +340,11 @@ class Async:
 
         .. code-block:: py
 
-            result = yield from bot.async_cmds.who('gawel')
-            result = yield from bot.async_cmds.who('#irc3')
-            result = yield from bot.async_cmds.who('#irc3', 'an')
+            result = await bot.async_cmds.who('gawel')
+            result = await bot.async_cmds.who('#irc3')
+            result = await bot.async_cmds.who('#irc3', 'an')
             # or
-            result = yield from bot.async_cmds.who('#irc3', ['a', 'n'])
+            result = await bot.async_cmds.who('#irc3', ['a', 'n'])
         """
         target = target.lower()
         if target.startswith('#'):
@@ -369,7 +369,7 @@ class Async:
 
         .. code-block:: py
 
-            result = yield from bot.async_cmds.ison('gawel', 'irc3')
+            result = await bot.async_cmds.ison('gawel', 'irc3')
         """
         nicknames = [n.lower() for n in nicknames]
         self.context.send_line('ISON :{0}'.format(' '.join(nicknames)))
@@ -382,7 +382,7 @@ class Async:
 
         .. code-block:: py
 
-            result = yield from bot.async_cmds.names('#irc3')
+            result = await bot.async_cmds.names('#irc3')
         """
         return self.async_names(channel=channel.lower(), timeout=timeout)
 
@@ -390,7 +390,7 @@ class Async:
     def channel_bans(self, channel, timeout=20):
         """Send a MODE +b and return a Future which will contain recieved data:
         .. code-block:: py
-            result = yield from bot.async_cmds.channel_bans('#irc3')
+            result = await bot.async_cmds.channel_bans('#irc3')
         """
         return self.async_channel_bans(channel=channel.lower(),
                                        timeout=timeout)
@@ -401,6 +401,6 @@ class Async:
 
         .. code-block:: py
 
-            result = yield from bot.async_cmds.ctcp('irc3', 'version')
+            result = await bot.async_cmds.ctcp('irc3', 'version')
         """
         return self.async_ctcp(nick=nick, ctcp=ctcp.upper(), timeout=timeout)
