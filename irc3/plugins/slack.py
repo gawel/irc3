@@ -90,7 +90,7 @@ class Slack:
         self.client = irc3.utils.maybedotted('aiohttp.ClientSession')
         self.formdata = irc3.utils.maybedotted('aiohttp.FormData')
         self.msgtype = irc3.utils.maybedotted('aiohttp.WSMsgType')
-        self.client_response_error= irc3.utils.maybedotted(
+        self.client_response_error = irc3.utils.maybedotted(
             'aiohttp.client_exceptions.ClientResponseError'
         )
         self.config = self.bot.config.get(__name__, {})
