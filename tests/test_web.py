@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import asyncio
 import pytest
 from irc3.plugins import web
 from aiohttp.test_utils import make_mocked_request
