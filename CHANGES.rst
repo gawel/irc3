@@ -3,7 +3,9 @@
 
 - Add web plugin to allow to POST messages to channel via http
 
-- Drop py33 support
+- Add slack plugin
+
+- Drop py33, py34 support
 
 1.0.2 (2017-11-13)
 ==================
