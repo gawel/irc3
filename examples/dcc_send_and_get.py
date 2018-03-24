@@ -16,24 +16,22 @@ class Plugin(object):
         self.context.join('#dcc')
 
     @irc3.event(irc3.rfc.JOIN)
-    @asyncio.coroutine
-    def join(self, mask=None, **kw):
+    async def join(self, mask=None, **kw):
         if mask.nick != self.context.nick and mask.nick == 'receiver':
             # receiver joined the chan. offer a file
-            conn = yield from self.context.dcc_send(mask, __file__)
-            yield from conn.closed
+            conn = await self.context.dcc_send(mask, __file__)
+            await conn.closed
             self.context.log.info('file sent to %s', mask.nick)
 
     @irc3.event(irc3.rfc.CTCP)
-    @asyncio.coroutine
-    def on_ctcp(self, mask=None, **kwargs):
+    async def on_ctcp(self, mask=None, **kwargs):
         # parse ctcp message
         name, host, port, size = kwargs['ctcp'].split()[2:]
         self.context.log.info('%s is offering %s', mask.nick, name)
         # get the file
-        conn = yield from self.context.create_task(self.context.dcc_get(
+        conn = await self.context.create_task(self.context.dcc_get(
             mask, host, port, '/tmp/sent.py', int(size)))
-        yield from conn.closed
+        await conn.closed
         self.context.log.info('file received from %s', mask.nick)
 
         # end loop by setting future's result

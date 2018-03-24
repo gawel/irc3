@@ -16,33 +16,31 @@ class Plugin(object):
         self.context.join('#dcc')
 
     @irc3.event(irc3.rfc.JOIN)
-    @asyncio.coroutine
-    def join(self, mask=None, **kw):
+    async def join(self, mask=None, **kw):
         if mask.nick != self.context.nick and mask.nick == 'receiver':
             # receiver joined the chan. offer a chat
-            conn = yield from self.context.dcc_chat(mask)
+            conn = await self.context.dcc_chat(mask)
             # wait for my buddy
-            yield from conn.started
+            await conn.started
             # say hi
             conn.send_line('Hi!')
-            yield from conn.closed
+            await conn.closed
             self.context.log.info('chat with %s closed', mask.nick)
 
     @irc3.event(irc3.rfc.CTCP)
-    @asyncio.coroutine
-    def on_ctcp(self, mask=None, **kwargs):
+    async def on_ctcp(self, mask=None, **kwargs):
         # parse ctcp message
         print(kwargs)
         host, port = kwargs['ctcp'].split()[3:]
         self.context.log.info('%s is offering a chat', mask.nick)
         # open the chat
-        conn = yield from self.context.dcc_chat(mask, host, port)
+        conn = await self.context.dcc_chat(mask, host, port)
         conn.send_line('youhou')
         # end the loop after a few seconds
         self.context.loop.call_later(1,
                                      self.context.config.end_chat.set_result,
                                      True)
-        yield from conn.closed
+        await conn.closed
         self.context.log.info('chat with %s closed', mask.nick)
 
     @irc3.dcc_event(r'(?P<data>.*)')

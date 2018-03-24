@@ -19,10 +19,9 @@ class TopicPlugin:
         self.bot.log.warn('Topic for %s is %s', channel, data)
 
     @cron('* * * * *')
-    @irc3.asyncio.coroutine
-    def cron_topic(self):
+    async def cron_topic(self):
         """check the topic each minute"""
-        result = yield from self.bot.async_cmds.topic('#irc3_dev')
+        result = await self.bot.async_cmds.topic('#irc3_dev')
         self.bot.log.warn('Topic for #irc3_dev is %(topic)s', result)
 
     @command
@@ -35,13 +34,12 @@ class TopicPlugin:
             self.bot.topic(target, ' '.join(args['<topic>']))
 
     @command
-    @irc3.asyncio.coroutine
-    def aiotopic(self, mask, target, args):
+    async def aiotopic(self, mask, target, args):
         """Set topic and get result the async way
 
         %%aiotopic [<topic>...]
         """
         if target.is_channel:
-            result = yield from self.bot.async_cmds.topic(
+            result = await self.bot.async_cmds.topic(
                 target, ' '.join(args['<topic>']))
             return result['topic']

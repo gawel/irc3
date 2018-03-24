@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
 import string
-import asyncio
 import tempfile
 import irc3
 from irc3.plugins.command import command
@@ -21,11 +20,10 @@ class DCC(object):
                     fd.write(string.ascii_letters.encode('utf8'))
 
     @command
-    @asyncio.coroutine
-    def send(self, mask, target, args):
+    async def send(self, mask, target, args):
         """ DCC SEND command
 
             %%send
         """
-        conn = yield from self.bot.dcc_send(mask, self.filename)
+        conn = await self.bot.dcc_send(mask, self.filename)
         self.bot.log.debug('%s ready', conn)

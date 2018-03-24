@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from irc3.plugins.command import command
-from irc3.compat import asyncio
 from irc3.compat import Queue
 import irc3
 
@@ -30,16 +29,15 @@ class AsyncCommands(object):
         yield 'items added to queue'
 
     @command
-    @asyncio.coroutine
-    def get(self, mask, target, args):
+    async def get(self, mask, target, args):
         """Async get items from the queue
 
             %%get
         """
         messages = []
-        message = yield from self.queue.get()
+        message = await self.queue.get()
         messages.append(message)
         while not self.queue.empty():
-            message = yield from self.queue.get()
+            message = await self.queue.get()
             messages.append(message)
         return messages
