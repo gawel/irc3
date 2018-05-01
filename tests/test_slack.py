@@ -34,7 +34,7 @@ class TestSlack(BotTestCase):
         bot = self.callFTU()
         plugin = bot.get_plugin(slack.Slack)
         plugin.slack_users = {
-            'U12345': {'name': 'daniel'},
+            'U12345': 'daniel',
         }
         self.assertEqual('@daniel', plugin.parse_text('<@U12345>'))
         self.assertEqual('user', plugin.parse_text('<@U12345|user>'))

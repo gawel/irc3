@@ -133,7 +133,7 @@ class Slack:
 
     def get_user_by_id(self, matchobj):
         return matchobj.group('readable') or '@{0}'.format(
-            self.slack_users[matchobj.group('userId')]['name']
+            self.slack_users[matchobj.group('userId')]
         )
 
     def get_emoji(self, matchobj):
