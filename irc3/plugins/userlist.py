@@ -69,7 +69,10 @@ class Channel(set):
             self.modes[mode].add(item)
 
     def remove(self, item):
-        set.remove(self, item)
+        try:
+            set.remove(self, item)
+        except KeyError:
+            pass
         for items in self.modes.values():
             if item in items:
                 items.remove(item)
