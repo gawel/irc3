@@ -5,6 +5,8 @@
 
 - Add slack plugin
 
+- Avoid bug in userlist when a user parts before join (twitch)
+
 - Drop py33, py34 support
 
 1.0.2 (2017-11-13)
