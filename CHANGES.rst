@@ -1,4 +1,4 @@
-1.0.3 (unreleased)
+1.0.3 (2018-05-08)
 ==================
 
 - Add web plugin to allow to POST messages to channel via http
