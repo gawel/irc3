@@ -121,15 +121,15 @@ class Social:
             auth = irc3.utils.maybedotted(config.pop('auth_factory'))
             factory = irc3.utils.maybedotted(config.pop('factory'))
             adapter = irc3.utils.maybedotted(config.pop('adapter'))
-        except LookupError as e:  # pragma: no cover
-            self.bot.log.exception(e)
-        else:
             if name in self.bot.config:
                 c = self.bot.config[name]
             else:
                 c = self.bot.config[self.default_network]
             config['auth'] = auth(c['token'], c['token_secret'],
                                   c['key'], c['secret'])
+        except (LookupError, KeyError) as e:  # pragma: no cover
+            self.bot.log.exception(e)
+        else:
             return adapter(self.bot, factory(**config))
 
     @irc3.extend
