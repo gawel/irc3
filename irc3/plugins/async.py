@@ -293,7 +293,7 @@ class Async:
 
     def __init__(self, context):
         self.context = context
-        self.context.async_cmds = self.context.async = self
+        self.context.async_cmds = self
         self.async_whois = Whois(context)
         self.async_who_channel = WhoChannel(context)
         self.async_who_nick = WhoNick(context)
