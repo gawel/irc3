@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
-from irc3.async import AsyncEvents
+from irc3.asynchronous import AsyncEvents
 from irc3 import utils
 from irc3 import dec
 __doc__ = """
