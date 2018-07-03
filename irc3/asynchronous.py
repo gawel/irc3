@@ -46,7 +46,7 @@ def async_events(context, events, send_line=None,
     events_ = []  # reference registered events
 
     # async timeout
-    timeout = asyncio.async(asyncio.sleep(timeout, loop=loop), loop=loop)
+    timeout = asyncio.ensure_future(asyncio.sleep(timeout, loop=loop), loop=loop)
 
     def end(t=None):
         """t can be a future (timeout done) or False (result success)"""

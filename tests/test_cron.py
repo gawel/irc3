@@ -72,7 +72,7 @@ class TestCron(BotTestCase):
                 f.set_result(results)
 
         for c in plugin:
-            asyncio.async(c.next(), loop=loop).add_done_callback(complete)
+            asyncio.ensure_future(c.next(), loop=loop).add_done_callback(complete)
 
         loop.run_until_complete(f)
         assert results == [bot, bot]

@@ -121,7 +121,7 @@ class AutoCommand:
 
     def server_ready(self):
         # async deprecated since 3.4.4
-        asyncio.async(self.execute_commands(), loop=self.bot.loop)
+        asyncio.ensure_future(self.execute_commands(), loop=self.bot.loop)
 
     @asyncio.coroutine
     def execute_commands(self):

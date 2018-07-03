@@ -116,7 +116,7 @@ class IrcObject:
 
     def create_task(self, coro):  # pragma: no cover
         # python 3.4.1 fallback
-        return asyncio.async(coro, loop=self.loop)
+        return asyncio.ensure_future(coro, loop=self.loop)
 
     def get_plugin(self, ob):
         plugins = self.registry.plugins

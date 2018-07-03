@@ -365,7 +365,7 @@ class Commands(dict):
                 if res is not None:
                     if (asyncio.iscoroutinefunction(meth) or
                        asyncio.iscoroutinefunction(self.guard.__call__)):
-                        task = asyncio.async(res, loop=self.context.loop)
+                        task = asyncio.ensure_future(res, loop=self.context.loop)
                         # use a callback if command is a coroutine
                         task.add_done_callback(callback)
                         self.tasks[uid] = task

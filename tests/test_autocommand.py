@@ -12,7 +12,7 @@ class TestAutoCommand(BotTestCase):
             for res in coro:
                 pass  # do nothing
 
-        with patch('irc3.asyncio.async', new_async):
+        with patch('irc3.asyncio.ensure_future', new_async):
             # sleep typed in mixed case to test that work with different cases
             bot = self.callFTU(autocommands=['AUTH user pass', '/slEep  3',
                                              'MODE {nick} +x'])
