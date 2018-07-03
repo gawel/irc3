@@ -71,7 +71,7 @@ class IrcObject:
         port=6667,
         timeout=320,
         max_lag=60,
-        async=True,
+        asynchronous=True,
         max_length=512,
         testing=False,
         ssl=False,

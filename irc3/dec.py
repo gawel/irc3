@@ -99,7 +99,7 @@ def extend(func):
         >>> import sys
         >>> sys.path.append('examples')
         >>> from irc3 import IrcBot
-        >>> IrcBot.defaults.update(async=False, testing=True)
+        >>> IrcBot.defaults.update(asynchronous=False, testing=True)
 
     Now you can use those routine in your bot::
 

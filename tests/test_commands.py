@@ -202,7 +202,7 @@ class TestCommands(BotTestCase):
 
     @unittest.skip('')
     def test_antiflood(self):
-        bot = self.callFTU(async=True, **{self.name: dict(antiflood=True)})
+        bot = self.callFTU(asynchronous=True, **{self.name: dict(antiflood=True)})
         bot.dispatch(':bar!user@host PRIVMSG #chan :!help ping')
         self.assertSent(['PRIVMSG #chan :ping/pong', 'PRIVMSG #chan :!ping'])
 

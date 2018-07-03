@@ -59,7 +59,7 @@ class IrcBot(irc3.IrcBot):
             loop.call_later = call_later
             loop.call_soon = call_soon
             loop.time.return_value = 10
-            config.update(testing=True, async=False, level=1000,
+            config.update(testing=True, asynchronous=False, level=1000,
                           loop=loop)
         else:
             config.update(testing=True, level=1000)
@@ -186,7 +186,7 @@ class IrcServer(irc3d.IrcServer):
         loop.call_soon = call_soon
         loop.time = MagicMock()
         loop.time.return_value = 10
-        config.update(testing=True, async=False, level=1000,
+        config.update(testing=True, asynchronous=False, level=1000,
                       loop=loop)
         super(IrcServer, self).__init__(**config)
         print(self.clients)

@@ -129,7 +129,7 @@ class IrcBot(base.IrcObject):
             import sys
             sys.exit(-1)
         self.queue = None
-        if self.config.async:
+        if self.config.asynchronous:
             self.queue = Queue(loop=self.loop)
             self.awaiting_queue = self.create_task(self.process_queue())
         self._ip = self._dcc = None

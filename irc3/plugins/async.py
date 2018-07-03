@@ -13,7 +13,7 @@ This module provide a way to catch data from various predefined events.
 Usage
 =====
 
-You'll have to define a subclass of :class:`~irc3.async.AsyncEvents`:
+You'll have to define a subclass of :class:`~irc3.asynchronous.AsyncEvents`:
 
 .. literalinclude:: ../../irc3/plugins/async.py
   :pyobject: Whois
@@ -54,7 +54,7 @@ Then you're able to use it in a plugin:
 API
 ===
 
-.. autoclass:: irc3.async.AsyncEvents
+.. autoclass:: irc3.asynchronous.AsyncEvents
   :members: process_results, __call__
 
 .. autoclass:: Async
@@ -288,7 +288,7 @@ class CTCP(AsyncEvents):
 class Async:
     """Asynchronious plugin.
     Extend the bot with some common commands using
-    :class:`~irc3.async.AsyncEvents`
+    :class:`~irc3.asynchronous.AsyncEvents`
     """
 
     def __init__(self, context):
