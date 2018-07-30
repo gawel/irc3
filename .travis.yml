@@ -1,12 +1,11 @@
-sudo: false
 language: python
 
 matrix:
-    include:
-     - python: 3.5
-     - python: 3.6
-     - python: 3.7
-       dist: xenial
+  include:
+    - python: 3.5
+    - python: 3.6
+    - python: 3.7
+      dist: xenial
 
 services:
   - redis-server
