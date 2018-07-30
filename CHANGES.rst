@@ -1,4 +1,4 @@
-1.1.0 (unreleased)
+1.1.0 (2018-07-30)
 ==================
 
 - Backward incompatibility: async is renamed to asynchronious for py37 compat
