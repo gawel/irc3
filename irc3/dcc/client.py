@@ -158,6 +158,10 @@ class DCCSend(DCCBase):
             self.socket.setblocking(1)
         self.fd = open(self.filepath, 'rb')
         self.fd_fileno = self.fd.fileno()
+        # remove existing transport ref. It shouldn't read/write anything
+        transports = getattr(self.loop, '_transports', None)
+        if transports is not None:
+            del self.loop._transports[transport._sock_fd]
         self.loop.remove_writer(socket)
         self.loop.add_writer(socket, self.next_chunk)
 

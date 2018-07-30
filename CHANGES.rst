@@ -1,8 +1,10 @@
-1.0.4 (unreleased)
+1.1.0 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Backward incompatibility: async is renamed to asynchronious for py37 compat
+  (thanks to @JulienPalard)
 
+- Except a KeyError on missing twitter configuration in social plugin
 
 1.0.3 (2018-05-08)
 ==================

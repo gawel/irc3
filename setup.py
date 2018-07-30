@@ -4,11 +4,11 @@ import codecs
 from setuptools import setup
 from setuptools import find_packages
 
-version = '1.0.4.dev0'
+version = '1.1.0.dev0'
 
 install_requires = ['venusian>=1.0', 'docopt']
 test_requires = [
-    'pytest-asyncio==0.5.0',
+    'pytest-asyncio',
     'pytest-aiohttp',
     'feedparser',
     'requests',
