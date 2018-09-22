@@ -57,7 +57,7 @@ If a command is tagged with ``show_in_help_list=False``, it won't be shown
 on the result of ``!help``.
 
     >>> bot.test(':gawel!user@host PRIVMSG #chan :!help')
-    PRIVMSG #chan :Available commands: !adduser, !echo, !help, !ping
+    PRIVMSG #chan :Available commands: !adduser, !echo, !help
 
 View extra info about a command by specifying it to ``!help``.
 
@@ -445,7 +445,7 @@ class Done:
         return True
 
 
-@command(permission='admin', public=False)
+@command(permission='admin', show_in_help_list=False, public=False)
 def ping(bot, mask, target, args):
     """ping/pong
 
@@ -454,7 +454,7 @@ def ping(bot, mask, target, args):
     bot.send('NOTICE %(nick)s :PONG %(nick)s!' % dict(nick=mask.nick))
 
 
-@command(venusian_category='irc3.debug')
+@command(venusian_category='irc3.debug', show_in_help_list=False)
 def quote(bot, mask, target, args):
     """send quote to the server
 
@@ -465,7 +465,7 @@ def quote(bot, mask, target, args):
     bot.send(msg)
 
 
-@command(venusian_category='irc3.debug')
+@command(venusian_category='irc3.debug', show_in_help_list=False)
 def reconnect(bot, mask, target, args):
     """force reconnect
 

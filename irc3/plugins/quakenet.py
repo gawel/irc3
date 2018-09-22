@@ -3,9 +3,9 @@ import hmac
 import irc3
 
 __doc__ = '''
-=================================================
+====================================================
 :mod:`irc3.plugins.quakenet` QuakeNet authorization
-=================================================
+====================================================
 
 Plugin supports both simple and
 `challenge based <https://www.quakenet.org/development/challengeauth>`_

@@ -69,11 +69,11 @@ class TestCommands(BotTestCase):
         self.assertEqual(len(plugin), 2, plugin)
         bot.dispatch(':bar!user@host PRIVMSG foo :!help')
         self.assertSent(
-            ['PRIVMSG bar :Available commands: !help, !ping'])
+            ['PRIVMSG bar :Available commands: !help'])
 
         bot.dispatch(':bar!user@host PRIVMSG #chan :!help')
         self.assertSent(
-            ['PRIVMSG #chan :Available commands: !help, !ping'])
+            ['PRIVMSG #chan :Available commands: !help'])
 
     def test_help_hides(self):
         bot = self.callFTU(nick='foo')
@@ -81,11 +81,11 @@ class TestCommands(BotTestCase):
         # For direct messages
         bot.dispatch(':bar!user@host PRIVMSG foo :!help')
         self.assertSent(['PRIVMSG bar :Available commands: '
-                        '!cmd_arg, !cmd_view, !help, !ping'])
+                        '!cmd_arg, !cmd_view, !help'])
         # channel messages
         bot.dispatch(':bar!user@host PRIVMSG #chan :!help')
         self.assertSent(['PRIVMSG #chan :Available commands: '
-                        '!cmd_arg, !cmd_view, !help, !ping'])
+                        '!cmd_arg, !cmd_view, !help'])
 
     def test_help_with_url(self):
         bot = self.callFTU(nick='foo', **{
@@ -94,7 +94,7 @@ class TestCommands(BotTestCase):
         self.assertEqual(len(plugin), 2, plugin)
         bot.dispatch(':bar!user@host PRIVMSG foo :!help')
         self.assertSent([
-            'PRIVMSG bar :Available commands: !help, !ping',
+            'PRIVMSG bar :Available commands: !help',
             'PRIVMSG bar :Full help is available at http://localhost/',
         ])
 
@@ -135,7 +135,7 @@ class TestCommands(BotTestCase):
         self.assertEqual(len(plugin), 2, plugin)
         bot.dispatch(':bar!user@host PRIVMSG foo :|help')
         self.assertSent(
-            ['PRIVMSG bar :Available commands: |help, |ping'])
+            ['PRIVMSG bar :Available commands: |help'])
 
     def test_command_trailing_space(self):
         bot = self.callFTU(nick='foo')
