@@ -1,4 +1,4 @@
-1.1.1 (unreleased)
+1.1.1 (2018-09-22)
 ==================
 
 - Do not show builtins command in help. Fixed #167
