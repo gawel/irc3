@@ -402,4 +402,12 @@ class IrcBot(base.IrcObject):
 
 
 def run(argv=None):
-    return IrcBot.from_argv(argv)
+    bots = {}
+    bot = IrcBot.from_argv(argv, botnet=bots)
+    bots['bot'] = bot
+    for section in list(bot.config):
+        if section.startswith('bot_'):
+            config = bot.config.pop(section)
+            bots[section] = IrcBot.from_argv(argv, botnet=bots, **config)
+    bot.loop.run_forever()
+    return bots

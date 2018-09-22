@@ -1,7 +1,7 @@
 1.1.2 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Allow to have more than one `[bot]` section in config file
 
 
 1.1.1 (2018-09-22)

@@ -20,7 +20,7 @@ class TestRun(testing.BotTestCase):
         self.wd = os.path.join(self.wd, 'logs')
 
     def callFTU(self, *args):
-        return irc3.run(args)
+        return irc3.run(args)['bot']
 
     def test_args_error(self):
         self.assertRaises(DocoptExit, self.callFTU, '-x')
