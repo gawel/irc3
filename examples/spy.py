@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from irc3.compat import asyncio
 import irc3
 
 
@@ -12,13 +11,16 @@ class Plugin(object):
         self.log = context.log
         self.context = context
         self.channel = context.config.channel
-        try:
-            self.chater = context.botnet['bot_chater']
-        except Exception:
-            self.chater = None
 
     @irc3.event(irc3.rfc.CONNECTED)
     def connected(self, **kw):
+        chater = self.context.config.botnet['bot_chater']
+        if chater is self.context:
+            self.chater = None
+            self.log.info("I'm a chater")
+        else:
+            self.chater = chater
+            self.log.info("I'm a spyer")
         self.context.join(self.channel)
 
     @irc3.event(irc3.rfc.PRIVMSG)
