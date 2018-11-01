@@ -46,7 +46,7 @@ def call_later(i, func, *args):
 
 def call_soon(func, *args):
     func(*args)
-    return asyncio.Handle(func, args,  asyncio.get_event_loop())
+    return asyncio.Handle(func, args, asyncio.get_event_loop())
 
 
 class IrcBot(irc3.IrcBot):

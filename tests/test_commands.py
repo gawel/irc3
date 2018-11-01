@@ -142,8 +142,7 @@ class TestCommands(BotTestCase):
         bot.dispatch(':bar!user@host PRIVMSG foo :!ping')
         bot.dispatch(':bar!user@host PRIVMSG foo :!ping ')
         bot.dispatch(':bar!user@host PRIVMSG foo :!ping  ')
-        self.assertSent(
-            ['NOTICE bar :PONG bar!']*3)
+        self.assertSent(['NOTICE bar :PONG bar!'] * 3)
 
     def test_command_argument_space(self):
         bot = self.callFTU(nick='foo')

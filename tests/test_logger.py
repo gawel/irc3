@@ -49,6 +49,6 @@ class LoggerFileTestCase(BotTestCase):
         with open(filenames[0]) as fd:
             self.assertIn('bar has quit', fd.read())
 
-        bot.privmsg('#foo',  'youhou!')
+        bot.privmsg('#foo', 'youhou!')
         with open(filenames[0]) as fd:
             self.assertIn('<irc3> youhou!', fd.read())

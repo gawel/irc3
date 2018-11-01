@@ -363,8 +363,11 @@ class Commands(dict):
 
                 callback = functools.partial(self.command_callback, uid, to)
                 if res is not None:
-                    if (asyncio.iscoroutinefunction(meth) or
-                       asyncio.iscoroutinefunction(self.guard.__call__)):
+                    coros = (
+                        asyncio.iscoroutinefunction(meth),
+                        asyncio.iscoroutinefunction(self.guard.__call__)
+                    )
+                    if any(coros):
                         task = asyncio.ensure_future(
                             res, loop=self.context.loop)
                         # use a callback if command is a coroutine

@@ -51,10 +51,13 @@ class Casefold:
                                                            'rfc1459')
 
         if casemapping == 'rfc1459':
-            lower_chars = (string.ascii_lowercase +
-                           ''.join(chr(i) for i in range(123, 127)))
-            upper_chars = (string.ascii_uppercase +
-                           ''.join(chr(i) for i in range(91, 95)))
+            lower_chars = (
+                string.ascii_lowercase + ''.join(
+                    chr(i) for i in range(123, 127))
+            )
+            upper_chars = (
+                string.ascii_uppercase + ''.join(chr(i) for i in range(91, 95))
+            )
 
         elif casemapping == 'ascii':
             lower_chars = string.ascii_lowercase

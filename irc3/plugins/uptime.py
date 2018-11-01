@@ -38,7 +38,7 @@ class Uptime:
 
     def delta(self, value):
         values = []
-        for base in [3600*24, 3600, 60, 1]:
+        for base in [3600 * 24, 3600, 60, 1]:
             d, value = divmod(value, base)
             values.append(int(d))
         values = dict(zip(['days', 'hours', 'minutes', 'seconds'], values))

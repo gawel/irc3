@@ -6,7 +6,7 @@ import os
 
 def render_attrs(title, attrs, out):
     out.write(title + '\n')
-    out.write(len(title)*'=' + '\n')
+    out.write(len(title) * '=' + '\n')
     out.write('\n')
     for attr in attrs:
         name = attr.name
@@ -14,7 +14,7 @@ def render_attrs(title, attrs, out):
         if isinstance(attr, int):
             title = '%s - %s' % (attr, title)
         out.write(title + '\n')
-        out.write(len(title)*'-' + '\n\n')
+        out.write(len(title) * '-' + '\n\n')
         if hasattr(attr, 'tpl'):
             out.write('Format ``%s``\n\n' % attr.tpl.replace('{c.', '{'))
         out.write('Match ``%s``\n\n' % attr.re)

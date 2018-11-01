@@ -44,39 +44,39 @@ Create a bridge between slack and irc
 '''
 
 EMOJIS = {
-  "smile": ":)",
-  "simple_smile": ":)",
-  "smiley": ":-)",
-  "grin": ":D",
-  "wink": ";)",
-  "smirk": ";)",
-  "blush": ":$",
-  "stuck_out_tongue": ":P",
-  "stuck_out_tongue_winking_eye": ";P",
-  "stuck_out_tongue_closed_eyes": "xP",
-  "disappointed": ":(",
-  "astonished": ":O",
-  "open_mouth": ":O",
-  "heart": "<3",
-  "broken_heart": "</3",
-  "confused": ":S",
-  "angry": ">:(",
-  "cry": ":,(",
-  "frowning": ":(",
-  "imp": "]:(",
-  "innocent": "o:)",
-  "joy": ":,)",
-  "kissing": ":*",
-  "laughing": "x)",
-  "neutral_face": ":|",
-  "no_mouth": ":-",
-  "rage": ":@",
-  "smiling_imp": "]:)",
-  "sob": ":,'(",
-  "sunglasses": "8)",
-  "sweat": ",:(",
-  "sweat_smile": ",:)",
-  "unamused": ":$"
+    "smile": ":)",
+    "simple_smile": ":)",
+    "smiley": ":-)",
+    "grin": ":D",
+    "wink": ";)",
+    "smirk": ";)",
+    "blush": ":$",
+    "stuck_out_tongue": ":P",
+    "stuck_out_tongue_winking_eye": ";P",
+    "stuck_out_tongue_closed_eyes": "xP",
+    "disappointed": ":(",
+    "astonished": ":O",
+    "open_mouth": ":O",
+    "heart": "<3",
+    "broken_heart": "</3",
+    "confused": ":S",
+    "angry": ">:(",
+    "cry": ":,(",
+    "frowning": ":(",
+    "imp": "]:(",
+    "innocent": "o:)",
+    "joy": ":,)",
+    "kissing": ":*",
+    "laughing": "x)",
+    "neutral_face": ":|",
+    "no_mouth": ":-",
+    "rage": ":@",
+    "smiling_imp": "]:)",
+    "sob": ":,'(",
+    "sunglasses": "8)",
+    "sweat": ",:(",
+    "sweat_smile": ",:)",
+    "unamused": ":$"
 }
 
 
@@ -151,7 +151,7 @@ class Slack:
             form.add_field('token', self.config['token'])
             async with session.post(
                 'https://slack.com/api/{0}'.format(method), data=form
-                    ) as response:
+            ) as response:
                 if response.status == 429:
                     await irc3.asyncio.sleep(
                         int(response.headers['Retry-After'])

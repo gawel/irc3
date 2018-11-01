@@ -24,7 +24,7 @@ class TestAutoCommand(BotTestCase):
             with self.assertRaises(ValueError):
                 # test bad arguments too
                 bot2 = self.callFTU(autocommands=[
-                        None, '/sleep 3.4.5', '/sleep bad', 'TEST SENT'])
+                    None, '/sleep 3.4.5', '/sleep bad', 'TEST SENT'])
                 bot2.notify('connection_made')
                 bot2.dispatch(':node.net 376 irc3 '':End of /MOTD command.')
                 self.assertSent(['TEST SENT'])

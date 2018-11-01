@@ -83,7 +83,7 @@ def main():
             'irc3.plugins.command',
             'irc3.plugins.human',
             __name__,  # this register MyPlugin
-            ]
+        ]
     )
     bot = irc3.IrcBot.from_config(config)
     bot.run(forever=True)

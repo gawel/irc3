@@ -5,9 +5,9 @@ from irc3.plugins import quakenet
 class TestQuakenet(BotTestCase):
 
     config = dict(
-            includes=['irc3.plugins.quakenet'],
-            quakenet=dict(user="bot", password="password", hidehost=True,
-                          challenge_auth=False))
+        includes=['irc3.plugins.quakenet'],
+        quakenet=dict(user="bot", password="password", hidehost=True,
+                      challenge_auth=False))
 
     def test_challenge(self):
         # Test vectors taken from:
