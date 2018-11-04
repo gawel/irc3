@@ -43,7 +43,7 @@ And register it::
 Check the result::
 
     >>> bot.test(':gawel!user@host PRIVMSG #chan :!echo foo')
-    PRIVMSG gawel :foo
+    PRIVMSG #chan :foo
 
 In the docstring, ``%%`` is replaced by the command character. ``!`` by
 default. You can override it by passing a ``cmd`` parameter to bot's config.
@@ -84,6 +84,7 @@ Mask based guard using permissions::
 
     >>> config = ini2config("""
     ... [bot]
+    ... nick = nono
     ... includes =
     ...     irc3.plugins.command
     ...     mycommands

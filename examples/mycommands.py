@@ -8,7 +8,7 @@ def echo(bot, mask, target, args):
 
         %%echo <words>...
     """
-    bot.privmsg(mask.nick, ' '.join(args['<words>']))
+    yield ' '.join(args['<words>'])
 
 
 @command(permission='admin', public=False)
@@ -26,4 +26,4 @@ def my_secret_operation(bot, mask, target, args):
 
         %%my_secret_operation
     """
-    bot.privmsg(mask.nick, "I like turtles")
+    yield "I like turtles"
