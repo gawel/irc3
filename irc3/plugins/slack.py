@@ -223,7 +223,10 @@ class Slack:
         users = self.config['notify']
         if isinstance(users, str):
             users = [users]
-        conversation = await self.api_call('conversations.open', {'users': ','.join(users)})
+        conversation = await self.api_call(
+            'conversations.open',
+            {'users': ','.join(users)}
+        )
         await self.api_call('chat.postMessage', {
             'channel': conversation['channel']['id'],
             'text': 'irc3 has been restarted to reconnect to websocket',
