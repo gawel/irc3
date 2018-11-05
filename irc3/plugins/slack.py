@@ -1,5 +1,4 @@
 import irc3
-import irc3.plugins.cron
 from irc3 import asyncio
 import json
 import re
@@ -11,13 +10,9 @@ __doc__ = '''
 
 Introduce a slack/irc interface to bridge messages between slack and irc.
 
-Install aiohttp and aiocron
+Install aiohttp::
 
-    $ pip install aiohttp aiocron
-
-.. note::
-
-    aiocron is used for refreshing the user and channel list
+    $ pip install aiohttp
 
 Usage
 =====
@@ -85,8 +80,6 @@ EMOJIS = {
 @irc3.plugin
 class Slack:
 
-    requires = ['irc3.plugins.cron']
-
     def __init__(self, bot):
         self.bot = bot
         self.client = irc3.utils.maybedotted('aiohttp.ClientSession')
@@ -129,14 +122,28 @@ class Slack:
             self.bot.log.warning('No slack token is set.')
 
     def get_channel_by_id(self, matchobj):
-        return matchobj.group('readable') or '#{0}'.format(
-            self.slack_channels[matchobj.group('channelId')]['name']
+        if matchobj.group('readable'):
+            return matchobj.group('readable')
+        future = asyncio.run_coroutine_threadsafe(
+            self.api_call(
+                'conversation.info',
+                {'channel': matchobj.group('channelId')}
+            ),
+            loop=self.bot.loop
         )
+        return '#{0}'.format(future.result()['channel']['name'])
 
     def get_user_by_id(self, matchobj):
-        return matchobj.group('readable') or '@{0}'.format(
-            self.slack_users[matchobj.group('userId')]
+        if matchobj.group('readable'):
+            return matchobj.group('readable')
+        future = asyncio.run_coroutine_threadsafe(
+            self.api_call(
+                'users.info',
+                {'user': matchobj.group('userId')}
+            ),
+            loop=self.bot.loop
         )
+        return '@{0}'.format(future.result()['user']['name'])
 
     def get_emoji(self, matchobj):
         emoji = matchobj.group('emoji')
@@ -183,18 +190,12 @@ class Slack:
                 del self.ws
             await asyncio.sleep(5)
 
-    def parse_text(self, message):
+    async def parse_text(self, message):
         for match in self.matches:
-            message = re.sub(*match, string=message)
+            message = await self.bot.loop.run_in_executor(
+                None, re.sub, match[0], match[1], message
+            )
         return message
-
-    @irc3.plugins.cron.cron('* * * * 0')
-    async def get_users_and_channels(self):
-        self.slack_channels = {}
-        self.slack_users = {}
-        await self.get_channels('channels')
-        await self.get_channels('groups')
-        await self.get_users()
 
     async def ping(self):
         '''ping websocket'''
@@ -214,7 +215,6 @@ class Slack:
                 break
 
     async def producer(self, put):
-        await self.get_users_and_channels()
         rtm = await self.api_call('rtm.start')
         if not rtm['ok']:
             raise ConnectionError('Error connecting to RTM')
@@ -241,13 +241,20 @@ class Slack:
                         'users.info',
                         {'user': message['user']}
                     )
+                    message['user'] = user['user']['name']
                 func = getattr(
                     self,
                     '_handle_{0}'.format(message.get('subtype', 'default')),
                     None
                 )
                 if func is not None:
-                    await func(message, user=user)
+                    if 'channel' in message:
+                        channel = await self.api_call(
+                            'conversations.info',
+                            {'channel': message['channel']}
+                        )
+                        message['channel'] = channel['channel']['name']
+                    await func(message)
             elif message.get('type') == 'pong':
                 self.bot.log.debug(
                     'Pong received: {0}'.format(message['reply_to'])
@@ -256,65 +263,23 @@ class Slack:
             else:
                 self.bot.log.debug('Debug Message: %s', message)
 
-    async def get_channels(self, what='channels'):
-        self.bot.log.debug('Getting Slack %s', what)
-        cursor = None
-        payload = {'limit': 500}
-        while True:
-            if cursor:
-                payload['cursor'] = cursor
-            channels = await self.api_call(
-                '{0}.list'.format(what),
-                data=payload,
-            )
-            for channel in channels.get(what, []):
-                self.slack_channels[channel['id']] = channel
-                if channel['name'] in self.channels:
-                    self.channels[channel['id']] = self.channels.pop(
-                        channel['name']
-                    )
-            cursor = channels.get(
-                'response_metadata', {}
-            ).get('next_cursor', None)
-            if not cursor:
-                break
-
-    async def get_users(self):
-        self.bot.log.debug('Getting Slack users')
-        cursor = None
-        payload = {'limit': 500}
-        while True:
-            if cursor:
-                payload['cursor'] = cursor
-            users = await self.api_call(
-                'users.list',
-                data=payload,
-            )
-            for user in users['members']:
-                self.slack_users[user['id']] = user['name']
-            cursor = users.get(
-                'response_metadata', {}
-            ).get('next_cursor', None)
-            if not cursor:
-                break
-
-    async def _handle_default(self, msg, user, **kwargs):
+    async def _handle_default(self, msg):
         for channel in self.channels.get(msg['channel'], []):
             await self.bot.privmsg(
                 channel,
                 '<{0}> {1}'.format(
-                    user['user']['name'],
-                    self.parse_text(msg['text'])
+                    msg['user'],
+                    await self.parse_text(msg['text'])
                 )
             )
 
-    async def _handle_me_message(self, msg, user, **kwargs):
+    async def _handle_me_message(self, msg):
         for channel in self.channels.get(msg['channel'], []):
             await self.bot.action(
                 channel,
                 '<{0}> {1}'.format(
-                    user['user']['name'],
-                    self.parse_text(msg['text'])
+                    msg['user'],
+                    await self.parse_text(msg['text'])
                 )
             )
 
