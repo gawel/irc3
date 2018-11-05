@@ -1,7 +1,9 @@
 import irc3
 import irc3.plugins.cron
+from irc3 import asyncio
 import json
 import re
+import random
 __doc__ = '''
 ==========================================
 :mod:`irc3.plugins.slack` Slack plugin
@@ -9,7 +11,7 @@ __doc__ = '''
 
 Introduce a slack/irc interface to bridge messages between slack and irc.
 
-Install aiohttp and aiocron::
+Install aiohttp and aiocron
 
     $ pip install aiohttp aiocron
 
@@ -89,11 +91,11 @@ class Slack:
         self.bot = bot
         self.client = irc3.utils.maybedotted('aiohttp.ClientSession')
         self.formdata = irc3.utils.maybedotted('aiohttp.FormData')
+        self.config = self.bot.config.get(__name__, {})
         self.msgtype = irc3.utils.maybedotted('aiohttp.WSMsgType')
         self.client_response_error = irc3.utils.maybedotted(
             'aiohttp.client_exceptions.ClientResponseError'
         )
-        self.config = self.bot.config.get(__name__, {})
         self.channels = self.bot.config.get(
             '{0}.channels'.format(__name__), {}
         )
@@ -165,7 +167,21 @@ class Slack:
                 return await response.json()
 
     def server_ready(self):
-        self.bot.create_task(self.connect())
+        self.bot.create_task(self.start())
+
+    async def start(self):
+        outbox = asyncio.Queue()
+        asyncio.ensure_future(self.consumer(outbox.get), loop=self.bot.loop)
+        while True:
+            done, pending = await asyncio.wait(
+                (self.producer(outbox.put), self.ping()),
+                return_when=asyncio.FIRST_COMPLETED,
+            )
+            for task in pending:
+                task.cancel()
+            if hasattr(self, 'ws'):
+                del self.ws
+            await asyncio.sleep(5)
 
     def parse_text(self, message):
         for match in self.matches:
@@ -180,27 +196,65 @@ class Slack:
         await self.get_channels('groups')
         await self.get_users()
 
-    async def connect(self):
+    async def ping(self):
+        '''ping websocket'''
+        while not hasattr(self, 'ws'):
+            await asyncio.sleep(1)
+        while True:
+            msgid = random.randrange(10000)
+            self.bot.log.debug('Sending ping message: {0}'.format(msgid))
+            try:
+                await self.ws.send_str(
+                    json.dumps({'type': 'ping', 'id': msgid})
+                )
+            except self.client_response_error:
+                break
+            await asyncio.sleep(20)
+            if msgid != self.msgid:
+                break
+
+    async def producer(self, put):
+        await self.get_users_and_channels()
         rtm = await self.api_call('rtm.start')
         if not rtm['ok']:
             raise ConnectionError('Error connecting to RTM')
-        await self.get_users_and_channels()
-        try:
-            async with self.client(loop=self.bot.loop) as session:
-                async with session.ws_connect(rtm['url']) as ws:
-                    self.bot.log.debug('Listening to Slack')
-                    async for msg in ws:
-                        if msg.type == self.msgtype.TEXT:
-                            data = json.loads(msg.data)
-                            if data['type'] == 'message':
-                                await self._handle_messages(data)
-                        elif msg.type == self.msgtype.CLOSED:
-                            break
-                        elif msg.type == self.msgtype.ERROR:
-                            break
-        except self.client_response_error as exc:
-            self.bot.log.exception(exc)
-            self.bot.create_task(self.connect())
+            self.bot.log.debug('Listening to Slack')
+        async with self.client(loop=self.bot.loop) as session:
+            async with session.ws_connect(rtm['url']) as ws:
+                self.bot.log.debug('Listening to Slack')
+                async for msg in ws:
+                    if msg.type == self.msgtype.TEXT:
+                        await put(json.loads(msg.data))
+                    else:
+                        break
+
+    async def consumer(self, get):
+        while True:
+            message = await get()
+            if message.get('type') == 'message':
+                self.bot.log.debug(
+                    'Message to irc: {0}'.format(message)
+                )
+                user = None
+                if 'user' in message:
+                    user = await self.api_call(
+                        'users.info',
+                        {'user': message['user']}
+                    )
+                func = getattr(
+                    self,
+                    '_handle_{0}'.format(message.get('subtype', 'default')),
+                    None
+                )
+                if func is not None:
+                    await func(message, user=user)
+            elif message.get('type') == 'pong':
+                self.bot.log.debug(
+                    'Pong received: {0}'.format(message['reply_to'])
+                )
+                self.msgid = message['reply_to']
+            else:
+                self.bot.log.debug('Debug Message: %s', message)
 
     async def get_channels(self, what='channels'):
         self.bot.log.debug('Getting Slack %s', what)
@@ -243,24 +297,6 @@ class Slack:
             ).get('next_cursor', None)
             if not cursor:
                 break
-
-    async def _handle_messages(self, msg):
-        self.bot.log.debug(
-            'Message to irc: {0}'.format(msg)
-        )
-        user = None
-        if 'user' in msg:
-            user = await self.api_call(
-                'users.info',
-                {'user': msg['user']}
-            )
-        func = getattr(
-            self,
-            '_handle_{0}'.format(msg.get('subtype', 'default')),
-            None
-        )
-        if func is not None:
-            await func(msg, user=user)
 
     async def _handle_default(self, msg, user, **kwargs):
         for channel in self.channels.get(msg['channel'], []):
