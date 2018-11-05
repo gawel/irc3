@@ -1,16 +1,10 @@
 # -*- coding: utf-8 -*-
 import pytest
-
-from irc3.testing import BotTestCase
 from irc3.plugins import slack
 
-import logging
+pytestmark = pytest.mark.asyncio
 
-log = logging.getLogger(__name__)
 
-config = dict(includes=['irc3.plugins.slack'])
-
-@pytest.mark.asyncio
 async def test_simple_matches(irc3_bot_factory):
     bot = irc3_bot_factory(includes=['irc3.plugins.slack'])
     plugin = bot.get_plugin(slack.Slack)
@@ -26,29 +20,33 @@ async def test_simple_matches(irc3_bot_factory):
     assert '&' == await plugin.parse_text('&amp')
     assert 'daniel' == await plugin.parse_text('<WHATEVER|daniel>')
 
-@pytest.mark.asyncio
+
 async def test_channel_matches(irc3_bot_factory):
     bot = irc3_bot_factory(includes=['irc3.plugins.slack'])
     plugin = bot.get_plugin(slack.Slack)
     setattr(plugin, 'config', {'token': 'xoxp-faketoken'})
+
     async def api_call(self, method, date=None):
         return ({'channel': {'name': 'testchannel'}})
+
     plugin.api_call = api_call
     assert '#testchannel' == await plugin.parse_text('<#C12345>')
     assert 'channel' == await plugin.parse_text('<#C12345|channel>')
 
-@pytest.mark.asyncio
+
 async def test_user_matches(irc3_bot_factory):
     bot = irc3_bot_factory(includes=['irc3.plugins.slack'])
     plugin = bot.get_plugin(slack.Slack)
     setattr(plugin, 'config', {'token': 'xoxp-faketoken'})
+
     async def api_call(self, method, date=None):
         return ({'user': {'name': 'daniel'}})
+
     plugin.api_call = api_call
     assert '@daniel' == await plugin.parse_text('<@U12345>')
     assert 'user' == await plugin.parse_text('<@U12345|user>')
 
-@pytest.mark.asyncio
+
 async def test_emoji_matches(irc3_bot_factory):
     bot = irc3_bot_factory(includes=['irc3.plugins.slack'])
     plugin = bot.get_plugin(slack.Slack)
