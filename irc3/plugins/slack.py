@@ -38,6 +38,25 @@ Create a bridge between slack and irc
 
     Be sure to invite the bot in slack to the channels it should be bridging
 
+
+Config Options
+==============
+
+irc3.plugins.slack
+------------------
+
+token
+
+    slack api token (user or bot integration)
+
+irc3.plugins.slack.channels
+---------------------------
+
+This section is a list of channels that should be bridge.  The first is the
+slack channel that the bot needs to be joined to to bridge slack to irc.
+
+Then assigned to that is the list of irc channels that slack channel should
+forward to.
 '''
 
 EMOJIS = {
