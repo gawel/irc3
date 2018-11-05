@@ -1,52 +1,57 @@
 # -*- coding: utf-8 -*-
+import pytest
+
 from irc3.testing import BotTestCase
 from irc3.plugins import slack
 
+import logging
 
-class TestSlack(BotTestCase):
+log = logging.getLogger(__name__)
 
-    config = dict(includes=['irc3.plugins.slack'])
+config = dict(includes=['irc3.plugins.slack'])
 
-    def test_simple_matches(self):
-        bot = self.callFTU()
-        plugin = bot.get_plugin(slack.Slack)
-        self.assertEqual('', plugin.parse_text('\n'))
-        self.assertEqual('', plugin.parse_text('\r\n'))
-        self.assertEqual('', plugin.parse_text('\r'))
-        self.assertEqual('@channel', plugin.parse_text('<!channel>'))
-        self.assertEqual('@group', plugin.parse_text('<!group>'))
-        self.assertEqual('@everyone', plugin.parse_text('<!everyone>'))
-        self.assertEqual('<', plugin.parse_text('&lt'))
-        self.assertEqual('>', plugin.parse_text('&gt'))
-        self.assertEqual('&', plugin.parse_text('&amp'))
-        self.assertEqual('daniel', plugin.parse_text('<WHATEVER|daniel>'))
+@pytest.mark.asyncio
+async def test_simple_matches(irc3_bot_factory):
+    bot = irc3_bot_factory(includes=['irc3.plugins.slack'])
+    plugin = bot.get_plugin(slack.Slack)
+    setattr(plugin, 'config', {'token': 'xoxp-faketoken'})
+    assert '' == await plugin.parse_text('\n')
+    assert '' == await plugin.parse_text('\r\n')
+    assert '' == await plugin.parse_text('\r')
+    assert '@channel' == await plugin.parse_text('<!channel>')
+    assert '@group' == await plugin.parse_text('<!group>')
+    assert '@everyone' == await plugin.parse_text('<!everyone>')
+    assert '<' == await plugin.parse_text('&lt')
+    assert '>' == await plugin.parse_text('&gt')
+    assert '&' == await plugin.parse_text('&amp')
+    assert 'daniel' == await plugin.parse_text('<WHATEVER|daniel>')
 
-    def test_channel_matches(self):
-        bot = self.callFTU()
-        plugin = bot.get_plugin(slack.Slack)
-        plugin.slack_channels = {
-            'C12345': {'name': 'testchannel'},
-        }
-        self.assertEqual('#testchannel', plugin.parse_text('<#C12345>'))
-        self.assertEqual('channel', plugin.parse_text('<#C12345|channel>'))
+@pytest.mark.asyncio
+async def test_channel_matches(irc3_bot_factory):
+    bot = irc3_bot_factory(includes=['irc3.plugins.slack'])
+    plugin = bot.get_plugin(slack.Slack)
+    setattr(plugin, 'config', {'token': 'xoxp-faketoken'})
+    async def api_call(self, method, date=None):
+        return ({'channel': {'name': 'testchannel'}})
+    plugin.api_call = api_call
+    assert '#testchannel' == await plugin.parse_text('<#C12345>')
+    assert 'channel' == await plugin.parse_text('<#C12345|channel>')
 
-    def test_user_matches(self):
-        bot = self.callFTU()
-        plugin = bot.get_plugin(slack.Slack)
-        plugin.slack_users = {
-            'U12345': 'daniel',
-        }
-        self.assertEqual('@daniel', plugin.parse_text('<@U12345>'))
-        self.assertEqual('user', plugin.parse_text('<@U12345|user>'))
+@pytest.mark.asyncio
+async def test_user_matches(irc3_bot_factory):
+    bot = irc3_bot_factory(includes=['irc3.plugins.slack'])
+    plugin = bot.get_plugin(slack.Slack)
+    setattr(plugin, 'config', {'token': 'xoxp-faketoken'})
+    async def api_call(self, method, date=None):
+        return ({'user': {'name': 'daniel'}})
+    plugin.api_call = api_call
+    assert '@daniel' == await plugin.parse_text('<@U12345>')
+    assert 'user' == await plugin.parse_text('<@U12345|user>')
 
-    def test_emoji_matches(self):
-        bot = self.callFTU()
-        plugin = bot.get_plugin(slack.Slack)
-        self.assertEqual(':-)', plugin.parse_text(':smiley:'))
-        self.assertEqual(':@', plugin.parse_text(':rage:'))
-
-    def test_channels(self):
-        bot = self.callFTU()
-        plugin = bot.get_plugin(slack.Slack)
-        self.assertNotIn('#', plugin.channels)
-        self.assertNotIn('hash', plugin.channels)
+@pytest.mark.asyncio
+async def test_emoji_matches(irc3_bot_factory):
+    bot = irc3_bot_factory(includes=['irc3.plugins.slack'])
+    plugin = bot.get_plugin(slack.Slack)
+    setattr(plugin, 'config', {'token': 'xoxp-faketoken'})
+    assert ':-)' == await plugin.parse_text(':smiley:')
+    assert ':@' == await plugin.parse_text(':rage:')
