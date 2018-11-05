@@ -28,6 +28,9 @@ Create a bridge between slack and irc
     ...     irc3.plugins.slack
     ... [irc3.plugins.slack]
     ... token = xoxb-slackbottoken
+    ... notify =
+    ...     U6DT2Q8HM
+    ...     U3090DHMA
     ... [irc3.plugins.slack.channels]
     ... slack =
     ...     ${#}irc
@@ -48,6 +51,10 @@ irc3.plugins.slack
 token
 
     slack api token (user or bot integration)
+
+notify
+
+    The slack user ids to notify, this needs to be the unique user ids.
 
 irc3.plugins.slack.channels
 ---------------------------
@@ -207,7 +214,20 @@ class Slack:
                 task.cancel()
             if hasattr(self, 'ws'):
                 del self.ws
+            await self.notify_restart()
             await asyncio.sleep(5)
+
+    async def notify_restart(self):
+        if 'notify' not in self.config:
+            return
+        users = self.config['notify']
+        if isinstance(users, str):
+            users = [users]
+        conversation = await self.api_call('conversations.open', {'users': ','.join(users)})
+        await self.api_call('chat.postMessage', {
+            'channel': conversation['channel']['id'],
+            'text': 'irc3 has been restarted to reconnect to websocket',
+        })
 
     async def parse_text(self, message):
         for match in self.matches:
@@ -239,9 +259,9 @@ class Slack:
             raise ConnectionError('Error connecting to RTM')
             self.bot.log.debug('Listening to Slack')
         async with self.client(loop=self.bot.loop) as session:
-            async with session.ws_connect(rtm['url']) as ws:
+            async with session.ws_connect(rtm['url']) as self.ws:
                 self.bot.log.debug('Listening to Slack')
-                async for msg in ws:
+                async for msg in self.ws:
                     if msg.type == self.msgtype.TEXT:
                         await put(json.loads(msg.data))
                     else:
