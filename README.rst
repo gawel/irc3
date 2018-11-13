@@ -35,7 +35,7 @@ Irc: irc://irc.freenode.net/irc3 (`www
 
 
 I've spent hours writing this software, with love.
-Please consider tiping if you like it:
+Please consider tipping if you like it:
 
 BTC: 1PruQAwByDndFZ7vTeJhyWefAghaZx9RZg
 
