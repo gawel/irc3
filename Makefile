@@ -3,6 +3,9 @@ HOSTNAME:=$(shell hostname)
 HOST:=amandine
 PYTHON?=$(HOME)/.venvs/py3/bin/python3
 
+build:
+	docker build -t gawel/irc3 .
+
 venv:
 	 $(PYTHON) -m venv venv
 	./venv/bin/pip install -e .[test,web]

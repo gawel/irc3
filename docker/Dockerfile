@@ -1,11 +1,12 @@
-FROM python:3.5
+FROM python:3.7
 
 RUN adduser --disabled-password --gecos '' irc3
 
-RUN cd /usr/src && git clone https://github.com/gawel/irc3.git
-RUN cd /usr/src/irc3 && pip install ipython && pip install -e .[test]
+RUN echo build \
+    && cd /usr/src && git clone https://github.com/gawel/irc3.git \
+    && cd /usr/src/irc3 && pip install ipython && pip install -e .[test] \
+    && mkdir -p /usr/src/bot && chown -R irc3:irc3 /usr/src/bot
 
-RUN mkdir -p /usr/src/bot && chown -R irc3:irc3 /usr/src/bot
 WORKDIR /usr/src/bot
 
 ONBUILD COPY . /usr/src/bot
