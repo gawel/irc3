@@ -69,6 +69,16 @@ class IrcString(BaseString):
             return self.split('!', 1)[1]
 
     @property
+    def username(self):
+        if '@' in self.host:
+            return self.host.split('@', 1)[0]
+
+    @property
+    def hostname(self):
+        if '@' in self.host:
+            return self.host.split('@', 1)[1]
+
+    @property
     def is_user(self):
         return '!' in self
 
