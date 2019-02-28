@@ -139,10 +139,10 @@ class IrcObject:
                     self.include(dotted)
             plugins[ob_name] = ob(self)
         elif ob_name in reloading and hasattr(ob, 'reload'):
-                instance = reloading.pop(ob_name)
-                if instance.__class__ is not ob:
-                    self.log.debug("Reloading plugin '%s'", ob_name)
-                    plugins[ob_name] = ob.reload(instance)
+            instance = reloading.pop(ob_name)
+            if instance.__class__ is not ob:
+                self.log.debug("Reloading plugin '%s'", ob_name)
+                plugins[ob_name] = ob.reload(instance)
         return plugins[ob_name]
 
     def recompile(self):
