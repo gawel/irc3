@@ -4,7 +4,7 @@ graft examples
 graft irc3
 graft irc3d
 graft tests
-include *.rst *.cfg *.ini *.txt
+include Makefile *.rst *.cfg *.ini *.txt
 global-exclude *.pyc *.swp
 global-exclude __pycache__
 include conftest.py
