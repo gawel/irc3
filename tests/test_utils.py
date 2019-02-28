@@ -32,6 +32,8 @@ class TestUtils(TestCase):
         self.assertTrue(s.is_nick)
         self.assertEqual(s.nick, 'nick')
         self.assertEqual(s.host, 'user@host')
+        self.assertEqual(s.username, 'user')
+        self.assertEqual(s.hostname, 'host')
 
         s = IrcString('#chan')
         self.assertTrue(s.is_channel)

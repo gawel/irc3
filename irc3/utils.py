@@ -69,6 +69,38 @@ class IrcString(BaseString):
             return self.split('!', 1)[1]
 
     @property
+    def username(self):
+        """return user name:
+
+        .. code-block:: py
+
+            >>> print(IrcString('foo!user@host').username)
+            user
+            >>> IrcString('#foo').username is None
+            True
+            >>> IrcString('irc.freenode.net').username is None
+            True
+        """
+        if self.host and '@' in self.host:
+            return self.host.split('@', 1)[0]
+
+    @property
+    def hostname(self):
+        """return host name:
+
+        .. code-block:: py
+
+            >>> print(IrcString('foo!user@host').hostname)
+            host
+            >>> IrcString('#foo').hostname is None
+            True
+            >>> IrcString('irc.freenode.net').hostname is None
+            True
+        """
+        if self.host and '@' in self.host:
+            return self.host.split('@', 1)[1]
+
+    @property
     def is_user(self):
         return '!' in self
 
