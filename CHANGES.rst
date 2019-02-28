@@ -3,6 +3,8 @@
 
 - Allow to have more than one `[bot]` section in config file
 
+- IrcString now allow to retrieve username/hostname from mask
+
 
 1.1.1 (2018-09-22)
 ==================
