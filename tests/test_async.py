@@ -4,7 +4,7 @@ import pytest
 
 @pytest.mark.asyncio
 def test_whois_fail(irc3_bot_factory):
-    bot = irc3_bot_factory(includes=['irc3.plugins.async'])
+    bot = irc3_bot_factory(includes=['irc3.plugins.asynchronious'])
     assert len(bot.registry.events_re['in']) == 0
     task = bot.async_cmds.whois(nick='gawel')
     assert len(bot.registry.events_re['in']) > 2
@@ -16,7 +16,7 @@ def test_whois_fail(irc3_bot_factory):
 
 @pytest.mark.asyncio
 def test_whois_success(irc3_bot_factory):
-    bot = irc3_bot_factory(includes=['irc3.plugins.async'])
+    bot = irc3_bot_factory(includes=['irc3.plugins.asynchronious'])
     assert len(bot.registry.events_re['in']) == 0
     task = bot.async_cmds.whois(nick='GaWel')
     assert len(bot.registry.events_re['in']) > 2
@@ -36,7 +36,7 @@ def test_whois_success(irc3_bot_factory):
 
 @pytest.mark.asyncio
 def test_whois_timeout(irc3_bot_factory):
-    bot = irc3_bot_factory(includes=['irc3.plugins.async'])
+    bot = irc3_bot_factory(includes=['irc3.plugins.asynchronious'])
     assert len(bot.registry.events_re['in']) == 0
     task = bot.async_cmds.whois(nick='GaWel', timeout=.1)
     assert len(bot.registry.events_re['in']) > 2
@@ -46,7 +46,7 @@ def test_whois_timeout(irc3_bot_factory):
 
 @pytest.mark.asyncio
 def test_who_channel(irc3_bot_factory):
-    bot = irc3_bot_factory(includes=['irc3.plugins.async'])
+    bot = irc3_bot_factory(includes=['irc3.plugins.asynchronious'])
     assert len(bot.registry.events_re['in']) == 0
     task = bot.async_cmds.who('#irc3')
     assert len(bot.registry.events_re['in']) == 2
@@ -62,7 +62,7 @@ def test_who_channel(irc3_bot_factory):
 
 @pytest.mark.asyncio
 def test_who_channel_flags(irc3_bot_factory):
-    bot = irc3_bot_factory(includes=['irc3.plugins.async'])
+    bot = irc3_bot_factory(includes=['irc3.plugins.asynchronious'])
     assert len(bot.registry.events_re['in']) == 0
     task = bot.async_cmds.who('#irc3', 'ahinrsu')
     assert len(bot.registry.events_re['in']) == 2
@@ -94,7 +94,7 @@ def test_who_channel_flags(irc3_bot_factory):
 
 @pytest.mark.asyncio
 def test_who_nick(irc3_bot_factory):
-    bot = irc3_bot_factory(includes=['irc3.plugins.async'])
+    bot = irc3_bot_factory(includes=['irc3.plugins.asynchronious'])
     assert len(bot.registry.events_re['in']) == 0
     task = bot.async_cmds.who('irc3')
     assert len(bot.registry.events_re['in']) == 2
@@ -108,7 +108,7 @@ def test_who_nick(irc3_bot_factory):
 
 @pytest.mark.asyncio
 def test_topic(irc3_bot_factory):
-    bot = irc3_bot_factory(includes=['irc3.plugins.async'])
+    bot = irc3_bot_factory(includes=['irc3.plugins.asynchronious'])
     assert len(bot.registry.events_re['in']) == 0
     task = bot.async_cmds.topic('#chan', topic='test', timeout=.1)
     assert len(bot.registry.events_re['in']) > 0
@@ -120,7 +120,7 @@ def test_topic(irc3_bot_factory):
 
 @pytest.mark.asyncio
 def test_no_topic(irc3_bot_factory):
-    bot = irc3_bot_factory(includes=['irc3.plugins.async'])
+    bot = irc3_bot_factory(includes=['irc3.plugins.asynchronious'])
     assert len(bot.registry.events_re['in']) == 0
     task = bot.async_cmds.topic('#chan', timeout=.1)
     assert len(bot.registry.events_re['in']) > 0
@@ -132,7 +132,7 @@ def test_no_topic(irc3_bot_factory):
 
 @pytest.mark.asyncio
 def test_ison(irc3_bot_factory):
-    bot = irc3_bot_factory(includes=['irc3.plugins.async'])
+    bot = irc3_bot_factory(includes=['irc3.plugins.asynchronious'])
     assert len(bot.registry.events_re['in']) == 0
     task = bot.async_cmds.ison('GaWel', timeout=.1)
     assert len(bot.registry.events_re['in']) > 0
@@ -144,7 +144,7 @@ def test_ison(irc3_bot_factory):
 
 @pytest.mark.asyncio
 def test_names(irc3_bot_factory):
-    bot = irc3_bot_factory(includes=['irc3.plugins.async'])
+    bot = irc3_bot_factory(includes=['irc3.plugins.asynchronious'])
     assert len(bot.registry.events_re['in']) == 0
     task = bot.async_cmds.names('#irc3')
     assert len(bot.registry.events_re['in']) == 2
@@ -161,7 +161,7 @@ def test_names(irc3_bot_factory):
 
 @pytest.mark.asyncio
 def test_channel_bans(irc3_bot_factory):
-    bot = irc3_bot_factory(includes=['irc3.plugins.async'])
+    bot = irc3_bot_factory(includes=['irc3.plugins.asynchronious'])
     assert len(bot.registry.events_re['in']) == 0
     task = bot.async_cmds.channel_bans('#irc3')
     assert len(bot.registry.events_re['in']) == 2
@@ -177,7 +177,7 @@ def test_channel_bans(irc3_bot_factory):
 
 @pytest.mark.asyncio
 def test_ctcp(irc3_bot_factory):
-    bot = irc3_bot_factory(includes=['irc3.plugins.async'])
+    bot = irc3_bot_factory(includes=['irc3.plugins.asynchronious'])
     assert len(bot.registry.events_re['in']) == 0
     task = bot.async_cmds.ctcp_async('irc3', 'VERSION')
     assert len(bot.registry.events_re['in']) == 2

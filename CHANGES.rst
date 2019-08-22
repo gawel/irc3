@@ -1,7 +1,7 @@
 1.1.3 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Rename async plugin to asynchronious so we can use it with python3.7
 
 
 1.1.2 (2019-02-28)

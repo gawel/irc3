@@ -4,9 +4,9 @@ from irc3.asynchronous import AsyncEvents
 from irc3 import utils
 from irc3 import dec
 __doc__ = """
-==============================================
-:mod:`irc3.plugins.async` Asynchronious events
-==============================================
+======================================================
+:mod:`irc3.plugins.asynchronious` Asynchronious events
+======================================================
 
 This module provide a way to catch data from various predefined events.
 
@@ -15,7 +15,7 @@ Usage
 
 You'll have to define a subclass of :class:`~irc3.asynchronous.AsyncEvents`:
 
-.. literalinclude:: ../../irc3/plugins/async.py
+.. literalinclude:: ../../irc3/plugins/asynchronious.py
   :pyobject: Whois
 
 Notice that regexps and send_line contains some `{nick}`. This will be
