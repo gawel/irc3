@@ -48,7 +48,7 @@ class file_handler:
             'channels': [],
         }
         config.update(bot.config.get(__name__, {}))
-        self.filename = config['filename']
+        self.filename = os.path.expanduser(config['filename'])
         self.encoding = bot.encoding
         self.formatters = bot.config.get(
             __name__ + '.formatters',
