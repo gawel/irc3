@@ -6,7 +6,7 @@ from setuptools import find_packages
 
 version = '1.1.4.dev0'
 
-install_requires = ['venusian>=1.0', 'docopt']
+install_requires = ['venusian>=3.0', 'docopt']
 test_requires = [
     'pytest-asyncio',
     'pytest-aiohttp',
@@ -39,6 +39,7 @@ setup(
         'Intended Audience :: Developers',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'License :: OSI Approved :: MIT License',
         'Topic :: Communications :: Chat :: Internet Relay Chat',
         'Development Status :: 5 - Production/Stable',
