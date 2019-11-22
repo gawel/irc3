@@ -1,4 +1,4 @@
-1.1.4 (unreleased)
+1.1.4 (2019-11-22)
 ==================
 
 - Use pop in userlist to avoid bug when a weird event occurs
