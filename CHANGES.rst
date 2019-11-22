@@ -3,6 +3,10 @@
 
 - Use pop in userlist to avoid bug when a weird event occurs
 
+- Expend filename path in logger plugin
+
+- Force latest venusian version
+
 
 1.1.3 (2019-08-22)
 ==================
