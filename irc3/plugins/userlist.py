@@ -116,14 +116,14 @@ class Userlist:
 
     def part(self, nick, mask=None, channel=None, client=None, **kwargs):
         if nick == self.context.nick:
-            del self.channels[channel]
+            self.channels.pop(channel)
         else:
             channel = self.channels[channel]
             self.broadcast(client=client, clients=channel, **kwargs)
             channel.remove(nick)
             if client is None and all(
                     nick not in c for c in self.channels.values()):
-                del self.nicks[nick]
+                self.nicks.pop(nick, None)
 
     def quit(self, nick, mask, channel=None, client=None, **kwargs):
         if nick == self.context.nick:
@@ -135,7 +135,7 @@ class Userlist:
                     clients.update(channel)
                     channel.remove(nick)
             self.broadcast(client=client, clients=clients, **kwargs)
-            del self.nicks[nick]
+            self.nicks.pop(nick, None)
 
     @event(rfc.NEW_NICK)
     def new_nick(self, nick=None, new_nick=None, client=None, **kwargs):
