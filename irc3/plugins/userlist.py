@@ -116,7 +116,7 @@ class Userlist:
 
     def part(self, nick, mask=None, channel=None, client=None, **kwargs):
         if nick == self.context.nick:
-            self.channels.pop(channel)
+            self.channels.pop(channel, None)
         else:
             channel = self.channels[channel]
             self.broadcast(client=client, clients=channel, **kwargs)
