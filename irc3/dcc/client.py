@@ -196,8 +196,8 @@ class DCCSend(DCCBase):
     def data_received(self, data):
         self.set_timeout()
         bytes_received = (
-            struct.unpack('!Q', data[i:i + 4])[0]
-            for i in range(0, len(data), 4))
+            struct.unpack('!Q', data[i:i + 8])[0]
+            for i in range(0, len(data), 8))
         for recv in bytes_received:
             if recv == self.filesize:
                 self.transport.close()
