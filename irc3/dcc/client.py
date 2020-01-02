@@ -130,7 +130,7 @@ class DCCGet(DCCBase):
         self.set_timeout()
         self.fd.write(data)
         self.bytes_received += len(data)
-        self.transport.write(struct.pack('!I', self.bytes_received))
+        self.transport.write(struct.pack('!Q', self.bytes_received))
 
     def close(self, *args, **kwargs):
         if self.fd:
@@ -196,7 +196,7 @@ class DCCSend(DCCBase):
     def data_received(self, data):
         self.set_timeout()
         bytes_received = (
-            struct.unpack('!I', data[i:i + 4])[0]
+            struct.unpack('!Q', data[i:i + 4])[0]
             for i in range(0, len(data), 4))
         for recv in bytes_received:
             if recv == self.filesize:
