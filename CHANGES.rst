@@ -1,4 +1,4 @@
-1.1.5 (unreleased)
+1.1.5 (2020-01-18)
 ==================
 
 - Allow to use `irc3.rfc.*` as `iotype='out'`
