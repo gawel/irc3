@@ -1,8 +1,9 @@
 1.1.5 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Allow to use `irc3.rfc.*` as `iotype='out'`
 
+- Use more pop in userlist to avoid bug when a weird event occurs
 
 1.1.4 (2019-11-22)
 ==================
