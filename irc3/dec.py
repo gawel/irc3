@@ -38,6 +38,10 @@ class event:
 
     def __init__(self, regexp, callback=None, iotype='in',
                  venusian_category='irc3.rfc1459'):
+        if iotype == 'out':
+            re_out = getattr(regexp, 're_out', None)
+            if re_out is not None:
+                regexp = re_out
         try:
             re.compile(getattr(regexp, 're', regexp))
         except Exception as e:

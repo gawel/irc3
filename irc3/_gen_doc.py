@@ -29,6 +29,20 @@ def render_attrs(title, attrs, out):
             out.write('    def myevent(bot):\n' % params)
         out.write('        # do something\n')
         out.write('\n')
+        re_out = getattr(attr, 're_out', None)
+        if re_out is not None:
+            out.write('Out Match ``%s``\n\n' % re_out.re)
+            out.write('Example:\n\n')
+            out.write('.. code-block:: python\n\n')
+            out.write('    @irc3.event(rfc.%s, iotype="out")\n' % name)
+            params = getattr(re_out, 'params', [])
+            if params:
+                params = '=None, '.join(params)
+                out.write('    def myevent(bot, %s=None):\n' % params)
+            else:
+                raise RuntimeError('regexp %s as no params' % re_out)
+            out.write('        # do something\n')
+            out.write('\n')
 
 
 def main():

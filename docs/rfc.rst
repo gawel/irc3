@@ -1278,7 +1278,7 @@ Example:
 .. code-block:: python
 
     @irc3.event(rfc.ERR_NICK)
-    def myevent(bot):
+    def myevent(bot, srv=None, retcode=None, me=None, nick=None, data=None, tags=None):
         # do something
 
 436 - ERR_NICKCOLLISION
@@ -1774,7 +1774,7 @@ Example:
 .. code-block:: python
 
     @irc3.event(rfc.CONNECTED)
-    def myevent(bot):
+    def myevent(bot, srv=None, me=None, data=None):
         # do something
 
 CTCP
@@ -1787,7 +1787,17 @@ Example:
 .. code-block:: python
 
     @irc3.event(rfc.CTCP)
-    def myevent(bot):
+    def myevent(bot, mask=None, event=None, ctcp=None, tags=None):
+        # do something
+
+Out Match ``^(?P<event>(PRIVMSG|NOTICE)) (?P<target>\S+) :(?P<ctcp>.*)$``
+
+Example:
+
+.. code-block:: python
+
+    @irc3.event(rfc.CTCP, iotype="out")
+    def myevent(bot, event=None, target=None, ctcp=None):
         # do something
 
 INVITE
@@ -1800,7 +1810,7 @@ Example:
 .. code-block:: python
 
     @irc3.event(rfc.INVITE)
-    def myevent(bot):
+    def myevent(bot, mask=None, channel=None, tags=None):
         # do something
 
 JOIN
@@ -1813,7 +1823,17 @@ Example:
 .. code-block:: python
 
     @irc3.event(rfc.JOIN)
-    def myevent(bot):
+    def myevent(bot, mask=None, channel=None, tags=None):
+        # do something
+
+Out Match ``^JOIN :?(?P<channel>\S+)``
+
+Example:
+
+.. code-block:: python
+
+    @irc3.event(rfc.JOIN, iotype="out")
+    def myevent(bot, channel=None):
         # do something
 
 JOIN_PART_QUIT
@@ -1826,7 +1846,17 @@ Example:
 .. code-block:: python
 
     @irc3.event(rfc.JOIN_PART_QUIT)
-    def myevent(bot):
+    def myevent(bot, mask=None, event=None, channel=None, data=None, tags=None):
+        # do something
+
+Out Match ``^(?P<event>JOIN|PART|QUIT)\s*:*(?P<channel>\S*)(\s+:(?P<data>.*)|$)``
+
+Example:
+
+.. code-block:: python
+
+    @irc3.event(rfc.JOIN_PART_QUIT, iotype="out")
+    def myevent(bot, event=None, channel=None, data=None):
         # do something
 
 KICK
@@ -1839,7 +1869,17 @@ Example:
 .. code-block:: python
 
     @irc3.event(rfc.KICK)
-    def myevent(bot):
+    def myevent(bot, mask=None, event=None, channel=None, target=None, data=None, tags=None):
+        # do something
+
+Out Match ``^(?P<event>KICK)\s+(?P<channel>\S+)\s*(?P<target>\S+)(\s+:(?P<data>.*)|$)``
+
+Example:
+
+.. code-block:: python
+
+    @irc3.event(rfc.KICK, iotype="out")
+    def myevent(bot, event=None, channel=None, target=None, data=None):
         # do something
 
 MODE
@@ -1852,7 +1892,17 @@ Example:
 .. code-block:: python
 
     @irc3.event(rfc.MODE)
-    def myevent(bot):
+    def myevent(bot, mask=None, event=None, target=None, modes=None, data=None, tags=None):
+        # do something
+
+Out Match ``^(?P<event>MODE)\s+(?P<target>\S+)\s+(?P<modes>\S+)(\s+(?P<data>.*)|$)``
+
+Example:
+
+.. code-block:: python
+
+    @irc3.event(rfc.MODE, iotype="out")
+    def myevent(bot, event=None, target=None, modes=None, data=None):
         # do something
 
 MY_PRIVMSG
@@ -1865,7 +1915,17 @@ Example:
 .. code-block:: python
 
     @irc3.event(rfc.MY_PRIVMSG)
-    def myevent(bot):
+    def myevent(bot, mask=None, event=None, target=None, data=None, tags=None):
+        # do something
+
+Out Match ``^(?P<event>(PRIVMSG|NOTICE)) (?P<target>\S+) :(?P<data>.*)$``
+
+Example:
+
+.. code-block:: python
+
+    @irc3.event(rfc.MY_PRIVMSG, iotype="out")
+    def myevent(bot, event=None, target=None, data=None):
         # do something
 
 NEW_NICK
@@ -1878,7 +1938,17 @@ Example:
 .. code-block:: python
 
     @irc3.event(rfc.NEW_NICK)
-    def myevent(bot):
+    def myevent(bot, nick=None, new_nick=None, tags=None):
+        # do something
+
+Out Match ``^NICK :?(?P<new_nick>\S+)``
+
+Example:
+
+.. code-block:: python
+
+    @irc3.event(rfc.NEW_NICK, iotype="out")
+    def myevent(bot, new_nick=None):
         # do something
 
 PART
@@ -1891,7 +1961,17 @@ Example:
 .. code-block:: python
 
     @irc3.event(rfc.PART)
-    def myevent(bot):
+    def myevent(bot, mask=None, channel=None, data=None, tags=None):
+        # do something
+
+Out Match ``PART (?P<channel>\S+)(\s+:(?P<data>.*)|$)``
+
+Example:
+
+.. code-block:: python
+
+    @irc3.event(rfc.PART, iotype="out")
+    def myevent(bot, channel=None, data=None):
         # do something
 
 PING
@@ -1904,7 +1984,7 @@ Example:
 .. code-block:: python
 
     @irc3.event(rfc.PING)
-    def myevent(bot):
+    def myevent(bot, data=None):
         # do something
 
 PONG
@@ -1917,7 +1997,7 @@ Example:
 .. code-block:: python
 
     @irc3.event(rfc.PONG)
-    def myevent(bot):
+    def myevent(bot, server=None, data=None, tags=None):
         # do something
 
 PRIVMSG
@@ -1930,7 +2010,17 @@ Example:
 .. code-block:: python
 
     @irc3.event(rfc.PRIVMSG)
-    def myevent(bot):
+    def myevent(bot, mask=None, event=None, target=None, data=None, tags=None):
+        # do something
+
+Out Match ``^(?P<event>(PRIVMSG|NOTICE)) (?P<target>\S+) :(?P<data>.*)$``
+
+Example:
+
+.. code-block:: python
+
+    @irc3.event(rfc.PRIVMSG, iotype="out")
+    def myevent(bot, event=None, target=None, data=None):
         # do something
 
 QUIT
@@ -1943,7 +2033,17 @@ Example:
 .. code-block:: python
 
     @irc3.event(rfc.QUIT)
-    def myevent(bot):
+    def myevent(bot, mask=None, data=None, tags=None):
+        # do something
+
+Out Match ``^QUIT(\s+:(?P<data>.*)|$)``
+
+Example:
+
+.. code-block:: python
+
+    @irc3.event(rfc.QUIT, iotype="out")
+    def myevent(bot, data=None):
         # do something
 
 TOPIC
@@ -1956,6 +2056,16 @@ Example:
 .. code-block:: python
 
     @irc3.event(rfc.TOPIC)
-    def myevent(bot):
+    def myevent(bot, mask=None, channel=None, data=None, tags=None):
+        # do something
+
+Out Match ``^TOPIC (?P<channel>\S+) :(?P<data>.*)$``
+
+Example:
+
+.. code-block:: python
+
+    @irc3.event(rfc.TOPIC, iotype="out")
+    def myevent(bot, channel=None, data=None):
         # do something
 

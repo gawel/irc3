@@ -14,9 +14,10 @@ def msg2(bot, **kwargs):
     bot.privmsg('#irc3', 'msg2')
 
 
-@irc3.event(r'PRIVMSG (?P<target>[^#]+) :(?P<data>.*)', iotype='out')
-def msg3(bot, target=None, data=None):
-    bot.privmsg('#irc3', '<{0}> {1}: {2}'.format(bot.nick, target, data))
+@irc3.event(irc3.rfc.PRIVMSG, iotype='out')
+def msg3(bot, target=None, event=None, data=None):
+    if target != '#irc3':
+        bot.privmsg('#irc3', '<{0}> {1}: {2}'.format(bot.nick, target, data))
 
 
 class TestEvents(BotTestCase):
