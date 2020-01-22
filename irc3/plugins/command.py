@@ -156,6 +156,11 @@ For example, `error_format="Error for {cmd}".format` will work.
 
 **quiet**: if `True` don't show errors
 
+**aliases**: this argument, when present, should be a list of strings. All
+those strings will become alternative command names (i.e. aliases).
+For example, command 'mycmd' with aliases=['theircmd', 'noonescmd'] could
+be called via all three names.
+
 
 '''
 
