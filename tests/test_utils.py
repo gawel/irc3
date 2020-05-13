@@ -3,6 +3,7 @@ from unittest import TestCase
 from irc3.utils import IrcString
 from irc3.utils import maybedotted
 from irc3.utils import split_message
+from irc3.utils import parse_config_env
 from irc3.utils import slugify
 from irc3.testing import ini2config
 import irc3.plugins
@@ -17,6 +18,14 @@ autojoins =
     ${#}irc3
 ''')
     assert config['autojoins'] == ['#irc3', '##irc3', '#irc3']
+
+
+def test_config_env():
+    config = ini2config('''
+[bot]
+nickname = bot
+''', env={'IRC3_BOT_AUTOJOINS': '#irc3 ##irc3'})
+    assert config['autojoins'] == ['#irc3', '##irc3']
 
 
 class TestUtils(TestCase):
@@ -59,6 +68,21 @@ class TestUtils(TestCase):
         assert slugify('a test file .rst') == 'a-test-file.rst'
         assert slugify('a test/../ file .rst') == 'a-test.file.rst'
         assert slugify('C:\\\\a test\../ file .rst') == 'ca-test.file.rst'
+
+
+class TestConfig(TestCase):
+
+    def test_config_env(self):
+        value = parse_config_env({
+            'IRC3_BOT_NICKNAME': 'env_nickname',
+            'IRC3_BOT_PASSWORD': 'env_password',
+        })
+        self.assertEqual(value, {
+            'bot': {
+                'nickname': 'env_nickname',
+                'password': 'env_password',
+            },
+        })
 
 
 class TestSplit(TestCase):

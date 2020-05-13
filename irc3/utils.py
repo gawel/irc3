@@ -187,7 +187,23 @@ class Config(dict):
         return self[attr]
 
 
-def parse_config(main_section, *filenames):
+def parse_config_env(env=None):
+    """return config set in env vars.
+    `IRC3_BOT_PASSWORD=value` become `[bot] password=value`"""
+    value = {}
+    if env is None:
+        env = os.environ
+    for k, v in env.items():
+        if k.startswith('IRC3_'):
+            splitted = k.lower().split('_')
+            key = splitted.pop()
+            section = '.'.join(splitted[1:])
+            section = value.setdefault(section, {})
+            section[key] = v
+    return value
+
+
+def parse_config(main_section, *filenames, **kwargs):
     """parse config files"""
     filename = filenames[-1]
     filename = os.path.abspath(filename)
@@ -202,11 +218,17 @@ def parse_config(main_section, *filenames):
     config.optionxform = str
     config.read([os.path.expanduser('~/.irc3/passwd.ini')] + list(filenames))
 
+    config_env = parse_config_env(env=kwargs.get('env'))
+
     value = {}
     for s in config.sections():
         items = {}
-        for k, v in config.items(s):
+        config_items = dict(config.items(s))
+        config_items.update(config_env.get(s, {}))
+        for k, v in config_items.items():
             if '\n' in v:
+                v = as_list(v)
+            elif s == main_section and k in ('autojoins',):
                 v = as_list(v)
             elif v.isdigit():
                 v = int(v)

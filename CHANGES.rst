@@ -1,7 +1,7 @@
 1.1.6 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Allow to overrides config values via `os.environ`.
 
 
 1.1.5 (2020-01-18)

@@ -29,12 +29,14 @@ token_secret=token_secret
 """
 
 
-def ini2config(data, type='bot'):
+def ini2config(data, type='bot', env=None):
+    if env is None:
+        env = {}
     data = data.encode('utf8')
     with tempfile.NamedTemporaryFile(prefix='irc3-') as fd:
         fd.write(data)
         fd.flush()
-        data = irc3.utils.parse_config(type, fd.name)
+        data = irc3.utils.parse_config(type, fd.name, env=env)
     return data
 
 
