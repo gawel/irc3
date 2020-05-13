@@ -1,4 +1,4 @@
-1.1.6 (unreleased)
+1.1.6 (2020-05-13)
 ==================
 
 - Allow to overrides config values via `os.environ`.
