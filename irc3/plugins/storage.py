@@ -25,6 +25,9 @@ Add a ``db`` attribute to the bot
     >>> fd = tempfile.NamedTemporaryFile(prefix='irc3', suffix='.json')
     >>> json_file = fd.name
     >>> fd.close()
+    >>> fd = tempfile.NamedTemporaryFile(prefix='irc3', suffix='.sqlite')
+    >>> sqlite_file = fd.name
+    >>> fd.close()
 
 Usage::
 
@@ -115,6 +118,36 @@ Or redis::
     ...     irc3.plugins.storage
     ... storage = redis://localhost:6379/10
     ... """)
+    >>> bot = IrcBot(**config)
+
+..
+    >>> bot.db.backend.flushdb()  # require redis
+    >>> bot.db.SIGINT()
+
+Then use it::
+
+    >>> bot.db['mykey'] = dict(key='value')
+    >>> bot.db['mykey']
+    {'key': 'value'}
+    >>> del bot.db['mykey']
+    >>> bot.db.get('mykey')
+    >>> bot.db['mykey']
+    Traceback (most recent call last):
+      ...
+    KeyError: 'mykey'
+    >>> bot.db.setlist('mylist', ['foo', 'bar'])
+    >>> bot.db.getlist('mylist')
+    ['foo', 'bar']
+    >>> del bot.db['mylist']
+
+Or sqlite::
+
+    >>> config = ini2config("""
+    ... [bot]
+    ... includes =
+    ...     irc3.plugins.storage
+    ... storage = sqlite://%s
+    ... """ % sqlite_file)
     >>> bot = IrcBot(**config)
 
 ..
@@ -243,6 +276,87 @@ class Redis:
         self.sync()
 
 
+class SQLite:
+
+    CREATE_TABLE = """
+        CREATE TABLE IF NOT EXISTS
+            irc3_storage (
+                key text not null,
+                value text default '',
+                PRIMARY KEY (key)
+            );
+        """
+    UPSERT = """
+    INSERT INTO irc3_storage(key,value) VALUES(?, ?)
+    ON CONFLICT(key) DO UPDATE SET value=excluded.value;
+    """
+
+    def __init__(self, uri=None, **kwargs):
+        self.sqlite = irc3.utils.maybedotted('sqlite3')
+        self.uri = uri.split('://')[-1]
+        conn = self.sqlite.connect(self.uri)
+        cursor = conn.cursor()
+        cursor.execute(self.CREATE_TABLE)
+        conn.commit()
+        conn.close()
+
+    def set(self, key, value):
+        conn = self.sqlite.connect(self.uri)
+        cursor = conn.cursor()
+        cursor.execute(self.UPSERT, (key, json.dumps(value)))
+        cursor.fetchall()
+        conn.commit()
+        conn.close()
+
+    def get(self, key):
+        value = None
+        conn = self.sqlite.connect(self.uri)
+        cursor = conn.cursor()
+        cursor.execute("SELECT value FROM irc3_storage where key=?;", (key,))
+        for row in cursor.fetchall():
+            value = json.loads(row[0])
+            break
+        cursor.close()
+        conn.close()
+        if value is None:
+            raise KeyError(key)
+        return value
+
+    def delete(self, key):
+        conn = self.sqlite.connect(self.uri)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM irc3_storage where key=?;", (key,))
+        cursor.close()
+        conn.commit()
+        conn.close()
+
+    def contains(self, key):
+        conn = self.sqlite.connect(self.uri)
+        cursor = conn.cursor()
+        cursor.execute("SELECT value FROM irc3_storage where key=?;", (key,))
+        res = False
+        if len(list(cursor.fetchall())) == 1:
+            res = True
+        cursor.close()
+        conn.close()
+        return res
+
+    def flushdb(self):
+        conn = self.sqlite.connect(self.uri)
+        cursor = conn.cursor()
+        cursor.execute("DROP TABLE IF EXISTS irc3_storage;")
+        cursor.execute(self.CREATE_TABLE)
+        cursor.close()
+        conn.commit()
+        conn.close()
+
+    def sync(self):
+        pass
+
+    def close(self):
+        pass
+
+
 @irc3.plugin
 class Storage:
 
@@ -252,6 +366,7 @@ class Storage:
         'unix': Redis,
         'redis': Redis,
         'rediss': Redis,
+        'sqlite': SQLite,
     }
 
     def __init__(self, context):
@@ -264,6 +379,11 @@ class Storage:
         self.backend = factory(uri)
         self.context = context
         self.context.db = self
+
+    async def connection_ready(self):
+        meth = getattr(self.backend, 'connection_ready', None)
+        if meth is not None:
+            await meth()
 
     def setdefault(self, key_, **kwargs):
         """Update storage value for key with kwargs iif the keys doesn't

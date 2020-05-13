@@ -1,7 +1,7 @@
 1.1.7 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Add sqlite storage.
 
 
 1.1.6 (2020-05-13)
