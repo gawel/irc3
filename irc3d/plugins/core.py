@@ -79,9 +79,9 @@ class Core:
             config['motd_fmt'] = rfc.ERR_NOMOTD
             if not config.testing and os.path.isfile(config.motd):
                 with open(config.motd) as fd:
-                    lines = [l.rstrip() for l in fd.readlines()]
+                    lines = [line.rstrip() for line in fd.readlines()]
                     data = [rfc.RPL_MOTDSTART] + [
-                        ':{c.srv} 372 {c.nick} :' + l for l in lines
+                        ':{c.srv} 372 {c.nick} :' + line for line in lines
                     ] + [rfc.RPL_ENDOFMOTD]
                     config['motd_fmt'] = data
 

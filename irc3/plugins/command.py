@@ -323,9 +323,9 @@ class Commands(dict):
         nick = self.context.nick or '-'
         to = client.nick if target == nick else target
         doc = meth.__doc__ or ''
-        doc = [l.strip() for l in doc.strip().split('\n')]
-        doc = [nick + ' ' + l.strip('%%')
-               for l in doc if l.startswith('%%')]
+        doc = [line.strip() for line in doc.strip().split('\n')]
+        doc = [nick + ' ' + line.strip('%%')
+               for line in doc if line.startswith('%%')]
         doc = 'Usage:' + '\n    ' + '\n    '.join(doc)
         if data:
             if not isinstance(data, str):  # pragma: no cover
@@ -413,7 +413,10 @@ class Commands(dict):
             predicates, meth = self.get(args, (None, None))
             if meth is not None:
                 doc = meth.__doc__ or ''
-                doc = [l.strip() for l in doc.split('\n') if l.strip()]
+                doc = [
+                    line.strip() for line in doc.split('\n')
+                    if line.strip()
+                ]
                 buf = ''
                 for line in doc:
                     if '%%' not in line and buf is not None:

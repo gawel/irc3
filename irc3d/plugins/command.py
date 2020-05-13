@@ -100,7 +100,10 @@ class ServerCommands(Commands):
                 cmd = cmd.lower()
                 index = '{c.srv} 705 {c.nick} ' + cmd + ' :'
                 doc = meth.__doc__ or ''
-                doc = [l.strip() for l in doc.split('\n') if l.strip()]
+                doc = [
+                    line.strip() for line in doc.split('\n')
+                    if line.strip()
+                ]
                 for line in doc:
                     if '%%' in line:
                         line = line.strip('%')

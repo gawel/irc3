@@ -145,10 +145,10 @@ class BotTestCase(IrcTestCase):
             return
         if not self.bot.loop.called:
             self.bot.protocol.write.assert_has_calls(
-                [call(l) for l in lines])
+                [call(line) for line in lines])
         else:  # pragma: no cover
             self.bot.loop.call_later.assert_has_calls(
-                [call(l) for l in lines])
+                [call(line) for line in lines])
         self.reset_mock()
 
     def assertNothingSent(self):

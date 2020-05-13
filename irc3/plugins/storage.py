@@ -260,7 +260,7 @@ class Storage:
         try:
             factory = self.backends[name]
         except KeyError:  # pragma: no cover
-            raise LookupError('No such backend %' % name)
+            raise LookupError('No such backend %s' % name)
         self.backend = factory(uri)
         self.context = context
         self.context.db = self
