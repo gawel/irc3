@@ -287,8 +287,7 @@ class SQLite:
             );
         """
     UPSERT = """
-    INSERT INTO irc3_storage(key,value) VALUES(?, ?)
-    ON CONFLICT(key) DO UPDATE SET value=excluded.value;
+    INSERT OR REPLACE INTO irc3_storage(key,value) VALUES(?, ?);
     """
 
     def __init__(self, uri=None, **kwargs):
