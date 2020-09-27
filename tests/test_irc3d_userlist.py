@@ -87,7 +87,7 @@ class TestServerUserList(testing.ServerTestCase):
         self.assertSent(s.client2, ':client1!uclient1@127.0.0.1 NICK irc3')
         self.assertNotSent(s.client3, ':client1!uclient1@127.0.0.1 NICK irc3')
 
-        s.client3.dispatch('JOIN #irc')
+        s.client3.dispatch('JOIN #irc,#irc3')
         s.client1.dispatch('NICK client1')
         self.assertSent(s.client1, ':irc3!uclient1@127.0.0.1 NICK client1')
         self.assertSent(s.client2, ':irc3!uclient1@127.0.0.1 NICK client1')
@@ -116,6 +116,7 @@ class TestServerUserList(testing.ServerTestCase):
         self.assertSent(s.client1, ':irc.com 319 client1 :#irc3')
 
         s.client3.dispatch('PART #irc :Bye')
+        s.client3.dispatch('PART #irc3 :Bye')
         self.assertSent(s.client3, ':{mask} PART #irc :Bye', s.client3)
         self.assertSent(s.client1, ':{mask} PART #irc :Bye', s.client3)
         self.assertNotSent(s.client2, ':{mask} PART #irc :Bye', s.client3)
