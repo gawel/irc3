@@ -70,8 +70,7 @@ class Paginate:
         self.expiration_delay = 60
         self.context.create_task(self.clean_old_pages())
 
-    @asyncio.coroutine
-    def clean_old_pages(self):  # pragma: no cover
+    async def clean_old_pages(self):  # pragma: no cover
         self.context.log.debug('Cleaning old pages...')
         t = time.time()
         d = []
@@ -81,8 +80,8 @@ class Paginate:
         for k in d:
             page = self.pages[k]
             page.close()
-        yield from asyncio.sleep(60, loop=self.context.loop)
-        yield from self.clean_old_pages()
+        await asyncio.sleep(60, loop=self.context.loop)
+        await self.clean_old_pages()
 
     @irc3.extend
     def paginate(self, mask, iterator, first_page=None, lines_per_page=10):

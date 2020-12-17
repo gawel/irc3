@@ -1,3 +1,4 @@
+import asyncio
 from irc3.testing import BotTestCase, patch
 from irc3.plugins.autocommand import AutoCommand, SleepCommand
 
@@ -8,26 +9,20 @@ class TestAutoCommand(BotTestCase):
 
     @patch("irc3.asyncio.sleep")
     def test_autocommand(self, sleep):
-        def new_async(coro, *args, **kw):
-            for res in coro:
-                pass  # do nothing
+        loop = asyncio.get_event_loop()
 
-        with patch('irc3.asyncio.ensure_future', new_async):
-            # sleep typed in mixed case to test that work with different cases
-            bot = self.callFTU(autocommands=['AUTH user pass', '/slEep  3',
-                                             'MODE {nick} +x'])
-            bot.notify('connection_made')
-            bot.dispatch(':node.net 376 irc3 :End of /MOTD command.')
-            self.assertSent(['AUTH user pass', 'MODE irc3 +x'])
-            sleep.assert_called_once_with(3, loop=bot.loop)
+        # sleep typed in mixed case to test that work with different cases
+        bot = self.callFTU(autocommands=['AUTH user pass', '/slEep  3',
+                                         'MODE {nick} +x'])
+        plugin = bot.get_plugin(AutoCommand)
+        loop.run_until_complete(plugin.execute_commands())
+        self.assertSent(['AUTH user pass', 'MODE irc3 +x'])
+        sleep.assert_called_once_with(3, loop=bot.loop)
 
-            with self.assertRaises(ValueError):
-                # test bad arguments too
-                bot2 = self.callFTU(autocommands=[
-                    None, '/sleep 3.4.5', '/sleep bad', 'TEST SENT'])
-                bot2.notify('connection_made')
-                bot2.dispatch(':node.net 376 irc3 '':End of /MOTD command.')
-                self.assertSent(['TEST SENT'])
+        with self.assertRaises(ValueError):
+            # test bad arguments too
+            self.callFTU(autocommands=[
+                None, '/sleep 3.4.5', '/sleep bad', 'TEST SENT'])
 
     def test_autocommand_validation(self):
         sleep = AutoCommand.parse_command("/sleeP 3")

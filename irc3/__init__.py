@@ -188,21 +188,20 @@ class IrcBot(base.IrcObject):
             f.set_result(True)
         return f
 
-    @asyncio.coroutine
-    def process_queue(self):
+    async def process_queue(self):
         flood_burst = self.config.flood_burst
         delay = float(self.config.flood_rate_delay)
         flood_rate = delay / float(self.config.flood_rate)
         while True:
             if flood_burst == 0:
-                future, data = yield from self.queue.get()
+                future, data = await self.queue.get()
                 future.set_result(True)
                 self.send(data)
-                yield from asyncio.sleep(.001, loop=self.loop)
+                await asyncio.sleep(.001, loop=self.loop)
             else:
                 lines = []
                 for i in range(flood_burst):
-                    future, data = yield from self.queue.get()
+                    future, data = await self.queue.get()
                     future.set_result(True)
                     lines.append(data)
                     if self.queue.empty():
@@ -210,8 +209,8 @@ class IrcBot(base.IrcObject):
                 if lines:
                     self.send(u'\r\n'.join(lines))
                 while not self.queue.empty():
-                    yield from asyncio.sleep(flood_rate, loop=self.loop)
-                    future, data = yield from self.queue.get()
+                    await asyncio.sleep(flood_rate, loop=self.loop)
+                    future, data = await self.queue.get()
                     future.set_result(True)
                     self.send(data)
 

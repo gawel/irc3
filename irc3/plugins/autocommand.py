@@ -55,8 +55,7 @@ class SimpleCommand:
     def __init__(self, cmd):
         self.cmd = cmd
 
-    @asyncio.coroutine
-    def execute(self, bot):
+    async def execute(self, bot):
         send_cmd = self.cmd.format(nick=bot.nick)
         bot.send_line(send_cmd)
 
@@ -89,9 +88,8 @@ class SleepCommand:
         else:
             raise ValueError("Wrong usage of /sleep command")
 
-    @asyncio.coroutine
-    def execute(self, bot):
-        yield from asyncio.sleep(self.time, loop=bot.loop)
+    async def execute(self, bot):
+        await asyncio.sleep(self.time, loop=bot.loop)
 
 
 @irc3.plugin
@@ -120,10 +118,8 @@ class AutoCommand:
             return SimpleCommand(command)
 
     def server_ready(self):
-        # async deprecated since 3.4.4
-        asyncio.ensure_future(self.execute_commands(), loop=self.bot.loop)
+        self.bot.create_task(self.execute_commands())
 
-    @asyncio.coroutine
-    def execute_commands(self):
+    async def execute_commands(self):
         for command in self.commands:
-            yield from command.execute(self.bot)
+            await command.execute(self.bot)

@@ -20,7 +20,7 @@ class P:
 
 
 @pytest.mark.asyncio
-def test_reconn(irc3_bot_factory):
+async def test_reconn(irc3_bot_factory):
     cfg = {'verbose': True, 'debug': True, 'port': 49137}
     bot = irc3_bot_factory(includes=[__name__], **cfg)
     cfg['loop'] = bot.loop
@@ -32,7 +32,7 @@ def test_reconn(irc3_bot_factory):
     server.run(forever=False)
     bot.run(forever=False)
 
-    yield from P.ready
+    await P.ready
     P.ready = asyncio.Future(loop=bot.loop)
 
     assert len(P.connections_made) == 1
@@ -40,7 +40,7 @@ def test_reconn(irc3_bot_factory):
     for uid, client in server.clients.items():
         client.transport.close()
         print(uid, client)
-    yield from P.ready
+    await P.ready
     P.ready = asyncio.Future(loop=bot.loop)
 
     assert len(P.connections_made) == 2
