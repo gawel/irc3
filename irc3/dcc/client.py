@@ -155,7 +155,11 @@ class DCCSend(DCCBase):
         self.socket = socket
         self.sendfile = getattr(self.socket, 'sendfile', None)
         if self.sendfile:
-            self.socket.setblocking(1)
+            try:
+                self.socket.setblocking(1)
+            except ValueError:
+                # py38 does not allow this. use it anyway
+                self.socket._sock.setblocking(1)
         self.fd = open(self.filepath, 'rb')
         self.fd_fileno = self.fd.fileno()
         # remove existing transport ref. It shouldn't read/write anything
