@@ -22,6 +22,7 @@ jobs:
         run: pip install tox
       - name: Run Tox
         run: tox -e py
+        if: matrix.python != 3.8
       - name: Run flake8 / docs
         run: tox -e flake8,docs
         if: matrix.python == 3.8
