@@ -3,26 +3,29 @@ from irc3.testing import BotTestCase, patch
 from irc3.plugins.autocommand import AutoCommand, SleepCommand
 
 
+async def mock(*args, **kwargs):
+    pass
+
+
 class TestAutoCommand(BotTestCase):
 
     config = dict(includes=['irc3.plugins.autocommand'])
 
-    @patch("irc3.asyncio.sleep")
-    def test_autocommand(self, sleep):
+    def test_autocommand(self):
         loop = asyncio.get_event_loop()
 
         # sleep typed in mixed case to test that work with different cases
         bot = self.callFTU(autocommands=['AUTH user pass', '/slEep  3',
                                          'MODE {nick} +x'])
-        plugin = bot.get_plugin(AutoCommand)
-        loop.run_until_complete(plugin.execute_commands())
-        self.assertSent(['AUTH user pass', 'MODE irc3 +x'])
-        sleep.assert_called_once_with(3, loop=bot.loop)
+        with patch('irc3.plugins.autocommand.SleepCommand.execute', mock):
+            plugin = bot.get_plugin(AutoCommand)
+            loop.run_until_complete(plugin.execute_commands())
+            self.assertSent(['AUTH user pass', 'MODE irc3 +x'])
 
-        with self.assertRaises(ValueError):
-            # test bad arguments too
-            self.callFTU(autocommands=[
-                None, '/sleep 3.4.5', '/sleep bad', 'TEST SENT'])
+            with self.assertRaises(ValueError):
+                # test bad arguments too
+                self.callFTU(autocommands=[
+                    None, '/sleep 3.4.5', '/sleep bad', 'TEST SENT'])
 
     def test_autocommand_validation(self):
         sleep = AutoCommand.parse_command("/sleeP 3")
