@@ -18,14 +18,14 @@ async def test_whois_fail(irc3_bot_factory):
 async def test_whois_success(irc3_bot_factory):
     bot = irc3_bot_factory(includes=['irc3.plugins.asynchronious'])
     assert len(bot.registry.events_re['in']) == 0
-    task = bot.async_cmds.whois(nick='GaWel')
+    task = bot.async_cmds.whois(nick='Ga[W]el', timeout=0.1)
     assert len(bot.registry.events_re['in']) > 2
-    bot.dispatch(':localhost 311 me gawel username localhost * :realname')
-    bot.dispatch(':localhost 319 me gawel :@#irc3')
-    bot.dispatch(':localhost 312 me gawel localhost :Paris, FR')
-    bot.dispatch(':localhost 671 me gawel :is using a secure connection')
-    bot.dispatch(':localhost 330 me gawel gawel :is logged in as')
-    bot.dispatch(':localhost 318 me gawel :End')
+    bot.dispatch(':localhost 311 me ga[w]el username localhost * :realname')
+    bot.dispatch(':localhost 319 me ga[w]el :@#irc3')
+    bot.dispatch(':localhost 312 me ga[w]el localhost :Paris, FR')
+    bot.dispatch(':localhost 671 me ga[w]el :is using a secure connection')
+    bot.dispatch(':localhost 330 me ga[w]el gawel :is logged in as')
+    bot.dispatch(':localhost 318 me ga[w]el :End')
     result = await task
     assert len(bot.registry.events_re['in']) == 0
     assert result['success']
