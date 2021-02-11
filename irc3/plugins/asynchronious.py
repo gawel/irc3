@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
+import re
 from irc3.asynchronous import AsyncEvents
 from irc3 import utils
 from irc3 import dec
@@ -373,6 +374,7 @@ class Async:
         """
         nicknames = [n.lower() for n in nicknames]
         self.context.send_line('ISON :{0}'.format(' '.join(nicknames)))
+        nicknames = [re.escape(n) for n in nicknames]
         return self.async_ison(nicknames_re='(%s)' % '|'.join(nicknames),
                                **kwargs)
 
