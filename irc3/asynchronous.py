@@ -11,7 +11,7 @@ class event:
 
     def __init__(self, **kwargs):
         self.meta = kwargs.get('meta')
-        regexp = self.meta['match'].format(**kwargs)
+        regexp = self.meta['match'].format(**{k: re.escape(v) for (k, v) in kwargs.items()})
         self.regexp = regexp
         regexp = getattr(self.regexp, 're', self.regexp)
         self.cregexp = re.compile(regexp).match
