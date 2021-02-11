@@ -10,8 +10,14 @@ class event:
     iscoroutine = True
 
     def __init__(self, **kwargs):
+        # kwargs get interpolated into the regex.
+        # Any kwargs not ending in _re get escaped
         self.meta = kwargs.get('meta')
-        regexp = self.meta['match'].format(**{k: re.escape(v) for (k, v) in kwargs.items()})
+        regexp = self.meta['match'].format(**{
+            k: v if k.endswith('_re') else re.escape(v)
+            for (k, v) in kwargs.items()
+            if k != 'meta'
+        })
         self.regexp = regexp
         regexp = getattr(self.regexp, 're', self.regexp)
         self.cregexp = re.compile(regexp).match

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
+import re
 from irc3.asynchronous import AsyncEvents
 from irc3 import utils
 from irc3 import dec
@@ -186,7 +187,7 @@ class WhoNick(AsyncEvents):
 class IsOn(AsyncEvents):
 
     events = (
-        {"match": "(?i)^:\S+ 303 \S+ :(?P<nicknames>({nicknames}.*|$))",
+        {"match": "(?i)^:\S+ 303 \S+ :(?P<nicknames>({nicknames_re}.*|$))",
          "final": True},
     )
 
@@ -373,7 +374,8 @@ class Async:
         """
         nicknames = [n.lower() for n in nicknames]
         self.context.send_line('ISON :{0}'.format(' '.join(nicknames)))
-        return self.async_ison(nicknames='(%s)' % '|'.join(nicknames),
+        nicknames = [re.escape(n) for n in nicknames]
+        return self.async_ison(nicknames_re='(%s)' % '|'.join(nicknames),
                                **kwargs)
 
     @dec.extend

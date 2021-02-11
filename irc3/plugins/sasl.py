@@ -54,7 +54,7 @@ class Sasl:
         auth = ('{sasl_username}\0'
                 '{sasl_username}\0'
                 '{sasl_password}').format(**self.bot.config)
-        auth = base64.encodestring(auth.encode('utf8'))
+        auth = base64.encodebytes(auth.encode('utf8'))
         auth = auth.decode('utf8').rstrip('\n')
         self.bot.send_line('AUTHENTICATE ' + auth)
 
