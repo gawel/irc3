@@ -1,5 +1,6 @@
 graft docs
 prune docs/_build
+prune .github/
 graft examples
 graft irc3
 graft irc3d
