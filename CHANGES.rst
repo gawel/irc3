@@ -3,6 +3,8 @@
 
 - Add sqlite storage.
 
+- Escape string that are interpolated into the regular expressions.
+
 
 1.1.6 (2020-05-13)
 ==================
