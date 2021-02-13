@@ -1,4 +1,4 @@
-1.1.7 (unreleased)
+1.1.7 (2021-02-13)
 ==================
 
 - Add sqlite storage.
