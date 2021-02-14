@@ -28,6 +28,10 @@ token=token
 token_secret=token_secret
 """
 
+# Make unittest not report this module as failure location
+#https://stackoverflow.com/a/49929579/248065
+__unittest = True
+
 
 def ini2config(data, type='bot', env=None):
     if env is None:
