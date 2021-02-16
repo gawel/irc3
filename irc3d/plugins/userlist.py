@@ -71,15 +71,18 @@ class ServerUserlist(userlist.Userlist):
 
             %%JOIN <channel>
         """
-        if args['<channel>'] in client.channels:
-            return
-        message = ':{mask} JOIN {<channel>}'
-        kwargs.update(
-            broadcast=message.format(mask=client.mask, **args),
-            channel=args['<channel>'])
-        self.join(client.nick, client.mask, client=client, **kwargs)
-        client.channels.add(args['<channel>'])
-        self.NAMES(client=client, **kwargs)
+        for channel in args['<channel>'].split(','):
+            if channel in client.channels:
+                continue
+            message = ':{mask} JOIN {<channel>}'
+            kwargs.update(
+                broadcast=message.format(
+                    mask=client.mask, **dict(args, **{'<channel>': channel})
+                ),
+                channel=channel)
+            self.join(client.nick, client.mask, client=client, **kwargs)
+            client.channels.add(channel)
+            self.NAMES(client=client, **kwargs)
 
     @irc3d.command
     def PART(self, client, args=None, **kwargs):
