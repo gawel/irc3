@@ -41,7 +41,7 @@ class TestBot(BotTestCase):
         self.assertSent(['PRIVMSG gawel :\x01ACTION does a cool action\x01'])
 
     def test_long_message(self):
-        bot = self.callFTU(max_length=8)
+        bot = self.callFTU(max_length=23)
         message = 'How you doing?'
         bot.privmsg('gawel', message)
         self.assertSent([

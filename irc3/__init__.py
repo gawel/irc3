@@ -225,14 +225,20 @@ class IrcBot(base.IrcObject):
     def privmsg(self, target, message, nowait=False):
         """send a privmsg to target"""
         if message:
-            messages = utils.split_message(message, self.config.max_length)
-            if isinstance(target, DCCChat):
+            is_dcc = isinstance(target, DCCChat)
+            prefix = '' if is_dcc else 'PRIVMSG %s :' % target
+            messages = utils.split_message(
+                message,
+                self.config.max_length,
+                prefix=prefix,
+            )
+            if is_dcc:
                 for message in messages:
                     target.send_line(message)
             elif target:
                 f = None
                 for message in messages:
-                    f = self.send_line('PRIVMSG %s :%s' % (target, message),
+                    f = self.send_line(prefix + message,
                                        nowait=nowait)
                 return f
 
@@ -243,14 +249,20 @@ class IrcBot(base.IrcObject):
     def notice(self, target, message, nowait=False):
         """send a notice to target"""
         if message:
-            messages = utils.split_message(message, self.config.max_length)
-            if isinstance(target, DCCChat):
+            is_dcc = isinstance(target, DCCChat)
+            prefix = '' if is_dcc else 'NOTICE %s :' % target
+            messages = utils.split_message(
+                message,
+                self.config.max_length,
+                prefix=prefix,
+            )
+            if is_dcc:
                 for message in messages:
-                    target.action(message)
+                    target.send_line(message)
             elif target:
                 f = None
                 for message in messages:
-                    f = self.send_line('NOTICE %s :%s' % (target, message),
+                    f = self.send_line(prefix + message,
                                        nowait=nowait)
                 return f
 

@@ -164,8 +164,9 @@ class IrcString(BaseString):
 STRIPPED_CHARS = '\t '
 
 
-def split_message(message, max_length):
+def split_message(message, max_length, prefix=''):
     """Split long messages"""
+    max_length = max_length - len(prefix)
     if len(message) > max_length:
         for message in textwrap.wrap(message, max_length):
             yield message
