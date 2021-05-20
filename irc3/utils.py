@@ -10,14 +10,9 @@ import logging
 import os
 import re
 
-try:
-    BaseString = unicode
-except NameError:  # pragma: no cover
-    BaseString = str
-
 
 def slugify(value):
-    if not isinstance(value, BaseString):  # pragma: no cover
+    if not isinstance(value, str):  # pragma: no cover
         value = value.decode('utf8', 'ignore')
     value = normalize('NFKD', value)
     value = value.encode('ascii', 'ignore').decode('ascii')
@@ -27,7 +22,7 @@ def slugify(value):
     return value
 
 
-class IrcString(BaseString):
+class IrcString(str):
     """Argument wrapper"""
 
     @property
