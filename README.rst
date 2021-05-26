@@ -2,8 +2,8 @@
 irc3. pluggable irc client library based on python's asyncio
 ============================================================
 
-.. image:: https://travis-ci.org/gawel/irc3.png?branch=master
-  :target: https://travis-ci.org/gawel/irc3
+.. image:: https://github.com/gawel/irc3/actions/workflows/tox.yml/badge.svg
+  :target: https://github.com/gawel/irc3/actions/workflows/tox.yml
 .. image:: https://coveralls.io/repos/gawel/irc3/badge.png?branch=master
   :target: https://coveralls.io/r/gawel/irc3?branch=master
 
