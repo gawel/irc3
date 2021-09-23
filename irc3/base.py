@@ -335,8 +335,11 @@ class IrcObject:
         if self.config.get('sock_factory'):
             sock_factory = utils.maybedotted(self.config.sock_factory)
             args = dict(
-                sock=sock_factory(self, self.config.host, self.config.port)
+                sock=sock_factory(self, self.config.host, self.config.port),
+                ssl=self.get_ssl_context(),
             )
+            if args.get('ssl'):
+                args["server_hostname"] = self.config.host
         else:
             args = dict(
                 host=self.config.host,
