@@ -67,7 +67,7 @@ class TestUtils(TestCase):
     def test_slugify(self):
         assert slugify('a test file .rst') == 'a-test-file.rst'
         assert slugify('a test/../ file .rst') == 'a-test.file.rst'
-        assert slugify('C:\\\\a test\../ file .rst') == 'ca-test.file.rst'
+        assert slugify(r'C:\\a test\../ file .rst') == 'ca-test.file.rst'
 
 
 class TestConfig(TestCase):

@@ -114,7 +114,7 @@ class AutoJoins:
         if target.nick == self.bot.nick:
             self.join(channel)
 
-    @irc3.event("^:\S+ 47[1234567] \S+ (?P<channel>\S+).*")
+    @irc3.event(r"^:\S+ 47[1234567] \S+ (?P<channel>\S+).*")
     def on_err_join(self, channel, **kwargs):
         """bot must try to rejoin later when he can't join"""
         if channel in self.handles:

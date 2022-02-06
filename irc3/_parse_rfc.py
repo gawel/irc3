@@ -3,8 +3,8 @@ from collections import defaultdict
 import pprint
 import re
 
-_re_num = re.compile('\s(?P<num>\d+)\s+(?P<name>(RPL|ERR)_\w+)\s*(?P<_>.*)')
-_re_mask = re.compile('^\s{24,25}(?P<_>("(<|:).*|\S.*"$))')
+_re_num = re.compile(r'\s(?P<num>\d+)\s+(?P<name>(RPL|ERR)_\w+)\s*(?P<_>.*)')
+_re_mask = re.compile(r'^\s{24,25}(?P<_>("(<|:).*|\S.*"$))')
 
 
 def main():
@@ -121,7 +121,7 @@ class retcode(int):
                 v = m.groupdict()['m'].strip('<>')
                 v = repl(v)
                 params.append(v)
-                return '(?P<%s>\S+)' % v
+                return r'(?P<%s>\S+)' % v
 
             mask = _re_sub.sub(msub, omask)
             if '???? ' in mask:
@@ -131,18 +131,18 @@ class retcode(int):
             if ':' in mask:
                 mask = mask.split(':', 1)[0]
                 mask += ':(?P<data>.*)'
-            mask = '(?P<srv>\S+) ' + str(i) + ' (?P<me>\S+) "\n    "' + mask
+            mask = r'(?P<srv>\S+) ' + str(i) + ' (?P<me>\\S+) "\n    r"' + mask
             mask = mask.replace(
-                ' (?P<server>\S+)',
-                ' "\n    "(?P<server>\S+)')
+                r' (?P<server>\S+)',
+                ' "\n    r"(?P<server>\\S+)')
             mask = mask.replace(
-                ' (?P<sent_messages>\S+)',
-                ' "\n    "(?P<sent_messages>\S+)')
+                r' (?P<sent_messages>\S+)',
+                ' "\n    r"(?P<sent_messages>\\S+)')
             item['mask'] = mask
             params = [p for p in params if '<%s>' % p in mask]
             if '<data>' in mask and 'data' not in params:
                 params.append('data')
-            out.write('%(name)s.re = (\n    "^:%(mask)s")\n' % item)
+            out.write('%(name)s.re = (\n    r"^:%(mask)s")\n' % item)
             params = pprint.pformat(
                 ['srv', 'me'] + params, width=60, indent=4)
             if len(params) > 60:
@@ -157,6 +157,7 @@ class retcode(int):
         if i in valids:
             out.write('    %(num)s: %(name)s,\n' % item)
     out.write('}\n')
+    out.close()
 
 
 if __name__ == '__main__':

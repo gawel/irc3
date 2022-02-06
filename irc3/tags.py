@@ -31,7 +31,7 @@ _unescapes = (
 
 # valid tag-keys must contain of alphanumerics and hyphens only.
 # for vendor-tagnames: TLD with slash appended
-_valid_key = re.compile("^([\w.-]+/)?[\w-]+$")
+_valid_key = re.compile(r"^([\w.-]+/)?[\w-]+$")
 
 # valid escaped tag-values must not contain
 # NUL, CR, LF, semicolons or spaces
@@ -51,7 +51,7 @@ def _escape(string):
 
 
 def encode(tags):
-    '''Encodes a dictionary of tags to fit into an IRC-message.
+    r'''Encodes a dictionary of tags to fit into an IRC-message.
     See IRC Message Tags: http://ircv3.net/specs/core/message-tags-3.2.html
 
     >>> from collections import OrderedDict
@@ -63,13 +63,13 @@ def encode(tags):
     >>> encode(d_ordered)
     'aaa=bbb;ccc;example.com/ddd=eee'
 
-    >>> d = {'key': 'value;with special\\\\characters', 'key2': 'with=equals'}
+    >>> d = {'key': 'value;with special\\characters', 'key2': 'with=equals'}
     >>> d_ordered = OrderedDict(sorted(d.items(), key=lambda t: t[0]))
     >>> print(encode(d_ordered))
-    key=value\\:with\\sspecial\\\characters;key2=with=equals
+    key=value\:with\sspecial\\characters;key2=with=equals
 
-    >>> print(encode({'key': r'\\something'}))
-    key=\\\\something
+    >>> print(encode({'key': r'\something'}))
+    key=\\something
 
     '''
     tagstrings = []
