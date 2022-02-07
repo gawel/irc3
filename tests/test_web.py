@@ -16,7 +16,7 @@ class Payload:
 
 
 @pytest.mark.asyncio
-async def test_web_handler(irc3_bot_factory, raw_test_server, test_client):
+async def test_web_handler(irc3_bot_factory, aiohttp_raw_server, aiohttp_client):
     bot = irc3_bot_factory(includes=['irc3.plugins.web'])
     plugin = bot.get_plugin(web.Web)
     plugin.server_ready()
@@ -28,7 +28,7 @@ async def test_web_handler(irc3_bot_factory, raw_test_server, test_client):
 
 @pytest.mark.asyncio
 async def test_web_handler_post(irc3_bot_factory,
-                                raw_test_server, test_client):
+                                aiohttp_raw_server, aiohttp_client):
     bot = irc3_bot_factory(includes=['irc3.plugins.web'])
     plugin = bot.get_plugin(web.Web)
 
@@ -43,7 +43,7 @@ async def test_web_handler_post(irc3_bot_factory,
 
 @pytest.mark.asyncio
 async def test_web_handler_post_auth(irc3_bot_factory,
-                                     raw_test_server, test_client):
+                                     aiohttp_raw_server, aiohttp_client):
     bot = irc3_bot_factory(**{
         'includes': ['irc3.plugins.web'],
         'irc3.plugins.web': {'api_key': 'toomanysecrets'},
@@ -66,7 +66,7 @@ async def test_web_handler_post_auth(irc3_bot_factory,
 
 
 @pytest.mark.asyncio
-async def test_web_handler_404(irc3_bot_factory, raw_test_server, test_client):
+async def test_web_handler_404(irc3_bot_factory, aiohttp_raw_server, aiohttp_client):
     bot = irc3_bot_factory(includes=['irc3.plugins.web'])
     plugin = bot.get_plugin(web.Web)
 
