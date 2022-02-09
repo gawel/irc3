@@ -5,7 +5,7 @@ import irc3
 import datetime
 from irc3.compat import asyncio
 from concurrent.futures import ThreadPoolExecutor
-from operator import itemgetter
+
 __doc__ = '''
 ==========================================
 :mod:`irc3.plugins.feeds` Feeds plugin
@@ -91,6 +91,9 @@ def fetch(args):
     return args['name']
 
 
+ISO_FORMAT = "%Y-%m-%dT%H:%M:%S"
+
+
 def parse(feedparser, args):
     """parse a feed using feedparser"""
     entries = []
@@ -100,29 +103,36 @@ def parse(feedparser, args):
     for filename in args['filenames']:
         try:
             with open(filename + '.updated') as fd:
-                updated = fd.read().strip()
-        except (OSError, IOError):
-            updated = '0'
+                updated = datetime.datetime.strptime(
+                    fd.read()[:len("YYYY-MM-DDTHH:MM:SS")], ISO_FORMAT
+                )
+        except (OSError, IOError, ValueError):
+            updated = datetime.datetime(datetime.MINYEAR, 1, 1)
 
         feed = feedparser.parse(filename)
         for e in feed.entries:
-            if e.updated <= updated:
-                # skip already sent entries
-                continue
             try:
-                updated_parsed = e.updated_parsed
+                updated_parsed = datetime.datetime(*e.updated_parsed[:6])
             except AttributeError:
                 continue
-            if datetime.datetime(*updated_parsed[:7]) < max_date:
+            if updated_parsed <= updated:
+                # skip already sent entries
+                continue
+            if updated_parsed < max_date:
                 # skip entries older than 2 days
                 continue
             e['filename'] = filename
             e['feed'] = args
             entries.append((e.updated, e))
         if entries:
-            entries = sorted(entries, key=itemgetter(0))
+            most_recent_entry = max(
+                entries, key=lambda entry: entry[1].updated_parsed
+            )
+            most_recent_date = datetime.datetime(
+                *most_recent_entry[1].updated_parsed[:6]
+            )
             with open(filename + '.updated', 'w') as fd:
-                fd.write(str(entries[-1][0]))
+                fd.write(most_recent_date.isoformat())
     return entries
 
 

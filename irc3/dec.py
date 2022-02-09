@@ -13,7 +13,7 @@ def plugin(wrapped):
 
 
 class event:
-    """register a method or function an irc event callback::
+    r"""register a method or function an irc event callback::
 
         >>> @event('^:\S+ 353 [^&#]+(?P<channel>\S+) :(?P<nicknames>.*)')
         ... def on_names(bot, channel=None, nicknames=None):

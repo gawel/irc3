@@ -2,7 +2,7 @@
 import os
 import irc3
 from stat import S_ISFIFO
-__doc__ = '''
+__doc__ = r'''
 ==========================================
 :mod:`irc3.plugins.fifo` Fifo plugin
 ==========================================

@@ -10,7 +10,7 @@ try:
     StrictRedis().flushdb()
 except (ImportError, ConnectionError):
     import re
-    req_redis = re.compile(".*#[^#]*\s*require?\s*redis\s*$", re.IGNORECASE)
+    req_redis = re.compile(r".*#[^#]*\s*require?\s*redis\s*$", re.IGNORECASE)
 
     def pytest_runtest_setup(item):
         if getattr(item, 'dtest', None):

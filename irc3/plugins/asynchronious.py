@@ -75,18 +75,19 @@ class Whois(AsyncEvents):
     # when those events occurs, we can add them to the result list
     events = (
         # (?i) is for IGNORECASE. This will match either NicK or nick
-        {'match': "(?i)^:\S+ 301 \S+ {nick} :(?P<away>.*)"},
-        {'match': "(?i)^:\S+ 311 \S+ {nick} (?P<username>\S+) (?P<host>\S+) . "
-                  ":(?P<realname>.*)(?i)"},
-        {'match': "(?i)^:\S+ 312 \S+ {nick} (?P<server>\S+) "
-                  ":(?P<server_desc>.*)"},
-        {'match': "(?i)^:\S+ 317 \S+ {nick} (?P<idle>[0-9]+).*"},
-        {'match': "(?i)^:\S+ 319 \S+ {nick} :(?P<channels>.*)", 'multi': True},
-        {'match': "(?i)^:\S+ 330 \S+ {nick} (?P<account>\S+) "
-                  ":(?P<account_desc>.*)"},
-        {'match': "(?i)^:\S+ 671 \S+ {nick} :(?P<connection>.*)"},
+        {'match': r"(?i)^:\S+ 301 \S+ {nick} :(?P<away>.*)"},
+        {'match': r"(?i)^:\S+ 311 \S+ {nick} (?P<username>\S+) "
+                  r"(?P<host>\S+) . :(?P<realname>.*)(?i)"},
+        {'match': r"(?i)^:\S+ 312 \S+ {nick} (?P<server>\S+) "
+                  r":(?P<server_desc>.*)"},
+        {'match': r"(?i)^:\S+ 317 \S+ {nick} (?P<idle>[0-9]+).*"},
+        {'match': r"(?i)^:\S+ 319 \S+ {nick} :(?P<channels>.*)",
+         'multi': True},
+        {'match': r"(?i)^:\S+ 330 \S+ {nick} (?P<account>\S+) "
+                  r":(?P<account_desc>.*)"},
+        {'match': r"(?i)^:\S+ 671 \S+ {nick} :(?P<connection>.*)"},
         # if final=True then a result is returned when the event occurs
-        {'match': "(?i)^:\S+ (?P<retcode>(318|401)) \S+ (?P<nick>{nick}) :.*",
+        {'match': r"(?i)^:\S+ (?P<retcode>(318|401)) \S+ (?P<nick>{nick}) :.*",
          'final': True},
     )
 
@@ -106,11 +107,11 @@ class WhoChannel(AsyncEvents):
     send_line = 'WHO {channel}'
 
     events = (
-        {"match": "(?i)^:\S+ 352 \S+ {channel} (?P<user>\S+) "
-                  "(?P<host>\S+) (?P<server>\S+) (?P<nick>\S+) "
-                  "(?P<modes>\S+) :(?P<hopcount>\S+) (?P<realname>.*)",
+        {"match": r"(?i)^:\S+ 352 \S+ {channel} (?P<user>\S+) "
+                  r"(?P<host>\S+) (?P<server>\S+) (?P<nick>\S+) "
+                  r"(?P<modes>\S+) :(?P<hopcount>\S+) (?P<realname>.*)",
          "multi": True},
-        {"match": "(?i)^:\S+ (?P<retcode>(315|401)) \S+ {channel} :.*",
+        {"match": r"(?i)^:\S+ (?P<retcode>(315|401)) \S+ {channel} :.*",
          "final": True},
     )
 
@@ -131,19 +132,19 @@ class WhoChannel(AsyncEvents):
 class WhoChannelFlags(AsyncEvents):
 
     flags = OrderedDict([
-        ("u", "(?P<user>\S+)"),
-        ("i", "(?P<ip>\S+)"),
-        ("h", "(?P<host>\S+)"),
-        ("s", "(?P<server>\S+)"),
-        ("n", "(?P<nick>\S+)"),
-        ("a", "(?P<account>\S+)"),
-        ("r", ":(?P<realname>.*)"),
+        ("u", r"(?P<user>\S+)"),
+        ("i", r"(?P<ip>\S+)"),
+        ("h", r"(?P<host>\S+)"),
+        ("s", r"(?P<server>\S+)"),
+        ("n", r"(?P<nick>\S+)"),
+        ("a", r"(?P<account>\S+)"),
+        ("r", r":(?P<realname>.*)"),
     ])
 
     send_line = "WHO {channel} c%{flags}"
 
     events = (
-        {"match": "(?i)^:\S+ (?P<retcode>(315|401)) \S+ {channel} :.*",
+        {"match": r"(?i)^:\S+ (?P<retcode>(315|401)) \S+ {channel} :.*",
          "final": True},
     )
 
@@ -167,10 +168,10 @@ class WhoNick(AsyncEvents):
     send_line = 'WHO {nick}'
 
     events = (
-        {"match": "(?i)^:\S+ 352 \S+ (?P<channel>\S+) (?P<user>\S+) "
-                  "(?P<host>\S+) (?P<server>\S+) (?P<nick>{nick}) "
-                  "(?P<modes>\S+) :(?P<hopcount>\S+)\s*(?P<realname>.*)"},
-        {"match": "(?i)^:\S+ (?P<retcode>(315|401)) \S+ {nick} :.*",
+        {"match": r"(?i)^:\S+ 352 \S+ (?P<channel>\S+) (?P<user>\S+) "
+                  r"(?P<host>\S+) (?P<server>\S+) (?P<nick>{nick}) "
+                  r"(?P<modes>\S+) :(?P<hopcount>\S+)\s*(?P<realname>.*)"},
+        {"match": r"(?i)^:\S+ (?P<retcode>(315|401)) \S+ {nick} :.*",
          "final": True},
     )
 
@@ -187,7 +188,7 @@ class WhoNick(AsyncEvents):
 class IsOn(AsyncEvents):
 
     events = (
-        {"match": "(?i)^:\S+ 303 \S+ :(?P<nicknames>({nicknames_re}.*|$))",
+        {"match": r"(?i)^:\S+ 303 \S+ :(?P<nicknames>({nicknames_re}.*|$))",
          "final": True},
     )
 
@@ -204,8 +205,8 @@ class Topic(AsyncEvents):
     send_line = 'TOPIC {channel}{topic}'
 
     events = (
-        {"match": ("(?i)^:\S+ (?P<retcode>(331|332|TOPIC))"
-                   "(:?\s+\S+\s+|\s+){channel} :(?P<topic>.*)"),
+        {"match": (r"(?i)^:\S+ (?P<retcode>(331|332|TOPIC))"
+                   r"(:?\s+\S+\s+|\s+){channel} :(?P<topic>.*)"),
          "final": True},
     )
 
@@ -224,9 +225,9 @@ class Names(AsyncEvents):
     send_line = 'NAMES {channel}'
 
     events = (
-        {"match": "(?i)^:\S+ 353 .*{channel} :(?P<nicknames>.*)",
+        {"match": r"(?i)^:\S+ 353 .*{channel} :(?P<nicknames>.*)",
          'multi': True},
-        {'match': "(?i)^:\S+ (?P<retcode>(366|401)) \S+ {channel} :.*",
+        {'match': r"(?i)^:\S+ (?P<retcode>(366|401)) \S+ {channel} :.*",
          'final': True},
     )
 
@@ -244,10 +245,10 @@ class ChannelBans(AsyncEvents):
     send_line = 'MODE {channel} +b'
 
     events = (
-        {"match": "(?i)^:\S+ 367 \S+ {channel} (?P<mask>\S+) (?P<user>\S+) "
-                  "(?P<timestamp>\d+)",
+        {"match": r"(?i)^:\S+ 367 \S+ {channel} (?P<mask>\S+) (?P<user>\S+) "
+                  r"(?P<timestamp>\d+)",
          "multi": True},
-        {"match": "(?i)^:\S+ 368 \S+ {channel} :.*",
+        {"match": r"(?i)^:\S+ 368 \S+ {channel} :.*",
          "final": True},
     )
 
@@ -268,10 +269,10 @@ class CTCP(AsyncEvents):
     send_line = 'PRIVMSG {nick} :\x01{ctcp}\x01'
 
     events = (
-        {"match": "(?i):(?P<mask>\S+) NOTICE \S+ :\x01(?P<ctcp>\S+) "
+        {"match": "(?i):(?P<mask>\\S+) NOTICE \\S+ :\x01(?P<ctcp>\\S+) "
                   "(?P<reply>.*)\x01",
          "final": True},
-        {"match": "(?i)^:\S+ (?P<retcode>486) \S+ :(?P<reply>.*)",
+        {"match": r"(?i)^:\S+ (?P<retcode>486) \S+ :(?P<reply>.*)",
          "final": True}
     )
 
@@ -319,7 +320,7 @@ class Async:
             WhoChannelFlags.__name__,
             (WhoChannelFlags,),
             {"events": WhoChannelFlags.events + (
-                {"match": "(?i)^:\S+ 354 \S+ {0}".format(' '.join(regex)),
+                {"match": r"(?i)^:\S+ 354 \S+ {0}".format(' '.join(regex)),
                  "multi": True},
             )}
         )

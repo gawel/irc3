@@ -36,8 +36,8 @@ Usage::
 '''
 
 Q_NICK = "Q@CServe.quakenet.org"
-CHALLENGE_PATTERN = ("^:Q![a-zA-Z]+@CServe.quakenet.org NOTICE "
-                     "(?P<nick>\S+) :CHALLENGE (?P<challenge>[a-z0-9]+) ")
+CHALLENGE_PATTERN = (r"^:Q![a-zA-Z]+@CServe.quakenet.org NOTICE "
+                     r"(?P<nick>\S+) :CHALLENGE (?P<challenge>[a-z0-9]+) ")
 
 
 def get_digest(digest):

@@ -131,11 +131,11 @@ PRIVMSG.re_out = MY_PRIVMSG.re_out
 CTCP = raw.new(
     'CTCP',
     regexp=(
-        '^(@(?P<tags>\S+) )?:(?P<mask>\S+!\S+@\S+) '
+        r'^(@(?P<tags>\S+) )?:(?P<mask>\S+!\S+@\S+) '
         '(?P<event>(PRIVMSG|NOTICE)) '
         '{nick} :\x01(?P<ctcp>.*)\x01$'),
     regexp_out=(
-        '^(?P<event>(PRIVMSG|NOTICE)) (?P<target>\S+) :\x01(?P<ctcp>.*)\x01$'
+        '^(?P<event>(PRIVMSG|NOTICE)) (?P<target>\\S+) :\x01(?P<ctcp>.*)\x01$'
     ),
 )
 
@@ -157,5 +157,5 @@ TOPIC = raw.new(
 
 ERR_NICK = raw.new(
     'ERR_NICK',
-    "^(@(?P<tags>\S+) )?:(?P<srv>\S+) (?P<retcode>(432|433|436)) (?P<me>\S+) "
-    "(?P<nick>\S+) :(?P<data>.*)")
+    r"^(@(?P<tags>\S+) )?:(?P<srv>\S+) (?P<retcode>(432|433|436)) (?P<me>\S+) "
+    r"(?P<nick>\S+) :(?P<data>.*)")
