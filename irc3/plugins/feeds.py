@@ -69,6 +69,7 @@ HEADERS = {
     'Pragma': 'no-cache',
 }
 
+
 def default_hook(entries):
     """Default hook called for each entry"""
     return entries
@@ -146,7 +147,6 @@ class Feeds:
     """Feeds plugin"""
 
     PoolExecutor = ThreadPoolExecutor
-
 
     def __init__(self, bot):
         bot.feeds = self
