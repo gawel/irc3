@@ -4,7 +4,6 @@ import time
 import irc3
 import datetime
 from irc3.compat import asyncio
-from concurrent.futures import ThreadPoolExecutor
 
 __doc__ = '''
 ==========================================
@@ -22,9 +21,9 @@ Your config must looks like this:
         irc3.plugins.feeds
 
     [irc3.plugins.feeds]
-    channels = #irc3                             # global channel to notify
-    delay = 5                                    # delay to check feeds
-    directory = ~/.irc3/feeds                    # directory to store feeds
+    channels = #irc3                          # global channel to notify
+    delay = 5                                 # delay to check feeds in minutes
+    directory = ~/.irc3/feeds                 # directory to store feeds
     hook = irc3.plugins.feeds.default_hook       # dotted name to a callable
     fmt = [{name}] {entry.title} - {entry.link}  # formatter
 
@@ -34,7 +33,7 @@ Your config must looks like this:
     github/irc3.fmt = [{feed.name}] New commit: {entry.title} - {entry.link}
     # custom channels
     github/irc3.channels = #irc3dev #irc3
-    # custom delay
+    # custom delay in minutes
     github/irc3.delay = 10
 
 Hook is a dotted name refering to a callable (function or class) wich take a
@@ -64,7 +63,7 @@ Here is a more complete hook used on freenode#irc3:
 '''
 
 HEADERS = {
-    'User-Agent': 'python-requests/irc3/feeds',
+    'User-Agent': 'python-aiohttp/irc3/feeds',
     'Cache-Control': 'max-age=0',
     'Pragma': 'no-cache',
 }
@@ -82,21 +81,6 @@ def default_dispatcher(bot):  # pragma: no cover
     return dispatcher
 
 
-def fetch(args):
-    """fetch a feed"""
-    requests = args['requests']
-    for feed, filename in zip(args['feeds'], args['filenames']):
-        try:
-            resp = requests.get(feed, timeout=5, headers=HEADERS)
-            content = resp.content
-        except Exception:  # pragma: no cover
-            pass
-        else:
-            with open(filename, 'wb') as fd:
-                fd.write(content)
-    return args['name']
-
-
 ISO_FORMAT = "%Y-%m-%dT%H:%M:%S"
 
 
@@ -108,7 +92,7 @@ def parse(feedparser, args):
 
     for filename in args['filenames']:
         try:
-            with open(filename + '.updated') as fd:
+            with open(filename + '.updated', encoding="UTF-8") as fd:
                 updated = datetime.datetime.strptime(
                     fd.read()[:len("YYYY-MM-DDTHH:MM:SS")], ISO_FORMAT
                 )
@@ -145,8 +129,6 @@ def parse(feedparser, args):
 @irc3.plugin
 class Feeds:
     """Feeds plugin"""
-
-    PoolExecutor = ThreadPoolExecutor
 
     def __init__(self, bot):
         bot.feeds = self
@@ -207,7 +189,16 @@ class Feeds:
 
     def connection_made(self):
         """Initialize checkings"""
-        self.bot.loop.call_later(10, self.update)
+        self.bot.create_task(self.periodically_update())
+
+    async def periodically_update(self):
+        """After a connection has been made, call update feeds periodically."""
+        if not self.aiohttp or not self.feedparser:
+            return
+        await asyncio.sleep(10)
+        while True:
+            await self.update()
+            await asyncio.sleep(self.delay)
 
     def imports(self):
         """show some warnings if needed"""
@@ -218,14 +209,14 @@ class Feeds:
             self.bot.log.critical('feedparser is not installed')
             self.feedparser = None
         try:
-            import requests
+            import aiohttp
         except ImportError:  # pragma: no cover
-            self.bot.log.critical('requests is not installed')
-            self.requests = None
+            self.bot.log.critical('aiohttp is not installed')
+            self.aiohttp = None
         else:
-            self.requests = requests
+            self.aiohttp = aiohttp
 
-    def parse(self, *args):
+    def parse(self):
         """parse pre-fetched feeds and notify new entries"""
         entries = []
         for feed in self.feeds.values():
@@ -237,33 +228,37 @@ class Feeds:
                 if entry:
                     feed = entry.feed
                     message = feed['fmt'].format(feed=feed, entry=entry)
-                    for c in feed['channels']:
-                        yield c, message
+                    for channel in feed['channels']:
+                        yield channel, message
 
         self.dispatcher(messages())
 
-    def update_time(self, future):
-        name = future.result()
-        self.bot.log.debug('Feed %s fetched', name)
-        feed = self.feeds[name]
-        feed['time'] = time.time()
-
-    def update(self):
+    async def update(self):
         """update feeds"""
-        loop = self.bot.loop
-        loop.call_later(self.delay, self.update)
-
         now = time.time()
-        feeds = [dict(f, requests=self.requests) for f in self.feeds.values()
-                 if f['time'] < now - f['delay']]
-        if feeds:
-            self.bot.log.info('Fetching feeds %s',
-                              ', '.join([f['name'] for f in feeds]))
-            tasks = []
-            for feed in feeds:
-                task = loop.run_in_executor(None, fetch, feed)
-                task.add_done_callback(self.update_time)
-                tasks.append(task)
-            task = self.bot.create_task(
-                asyncio.wait(tasks, timeout=len(feeds) * 2, loop=loop))
-            task.add_done_callback(self.parse)
+        feeds = [feed for feed in self.feeds.values()
+                 if feed['time'] < now - feed['delay']]
+        if not feeds:
+            return
+        self.bot.log.info('Fetching feeds %s',
+                          ', '.join([f['name'] for f in feeds]))
+        timeout = self.aiohttp.ClientTimeout(total=5)
+        async with self.aiohttp.ClientSession(timeout=timeout) as session:
+            await asyncio.gather(
+                *[self.fetch(feed, session) for feed in feeds]
+            )
+        self.parse()
+
+    async def fetch(self, feed, session):
+        """fetch a feed"""
+        for url, filename in zip(feed['feeds'], feed['filenames']):
+            try:
+                async with session.get(url, headers=HEADERS) as resp:
+                    with open(filename, 'wb') as file:
+                        file.write(await resp.read())
+            except Exception:  # pragma: no cover
+                self.bot.log.exception(
+                    "Exception while fetching feed %s", feed['name']
+                )
+        self.bot.log.debug('Feed %s fetched', feed['name'])
+        feed['time'] = time.time()
