@@ -63,6 +63,11 @@ Here is a more complete hook used on freenode#irc3:
 
 '''
 
+HEADERS = {
+    'User-Agent': 'python-requests/irc3/feeds',
+    'Cache-Control': 'max-age=0',
+    'Pragma': 'no-cache',
+}
 
 def default_hook(entries):
     """Default hook called for each entry"""
@@ -78,10 +83,10 @@ def default_dispatcher(bot):  # pragma: no cover
 
 def fetch(args):
     """fetch a feed"""
-    session = args['session']
+    requests = args['requests']
     for feed, filename in zip(args['feeds'], args['filenames']):
         try:
-            resp = session.get(feed, timeout=5)
+            resp = requests.get(feed, timeout=5, headers=HEADERS)
             content = resp.content
         except Exception:  # pragma: no cover
             pass
@@ -142,11 +147,6 @@ class Feeds:
 
     PoolExecutor = ThreadPoolExecutor
 
-    headers = {
-        'User-Agent': 'python-requests/irc3/feeds',
-        'Cache-Control': 'max-age=0',
-        'Pragma': 'no-cache',
-    }
 
     def __init__(self, bot):
         bot.feeds = self
@@ -177,7 +177,6 @@ class Feeds:
             fmt=config.get('fmt', '[{feed.name}] {entry.title} {entry.link}'),
             delay=delay,
             channels=config.get('channels', ''),
-            headers=self.headers,
             time=0,
         )
 
@@ -222,10 +221,9 @@ class Feeds:
             import requests
         except ImportError:  # pragma: no cover
             self.bot.log.critical('requests is not installed')
-            self.session = None
+            self.requests = None
         else:
-            self.session = requests.Session()
-            self.session.headers.update(self.headers)
+            self.requests = requests
 
     def parse(self, *args):
         """parse pre-fetched feeds and notify new entries"""
@@ -256,8 +254,7 @@ class Feeds:
         loop.call_later(self.delay, self.update)
 
         now = time.time()
-        session = self.session
-        feeds = [dict(f, session=session) for f in self.feeds.values()
+        feeds = [dict(f, requests=self.requests) for f in self.feeds.values()
                  if f['time'] < now - f['delay']]
         if feeds:
             self.bot.log.info('Fetching feeds %s',
