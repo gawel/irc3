@@ -40,8 +40,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'irc3'
-copyright = u'2013, Gael Pasgrimaud'
+project = 'irc3'
+copyright = '2013, Gael Pasgrimaud'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -183,8 +183,8 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'irc3.tex', u'irc3 Documentation',
-   u'Gael Pasgrimaud', 'manual'),
+  ('index', 'irc3.tex', 'irc3 Documentation',
+   'Gael Pasgrimaud', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -213,8 +213,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'irc3', u'irc3 Documentation',
-     [u'Gael Pasgrimaud'], 1)
+    ('index', 'irc3', 'irc3 Documentation',
+     ['Gael Pasgrimaud'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -227,8 +227,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'irc3', u'irc3 Documentation',
-   u'Gael Pasgrimaud', 'irc3', 'One line description of project.',
+  ('index', 'irc3', 'irc3 Documentation',
+   'Gael Pasgrimaud', 'irc3', 'One line description of project.',
    'Miscellaneous'),
 ]
 
