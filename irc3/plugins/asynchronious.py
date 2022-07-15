@@ -77,7 +77,7 @@ class Whois(AsyncEvents):
         # (?i) is for IGNORECASE. This will match either NicK or nick
         {'match': r"(?i)^:\S+ 301 \S+ {nick} :(?P<away>.*)"},
         {'match': r"(?i)^:\S+ 311 \S+ {nick} (?P<username>\S+) "
-                  r"(?P<host>\S+) . :(?P<realname>.*)(?i)"},
+                  r"(?P<host>\S+) . :(?P<realname>.*)"},
         {'match': r"(?i)^:\S+ 312 \S+ {nick} (?P<server>\S+) "
                   r":(?P<server_desc>.*)"},
         {'match': r"(?i)^:\S+ 317 \S+ {nick} (?P<idle>[0-9]+).*"},
