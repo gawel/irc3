@@ -1,4 +1,4 @@
-1.1.8 (unreleased)
+1.1.8 (2022-07-17)
 ==================
 
 - Allow comma-separated chans in server userlist JOIN
