@@ -1,7 +1,11 @@
 1.1.8 (unreleased)
 ==================
 
-- Nothing changed yet.
+- Allow comma-separated chans in server userlist JOIN
+
+- python 3.10 compat
+
+- improve feeds plugin
 
 
 1.1.7 (2021-02-13)
