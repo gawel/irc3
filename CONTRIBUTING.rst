@@ -7,6 +7,10 @@ First, if you want to add a cool plugin, consider submit a pull request to the
 
 Feel free to clone the project on `GitHub <https://github.com/gawel/irc3>`_.
 
+To test your change you can run irc3 in debug mode using::
+
+    $ irc3 --debug path-to-your-conf.ini
+
 Once you made a change, try to add a test for your feature/fix. At least assume
 that you have'nt broke anything by running tox::
 
@@ -40,9 +44,7 @@ And check the result::
 
     $ firefox .tox/docs/tmp/html/index.html
 
-The project is `buildout <https://github.com/buildout/buildout>`_ ready. You
-can generate binaries using it instead of virtualenv::
+The project uses ``setuptools``, you can test-install it using `pip`:
 
-    $ python bootstrap.py
-    $ bin/buildout
-    $ bin/irc3 -h
+    $ pip install .
+    $ irc3 -h

@@ -207,7 +207,7 @@ class IrcBot(base.IrcObject):
                     if self.queue.empty():
                         break
                 if lines:
-                    self.send(u'\r\n'.join(lines))
+                    self.send('\r\n'.join(lines))
                 while not self.queue.empty():
                     await asyncio.sleep(flood_rate, loop=self.loop)
                     future, data = await self.queue.get()

@@ -116,4 +116,4 @@ class Shell:
         lines = await proc.stdout.read()
         if not isinstance(lines, str):
             lines = lines.decode('utf8')
-        return lines.split(u'\n')
+        return lines.split('\n')

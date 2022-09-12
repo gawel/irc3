@@ -15,7 +15,7 @@ def plugin(wrapped):
 class event:
     r"""register a method or function an irc event callback::
 
-        >>> @event('^:\S+ 353 [^&#]+(?P<channel>\S+) :(?P<nicknames>.*)')
+        >>> @event(r'^:\S+ 353 [^&#]+(?P<channel>\S+) :(?P<nicknames>.*)')
         ... def on_names(bot, channel=None, nicknames=None):
         ...     '''this will catch nickname when you enter a channel'''
         ...     print(channel, nicknames.split(':'))

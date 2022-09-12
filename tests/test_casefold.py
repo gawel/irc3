@@ -14,7 +14,7 @@ class TestCasefold(BotTestCase):
         self.assertEquals(bot.casefold('#tESt[]chAn'), '#test[]chan')
         self.assertEquals(bot.casefold('#TEsT\\CHaN'), '#test\\chan')
 
-        self.assertEquals(bot.casefold(u'#TEsT\\CHaN'), u'#test\\chan')
+        self.assertEquals(bot.casefold('#TEsT\\CHaN'), '#test\\chan')
 
     def test_rfc1459(self):
         bot = self.callFTU(server_config={'CASEMAPPING': 'rfc1459'})
@@ -24,4 +24,4 @@ class TestCasefold(BotTestCase):
         self.assertEquals(bot.casefold('#tESt[]chAn'), '#test{}chan')
         self.assertEquals(bot.casefold('#TEsT\\CHaN'), '#test|chan')
 
-        self.assertEquals(bot.casefold(u'#TEsT\\CHaN'), u'#test|chan')
+        self.assertEquals(bot.casefold('#TEsT\\CHaN'), '#test|chan')

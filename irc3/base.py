@@ -199,7 +199,7 @@ class IrcObject:
         scanner = self.venusian.Scanner(context=self)
         for module in modules:
             if module in reg.includes:
-                self.log.warn('%s included twice', module)
+                self.log.warning('%s included twice', module)
             else:
                 reg.includes.add(module)
                 try:

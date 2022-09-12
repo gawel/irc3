@@ -67,11 +67,11 @@ class Human:
             quotes = [v['joke'] for v in quotes['value']]
         except Exception:
             self.bot.log.error('Failed to get quotes from api.icndb.com')
-            quotes = [u'Hi!', u'lol']
+            quotes = ['Hi!', 'lol']
         self.bot.log.info('Initialise %s with %s quotes',
                           self.db, len(quotes))
         with codecs.open(self.db, 'w', 'utf8') as fd:
-            fd.write(u'\n'.join(quotes))
+            fd.write('\n'.join(quotes))
 
     @irc3.event(irc3.rfc.MY_PRIVMSG)
     def on_message(self, mask=None, event=None, target=None, data=None, **kw):

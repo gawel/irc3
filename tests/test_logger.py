@@ -30,7 +30,7 @@ class LoggerFileTestCase(BotTestCase):
         filenames = os.listdir(self.logdir)
         self.assertEqual(len(filenames), 0, filenames)
 
-        bot.dispatch(u':server 332 foo #foo :topîc')
+        bot.dispatch(':server 332 foo #foo :topîc')
         filenames = glob.glob(os.path.join(self.logdir, '*.log'))
         self.assertEqual(len(filenames), 1, filenames)
 
