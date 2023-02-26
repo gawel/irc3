@@ -16,8 +16,7 @@ class MyCron:
 
 
 @cron.cron('* * * * * *')
-@asyncio.coroutine
-def function(bot):
+async def function(bot):
     return bot
 
 

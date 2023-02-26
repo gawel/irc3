@@ -91,7 +91,8 @@ class Shell:
                 self.register_command(k, v)
 
     def register_command(self, k, v, skey=None):
-        meth = partial(self.shell_command, v)
+        async def meth(*args, **kwargs):
+            await self.shell_command(v, *args, **kwargs)
         meth.__name__ = k
         meth.__doc__ = '''Run $ %s
         %%%%%s [<args>...]
@@ -103,7 +104,7 @@ class Shell:
                 p[opt] = self.config[opt_key]
         self.log.debug('Register command %s: $ %s', k, v)
         commands = self.context.get_plugin(Commands)
-        commands[k] = (p, asyncio.coroutine(meth))
+        commands[k] = (p, meth)
 
     async def shell_command(self, command, mask, target, args, **kwargs):
         env = os.environ.copy()

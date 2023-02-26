@@ -12,7 +12,7 @@ class TestSocial(BotTestCase):
 
     def test_get_conn(self):
         bot = self.callFTU()
-        conn = bot.get_social_connection(id='twitter')
+        conn = bot.get_social_connection()
         self.assertTrue(hasattr(conn, 'conn'))
 
     def test_conns(self):
