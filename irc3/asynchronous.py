@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from .compat import asyncio
-import functools
 import re
 
 
@@ -31,7 +30,9 @@ class event:
         return '<temp_event {0} {1}>'.format(name, s)
 
     def __call__(self, callback):
-        self.callback = asyncio.coroutine(functools.partial(callback, self))
+        async def wrapper(*args, **kwargs):
+            return await callback(self, *args, **kwargs)
+        self.callback = wrapper
         return self
 
 

@@ -321,10 +321,12 @@ def parse_modes(modes, targets=None, noargs=''):
 
 def wraps_with_context(func, context):
     """Return a wrapped partial(func, context)"""
-    wrapped = functools.partial(func, context)
-    wrapped = functools.wraps(func)(wrapped)
     if asyncio.iscoroutinefunction(func):
-        wrapped = asyncio.coroutine(wrapped)
+        async def wrapped(*args, **kwargs):
+            return await func(context, *args, **kwargs)
+    else:
+        wrapped = functools.partial(func, context)
+    wrapped = functools.wraps(func)(wrapped)
     return wrapped
 
 
