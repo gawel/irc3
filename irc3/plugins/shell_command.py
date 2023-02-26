@@ -2,7 +2,6 @@
 import os
 import irc3
 from irc3 import asyncio
-from functools import partial
 from irc3.plugins.command import Commands
 __doc__ = '''
 =================================================
