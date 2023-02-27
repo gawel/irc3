@@ -1,7 +1,9 @@
 1.1.9 (unreleased)
 ==================
 
-- Nothing changed yet.
+- drop support for python 3.5
+
+- python 3.11 compat
 
 
 1.1.8 (2022-07-17)
