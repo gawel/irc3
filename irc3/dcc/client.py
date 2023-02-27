@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import struct
 from collections import deque
 from functools import partial
@@ -173,11 +174,8 @@ class DCCSend(DCCBase):
         raise NotImplementedError('write is not available during DCCSend')
 
     def send_chunk(self):
-        if self.sendfile:
-            sent = self.sendfile(self.fd, self.offset, self.block_size)
-        else:
-            self.fd.seek(self.offset)
-            sent = self.socket.send(self.fd.read(self.block_size))
+        sent = os.sendfile(self.socket.fileno(), self.fd_fileno,
+                           self.offset, self.block_size)
         return sent
 
     def next_chunk(self):

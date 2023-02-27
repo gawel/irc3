@@ -51,8 +51,7 @@ class TestEvents(BotTestCase):
         loop = asyncio.new_event_loop()
         future = asyncio.Future(loop=loop)
 
-        @asyncio.coroutine
-        def e(ctx, **kwargs):
+        async def e(ctx, **kwargs):
             ctx.privmsg('#irc3', 'async')
             future.set_result(ctx)
 

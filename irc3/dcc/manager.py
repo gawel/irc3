@@ -2,19 +2,11 @@
 import os
 from functools import partial
 from collections import defaultdict
-from irc3.compat import PY35
 from irc3.utils import slugify
 from irc3.utils import maybedotted
 from irc3.dcc.client import DCCChat
 from irc3.dcc.client import DCCGet
-
-if PY35:
-    from irc3.dcc.client import DCCSend
-else:
-    try:
-        from irc3.dcc.optim import DCCSend
-    except ImportError:  # pragma: no cover
-        from irc3.dcc.client import DCCSend
+from irc3.dcc.client import DCCSend
 
 DCC_TYPES = ('chat', 'get', 'send')
 

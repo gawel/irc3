@@ -2,7 +2,6 @@
 from irc3.testing import BotTestCase
 from irc3.compat import asyncio
 from irc3.dcc.client import DCCSend
-from irc3.dcc.optim import DCCSend as DCCSendOptim
 from irc3.plugins.dcc import dcc_command
 from irc3 import dcc_event
 from irc3 import utils
@@ -145,11 +144,6 @@ class TestSend(DCCTestCase):
         self.assertFileSent()
 
 
-class TestSendOptim(TestSend):
-
-    send_class = DCCSendOptim
-
-
 class TestResume(DCCTestCase):
 
     send_class = DCCSend
@@ -180,11 +174,6 @@ class TestResume(DCCTestCase):
         self.assertFileSent()
 
 
-class TestResumeOptim(TestResume):
-
-    send_class = DCCSendOptim
-
-
 class TestSendWithLimit(DCCTestCase):
 
     send_class = DCCSend
@@ -208,8 +197,3 @@ class TestSendWithLimit(DCCTestCase):
         assert proto.started.result() is proto
         assert proto.closed.done()
         self.assertFileSent()
-
-
-class TestSendWithLimitOptim(TestSendWithLimit):
-
-    send_class = DCCSendOptim

@@ -118,9 +118,11 @@ def extend(func):
     def callback(context, name, ob):
         obj = context.context
         if info.scope == 'class':
-            f = getattr(obj.get_plugin(ob), func.__name__)
+            instance = obj.get_plugin(ob)
+            f = getattr(instance, func.__name__)
         else:
+            instance = obj
             f = func
-        setattr(obj, f.__name__, f.__get__(obj, obj.__class__))
+        setattr(obj, f.__name__, f.__get__(instance, instance.__class__))
     info = venusian.attach(func, callback, category='irc3.extend')
     return func
