@@ -10,18 +10,11 @@ try:  # pragma: no cover
 except ImportError:  # pragma: no cover
     from imp import reload as reload_module  # NOQA
 
-try:  # pragma: no cover
-    import asyncio
-    from asyncio.queues import Queue as BaseQueue
-    from asyncio.queues import QueueFull  # NOQA
-    from asyncio import sleep as _original_sleep
-    from asyncio import wait as _original_wait
-except ImportError:  # pragma: no cover
-    import trollius as asyncio  # NOQA
-    from trollius.queues import Queue  as BaseQueue # NOQA
-    from trollius.queues import QueueFull  # NOQA
-    from trollius import sleep as _original_sleep
-    from trollius import wait as _original_wait
+import asyncio
+from asyncio.queues import Queue as BaseQueue
+from asyncio.queues import QueueFull  # NOQA
+from asyncio import sleep as _original_sleep
+from asyncio import wait as _original_wait
 
 
 def __sleep(*args, **kwargs):

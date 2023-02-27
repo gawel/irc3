@@ -15,9 +15,9 @@ class DCCBase(asyncio.Protocol):
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
             setattr(self, k, v)
-        self.ready = asyncio.Future(loop=self.loop)
-        self.started = asyncio.Future(loop=self.loop)
-        self.closed = asyncio.Future(loop=self.loop)
+        self.ready = self.loop.create_future()
+        self.started = self.loop.create_future()
+        self.closed = self.loop.create_future()
         self.timeout_handle = None
 
     def factory(self):

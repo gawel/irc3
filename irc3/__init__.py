@@ -180,7 +180,7 @@ class IrcBot(base.IrcObject):
     def send_line(self, data, nowait=False):
         """send a line to the server. replace CR by spaces"""
         data = data.replace('\n', ' ').replace('\r', ' ')
-        f = asyncio.Future(loop=self.loop)
+        f = self.loop.create_future()
         if self.queue is not None and nowait is False:
             self.queue.put_nowait((f, data))
         else:

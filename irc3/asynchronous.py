@@ -48,7 +48,7 @@ def async_events(context, events, send_line=None,
                  timeout=30, **params):
 
     loop = context.loop
-    task = asyncio.Future(loop=loop)  # async result
+    task = loop.create_future()  # async result
     results = []  # store events results
     events_ = []  # reference registered events
 
