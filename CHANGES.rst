@@ -1,4 +1,4 @@
-1.1.9 (unreleased)
+1.1.9 (2023-02-27)
 ==================
 
 - drop support for python 3.5

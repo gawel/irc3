@@ -4,7 +4,7 @@ import codecs
 from setuptools import setup
 from setuptools import find_packages
 
-version = '1.1.9.dev0'
+version = '1.1.9'
 
 install_requires = ['venusian>=3.0', 'docopt']
 test_requires = [
