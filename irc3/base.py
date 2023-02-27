@@ -107,16 +107,11 @@ class IrcObject:
                 self.loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(self.loop)
 
-        # python 3.4.1 do not have a create_task method. check for it
-        self.create_task = getattr(self.loop, 'create_task', self.create_task)
+        self.create_task = self.loop.create_task
 
         self.registry = Registry()
 
         self.include(*self.config.get('includes', []))
-
-    def create_task(self, coro):  # pragma: no cover
-        # python 3.4.1 fallback
-        return asyncio.ensure_future(coro, loop=self.loop)
 
     def get_plugin(self, ob):
         plugins = self.registry.plugins
