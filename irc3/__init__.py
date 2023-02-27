@@ -376,20 +376,26 @@ class IrcBot(base.IrcObject):
     async def dcc_chat(self, mask, host=None, port=None):
         """Open a DCC CHAT whith mask. If host/port are specified then connect
         to a server. Else create a server"""
-        return self.dcc.create(
-            'chat', mask, host=host, port=port).ready
+        conn = self.dcc.create(
+            'chat', mask, host=host, port=port)
+        await conn.ready
+        return conn
 
     async def dcc_get(self, mask, host, port, filepath, filesize=None):
         """DCC GET a file from mask. filepath must be an absolute path with an
         existing directory. filesize is the expected file size."""
-        return self.dcc.create(
+        conn = self.dcc.create(
             'get', mask, filepath=filepath, filesize=filesize,
-            host=host, port=port).ready
+            host=host, port=port)
+        await conn.ready
+        return conn
 
     async def dcc_send(self, mask, filepath):
         """DCC SEND a file to mask. filepath must be an absolute path to
         existing file"""
-        return self.dcc.create('send', mask, filepath=filepath).ready
+        conn = self.dcc.create('send', mask, filepath=filepath)
+        await conn.ready
+        return conn
 
     async def dcc_accept(self, mask, filepath, port, pos):
         """accept a DCC RESUME for an axisting DCC SEND. filepath is the

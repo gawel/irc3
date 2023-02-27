@@ -2,8 +2,6 @@
 import sys
 import types
 
-PY34 = bool(sys.version_info[0:2] >= (3, 4))
-PY35 = bool(sys.version_info[0:2] >= (3, 5))
 PY37 = bool(sys.version_info[0:2] >= (3, 7))
 
 
