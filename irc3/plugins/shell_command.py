@@ -91,7 +91,7 @@ class Shell:
 
     def register_command(self, k, v, skey=None):
         async def meth(*args, **kwargs):
-            await self.shell_command(v, *args, **kwargs)
+            return await self.shell_command(v, *args, **kwargs)
         meth.__name__ = k
         meth.__doc__ = '''Run $ %s
         %%%%%s [<args>...]
@@ -108,12 +108,14 @@ class Shell:
     async def shell_command(self, command, mask, target, args, **kwargs):
         env = os.environ.copy()
         env['IRC3_COMMAND_ARGS'] = ' '.join(args['<args>'])
+        self.log.debug('Running command %s' % command)
         proc = await asyncio.create_subprocess_shell(
             command, shell=True, env=env,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.STDOUT)
         await proc.wait()
         lines = await proc.stdout.read()
+        self.log.debug('Running command %s' % lines)
         if not isinstance(lines, str):
             lines = lines.decode('utf8')
         return lines.split('\n')
