@@ -1,4 +1,4 @@
-1.1.10 (unreleased)
+1.1.10 (2023-04-17)
 ===================
 
 - fix `shell_command` plugin
