@@ -1,7 +1,7 @@
 1.1.10 (unreleased)
 ===================
 
-- Nothing changed yet.
+- fix `shell_command` plugin
 
 
 1.1.9 (2023-02-27)
