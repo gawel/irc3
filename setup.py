@@ -10,6 +10,7 @@ install_requires = ['venusian>=3.0', 'docopt']
 test_requires = [
     'pytest-asyncio',
     'pytest-aiohttp',
+    'aiohttp',
     'feedparser',
     'requests',
     'pysocks',
