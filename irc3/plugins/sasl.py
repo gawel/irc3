@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import irc3
+from irc3 import utils
 import base64
 __doc__ = '''
 ===================================================
@@ -60,4 +61,6 @@ class Sasl:
 
     def cap_end(self, **kwargs):
         self.bot.send_line('CAP END')
+        core = self.bot.get_plugin(utils.maybedotted('irc3.plugins.core.Core'))
+        core.pong(event='PING')
         self.bot.detach_events(*self.events)
