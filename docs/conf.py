@@ -241,6 +241,6 @@ texinfo_documents = [
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
 #texinfo_show_urls = 'footnote'
 
-import pkg_resources
-version = pkg_resources.get_distribution("irc3").version
+from importlib.metadata import version
+version = version("irc3")
 release = version
