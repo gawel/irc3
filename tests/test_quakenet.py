@@ -21,24 +21,24 @@ class TestQuakenet(BotTestCase):
                                            str.lower, algo)
 
         res1 = digest(user1, "md5")
-        self.assertEquals(res1, '2ed1a1f1d2cd5487d2e18f27213286b9')
+        self.assertEqual(res1, '2ed1a1f1d2cd5487d2e18f27213286b9')
 
         res2 = digest(user2, "md5")
-        self.assertEquals(res2, '8990cb478218b6c0063daf08dd7e1a72')
+        self.assertEqual(res2, '8990cb478218b6c0063daf08dd7e1a72')
 
         res3 = digest(user1, "sha1")
-        self.assertEquals(res3, 'd0328d41426bd2ace183467ce0a6305445e3d497')
+        self.assertEqual(res3, 'd0328d41426bd2ace183467ce0a6305445e3d497')
 
         res4 = digest(user2, "sha1")
-        self.assertEquals(res4, '4de3f1c86dd0f59da44852d507e193c339c4b108')
+        self.assertEqual(res4, '4de3f1c86dd0f59da44852d507e193c339c4b108')
 
         res5 = digest(user1, "sha256")
-        self.assertEquals(res5, 'f6eced34321a69c270472d06c50e959c48e9fd323'
-                          'b2c5d3194f44b50a118a7ea')
+        self.assertEqual(res5, 'f6eced34321a69c270472d06c50e959c48e9fd323'
+                         'b2c5d3194f44b50a118a7ea')
 
         res6 = digest(user2, "sha256")
-        self.assertEquals(res6, '504056d53b2fc4fd783dc4f086dabc59f845d201e650'
-                          'b96dfa95dacc8cac2892')
+        self.assertEqual(res6, '504056d53b2fc4fd783dc4f086dabc59f845d201e650'
+                         'b96dfa95dacc8cac2892')
 
     def test_simple_auth(self):
         bot = self.callFTU()
