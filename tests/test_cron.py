@@ -78,5 +78,8 @@ class TestCron(BotTestCase):
         try:
             loop.run_until_complete(asyncio.wait_for(f, timeout=61))
         except asyncio.TimeoutError:
-            pytest.fail(f"Test timed out waiting for cron jobs. Results: {results}")
+            pytest.fail(
+                "Test timed out waiting for cron jobs. "
+                f"Results: {results}"
+            )
         assert results == [bot, bot]

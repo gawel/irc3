@@ -185,17 +185,32 @@ class Config(dict):
 
 def parse_config_env(env=None):
     """return config set in env vars.
-    `IRC3_BOT_PASSWORD=value` become `[bot] password=value`"""
+    `IRC3_BOT_PASSWORD=value` becomes `[bot] password=value`.
+    `IRC3__BOT__SASL_PASSWORD=value` becomes `[bot] sasl_password=value`.
+    """
     value = {}
     if env is None:
         env = os.environ
+
     for k, v in env.items():
-        if k.startswith('IRC3_'):
+        prefix = 'IRC3__'
+        if k.startswith(prefix):
+            # This prefix allows setting keys with underscores.
+            # Double underscores '__' are replaced with periods.
+            splitted = k.removeprefix(prefix).lower().split('__')
+            key = splitted.pop()
+            section = '.'.join(splitted)
+            section = value.setdefault(section, {})
+            section[key] = v
+        elif k.startswith('IRC3_'):
+            # This prefix replaces single underscores with periods.
+            # Keys with underscores cannot be set.
             splitted = k.lower().split('_')
             key = splitted.pop()
             section = '.'.join(splitted[1:])
             section = value.setdefault(section, {})
             section[key] = v
+
     return value
 
 

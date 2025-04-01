@@ -84,11 +84,19 @@ class TestConfig(TestCase):
         value = parse_config_env({
             'IRC3_BOT_NICKNAME': 'env_nickname',
             'IRC3_BOT_PASSWORD': 'env_password',
+
+            'IRC3__BOT__SASL_PASSWORD': 'hunter2',
+            'IRC3__IRC3__PLUGINS__FOO__BAR_BAZ': 'qux',
         })
         self.assertEqual(value, {
             'bot': {
                 'nickname': 'env_nickname',
                 'password': 'env_password',
+
+                'sasl_password': 'hunter2',
+            },
+            'irc3.plugins.foo': {
+                'bar_baz': 'qux',
             },
         })
 
