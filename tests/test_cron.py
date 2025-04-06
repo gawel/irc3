@@ -11,12 +11,12 @@ class MyCron:
     def __init__(self, bot):
         self.bot = bot
 
-    @cron.cron('* * * * * *')
+    @cron.cron('* * * * *')
     def method(self):
         return self.bot
 
 
-@cron.cron('* * * * * *')
+@cron.cron('* * * * *')
 async def function(bot):
     return bot
 
