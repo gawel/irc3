@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import pytest
 from irc3.testing import BotTestCase
 from irc3.testing import MagicMock
 from irc3.plugins import cron
@@ -74,5 +75,8 @@ class TestCron(BotTestCase):
             asyncio.ensure_future(
                 c.next(), loop=loop).add_done_callback(complete)
 
-        loop.run_until_complete(f)
+        try:
+            loop.run_until_complete(asyncio.wait_for(f, timeout=61))
+        except asyncio.TimeoutError:
+            pytest.fail(f"Test timed out waiting for cron jobs. Results: {results}")
         assert results == [bot, bot]
