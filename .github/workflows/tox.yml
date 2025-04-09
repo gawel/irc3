@@ -3,8 +3,20 @@ name: tox
 on: [push, pull_request]
 
 jobs:
-  tox:
+  flake8-and-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+      - name: Install Tox and any other packages
+        run: pip install tox
+      - name: Run flake8 / docs
+        run: tox -e flake8,docs
 
+  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -22,6 +34,3 @@ jobs:
         run: pip install tox
       - name: Run Tox
         run: tox -e py
-      - name: Run flake8 / docs
-        run: tox -e flake8,docs
-        if: matrix.python == 3.12
