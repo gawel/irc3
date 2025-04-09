@@ -5,7 +5,6 @@ from . import tags
 import configparser
 import importlib
 import functools
-import textwrap
 import logging
 import os
 import re
@@ -156,17 +155,62 @@ class IrcString(str):
         return self._tagdict
 
 
-STRIPPED_CHARS = '\t '
+SPACE = ' '
 
 
-def split_message(message, max_length, prefix=''):
-    """Split long messages"""
-    max_length = max_length - len(prefix)
-    if len(message) > max_length:
-        for message in textwrap.wrap(message, max_length):
-            yield message
-    else:
-        yield message.rstrip(STRIPPED_CHARS)
+def split_message(message, max_bytes, encoding, prefix=''):
+    """Split long messages based on byte length, ensuring chunks
+    do not exceed max_bytes when encoded. Break up words when necessary.
+    """
+    if max_bytes <= 0:
+        raise ValueError("max_bytes must be positive")
+
+    prefix_bytes = len(prefix.encode(encoding))
+    max_bytes -= prefix_bytes
+    if max_bytes <= 0:
+        raise ValueError(f"{max_bytes=} too small for prefix")
+
+    byte_message = message.encode(encoding)
+    message_bytes = len(byte_message)
+
+    start = 0
+
+    while start < message_bytes:
+        end = min(start + max_bytes, message_bytes)
+        chunk = byte_message[start:end]
+
+        while True:
+            valid = True
+
+            # Ensure the chunk doesn't end mid-character.
+            try:
+                chunk_str = chunk.decode(encoding, errors='strict')
+            except UnicodeDecodeError:
+                valid = False
+
+            valid = valid and (
+                end == message_bytes or chunk_str[-1] == SPACE or SPACE
+                not in chunk_str
+            )
+
+            if valid:
+                break
+
+            chunk = chunk[:-1]
+            end -= 1
+
+            if end == start:
+                raise ValueError(f"cannot fit chunk in {max_bytes=}")
+
+        if start == 0:
+            # Keep leading spaces.
+            clean = chunk_str.rstrip(SPACE)
+        else:
+            clean = chunk_str.strip(SPACE)
+        if clean:
+            yield clean
+
+        start = end
 
 
 class Config(dict):

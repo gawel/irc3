@@ -423,7 +423,11 @@ class Commands(dict):
                         buf += line + ' '
                     else:
                         if buf is not None:
-                            for b in utils.split_message(buf, 160):
+                            for b in utils.split_message(
+                                buf,
+                                160,
+                                self.context.encoding,
+                            ):
                                 yield b
                             buf = None
                         line = line.replace('%%', self.context.config.cmd)
@@ -440,7 +444,10 @@ class Commands(dict):
                            if p.get('show_in_help_list', True)))
             cmds_str = ', '.join([self.cmd + k for k in cmds])
             lines = utils.split_message(
-                'Available commands: %s ' % cmds_str, 160)
+                'Available commands: %s ' % cmds_str,
+                160,
+                self.context.encoding,
+            )
             for line in lines:
                 yield line
             url = self.config.get('url')
