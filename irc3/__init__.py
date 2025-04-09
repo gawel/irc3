@@ -227,9 +227,10 @@ class IrcBot(base.IrcObject):
         if message:
             is_dcc = isinstance(target, DCCChat)
             prefix = '' if is_dcc else 'PRIVMSG %s :' % target
-            messages = utils.split_message(
+            messages = utils.split_message_byte_len(
                 message,
                 self.config.max_length,
+                self.encoding,
                 prefix=prefix,
             )
             if is_dcc:
@@ -251,9 +252,10 @@ class IrcBot(base.IrcObject):
         if message:
             is_dcc = isinstance(target, DCCChat)
             prefix = '' if is_dcc else 'NOTICE %s :' % target
-            messages = utils.split_message(
+            messages = utils.split_message_byte_len(
                 message,
                 self.config.max_length,
+                self.encoding,
                 prefix=prefix,
             )
             if is_dcc:
@@ -269,7 +271,11 @@ class IrcBot(base.IrcObject):
     def ctcp(self, target, message, nowait=False):
         """send a ctcp to target"""
         if target and message:
-            messages = utils.split_message(message, self.config.max_length)
+            messages = utils.split_message_byte_len(
+                message,
+                self.config.max_length,
+                self.encoding,
+            )
             f = None
             for message in messages:
                 f = self.send_line('PRIVMSG %s :\x01%s\x01' % (target,
@@ -280,7 +286,11 @@ class IrcBot(base.IrcObject):
     def ctcp_reply(self, target, message, nowait=False):
         """send a ctcp reply to target"""
         if target and message:
-            messages = utils.split_message(message, self.config.max_length)
+            messages = utils.split_message_byte_len(
+                message,
+                self.config.max_length,
+                self.encoding,
+            )
             f = None
             for message in messages:
                 f = self.send_line('NOTICE %s :\x01%s\x01' % (target, message),
