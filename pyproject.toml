@@ -8,7 +8,7 @@ version = "1.1.11.dev0"
 description = "plugable irc client library based on asyncio with DCC and SASL support"
 readme = "README.rst"
 requires-python = ">=3.11"
-license = "MIT"
+license = { file = "LICENSE" }
 authors = [{ name = "Gael Pasgrimaud", email = "gael@gawel.org" }]
 keywords = ["irc", "dcc", "asyncio"]
 classifiers = [
