@@ -5,7 +5,6 @@ from . import tags
 import configparser
 import importlib
 import functools
-import textwrap
 import logging
 import os
 import re
@@ -157,20 +156,9 @@ class IrcString(str):
 
 
 SPACE = ' '
-STRIPPED_CHARS = '\t '
 
 
-def split_message(message, max_length, prefix=''):
-    """Split long messages"""
-    max_length = max_length - len(prefix)
-    if len(message) > max_length:
-        for message in textwrap.wrap(message, max_length):
-            yield message
-    else:
-        yield message.rstrip(STRIPPED_CHARS)
-
-
-def split_message_byte_len(message, max_bytes, encoding, prefix=''):
+def split_message(message, max_bytes, encoding, prefix=''):
     """Split long messages based on byte length, ensuring chunks
     do not exceed max_bytes when encoded. Break up words when necessary.
     """

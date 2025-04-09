@@ -168,7 +168,7 @@ class IrcServer(base.IrcObject):
     def notice(self, client, message):
         """send a notice to client"""
         if client and message:
-            messages = utils.split_message_byte_len(
+            messages = utils.split_message(
                 message,
                 self.config.max_length,
                 self.encoding,

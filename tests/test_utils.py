@@ -2,7 +2,7 @@
 from unittest import TestCase
 from irc3.utils import IrcString
 from irc3.utils import maybedotted
-from irc3.utils import split_message, split_message_byte_len
+from irc3.utils import split_message
 from irc3.utils import parse_config_env
 from irc3.utils import slugify
 from irc3.testing import ini2config
@@ -103,18 +103,7 @@ class TestConfig(TestCase):
 
 class TestSplit(TestCase):
 
-    def callFTU(self, messages, max_length=10):
-        return list(split_message(' '.join(messages), max_length))
-
     def test_split_message(self):
-        messages = ['allo', 'alloallo']
-        self.assertEqual(messages, self.callFTU(messages))
-        messages = ['allo\t', 'alloallo']
-        self.assertEqual([m.strip() for m in messages], self.callFTU(messages))
-        messages = ['\x1d \x1f']
-        self.assertEqual(messages, self.callFTU(messages))
-
-    def test_split_message_byte_len(self):
         messages = [
             'allo',
             'allo\t',
@@ -140,12 +129,12 @@ class TestSplit(TestCase):
         ]
 
         split = [
-            list(split_message_byte_len(msg, 10, 'utf-8'))
+            list(split_message(msg, 10, 'utf-8'))
             for msg in messages
         ]
         self.assertEqual(split, expected)
 
-    def test_split_message_byte_len_long(self):
+    def test_split_message_long(self):
         message = (
             'Harum qui commodi voluptas veritatis provident voluptatem '
             'accusamus. Ut odio porro voluptas. Totam perspiciatis dolorem '
@@ -204,17 +193,17 @@ class TestSplit(TestCase):
 
         for max_bytes in expected.keys():
             split = list(
-                split_message_byte_len(message, max_bytes, 'utf-8')
+                split_message(message, max_bytes, 'utf-8')
             )
             self.assertEqual(split, expected[max_bytes])
 
-    def test_split_message_byte_len_no_whitespace(self):
+    def test_split_message_no_whitespace(self):
         message_len = 100
         message = 'A' * message_len
 
         def split_lens(max_bytes):
             split = list(
-                split_message_byte_len(message, max_bytes, 'utf-8')
+                split_message(message, max_bytes, 'utf-8')
             )
             return len(''.join(split)), len(split)
 
@@ -250,4 +239,4 @@ class TestSplit(TestCase):
 
         for max_bytes in (1, 2):
             with self.assertRaisesRegex(ValueError, f'{max_bytes=}'):
-                list(split_message_byte_len(message, max_bytes, 'utf-8'))
+                list(split_message(message, max_bytes, 'utf-8'))

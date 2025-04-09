@@ -423,7 +423,7 @@ class Commands(dict):
                         buf += line + ' '
                     else:
                         if buf is not None:
-                            for b in utils.split_message_byte_len(
+                            for b in utils.split_message(
                                 buf,
                                 160,
                                 self.context.encoding,
@@ -443,7 +443,7 @@ class Commands(dict):
             cmds = sorted((k for (k, (p, m)) in self.items()
                            if p.get('show_in_help_list', True)))
             cmds_str = ', '.join([self.cmd + k for k in cmds])
-            lines = utils.split_message_byte_len(
+            lines = utils.split_message(
                 'Available commands: %s ' % cmds_str,
                 160,
                 self.context.encoding,
