@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "irc3"
+version = "1.1.11.dev0"
+description = "plugable irc client library based on asyncio with DCC and SASL support"
+readme = "README.rst"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "Gael Pasgrimaud", email = "gael@gawel.org" }]
+keywords = ["irc", "dcc", "asyncio"]
+classifiers = [
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Topic :: Communications :: Chat :: Internet Relay Chat",
+  "Development Status :: 5 - Production/Stable",
+]
+dependencies = ["venusian>=3.0", "docopt"]
+
+[project.optional-dependencies]
+test = [
+  "aiocron",
+  "aiohttp",
+  "aiohttp-wsgi",
+  "feedparser",
+  "irc3-plugins-test",
+  "pysocks",
+  "pytest",
+  "pytest-aiohttp",
+  "pytest-asyncio",
+  "redis",
+  "requests",
+  "twitter",
+]
+web = [
+  "aiohttp",
+  "aiohttp-wsgi",
+]
+
+[project.scripts]
+irc3 = "irc3:run"
+irc3d = "irc3d:run"
+
+[project.urls]
+Homepage = "https://github.com/gawel/irc3/"
+
+[tool.setuptools.packages.find]
+exclude = ["docs", "tests"]
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
+addopts = [
+  "-p no:warnings",
+  "-p no:unraisableexception",
+  "--doctest-modules",
+  "--doctest-glob='*.rst'",
+]
+ignore = [
+  "CHANGES.rst",
+  "examples/*",
+  "docs/conf.py",
+  "irc3/_*.py",
+  "irc3/testing.py",
+]

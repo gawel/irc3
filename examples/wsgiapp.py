@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import asyncio
-from aiohttp import wsgi
+from aiohttp_wsgi import wsgi
 from irc3 import plugin
 import json
 

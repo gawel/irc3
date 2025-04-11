@@ -6,9 +6,9 @@ __doc__ = '''
 
 Introduce a web interface to post messages
 
-Install aiohttp::
+Install aiohttp and aiohttp-wsgi::
 
-    $ pip install aiohttp
+    $ pip install aiohttp aiohttp-wsgi
 
 ..
     >>> from irc3.testing import IrcBot
