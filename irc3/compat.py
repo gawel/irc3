@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import sys
-import types
 
 PY37 = bool(sys.version_info[0:2] >= (3, 7))
 
