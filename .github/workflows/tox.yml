@@ -29,7 +29,9 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: Start Redis
-        uses: supercharge/redis-github-action@1.5.0
+        uses: supercharge/redis-github-action@1.8.0
+        with:
+          redis-version: 6
       - name: Install Tox and any other packages
         run: pip install tox
       - name: Run Tox
