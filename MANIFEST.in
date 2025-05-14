@@ -9,7 +9,6 @@ include Makefile *.rst *.cfg *.ini *.txt
 global-exclude *.pyc *.swp
 global-exclude __pycache__
 include conftest.py
-exclude bootstrap.py
 exclude .installed.cfg
 exclude .coveragerc
 exclude update.sh
