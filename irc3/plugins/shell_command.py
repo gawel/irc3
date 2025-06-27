@@ -108,6 +108,7 @@ class Shell:
     async def shell_command(self, command, mask, target, args, **kwargs):
         env = os.environ.copy()
         env['IRC3_COMMAND_ARGS'] = ' '.join(args['<args>'])
+        env['IRC3_MASK'] = mask
         self.log.debug('Running command: $ %s' % command)
         proc = await asyncio.create_subprocess_shell(
             command, shell=True, env=env,
