@@ -29,7 +29,7 @@ test = [
   "pysocks",
   "pytest",
   "pytest-aiohttp",
-  "pytest-asyncio",
+  "pytest-asyncio<1.0",
   "redis",
   "requests",
   "twitter",
