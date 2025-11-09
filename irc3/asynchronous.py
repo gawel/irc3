@@ -72,7 +72,7 @@ def async_events(context, events, send_line=None,
     # end on timeout
     timeout.add_done_callback(end)
 
-    def callback(e, **kw):
+    async def callback(e, **kw):
         """common callback for all events"""
         results.append(kw)
         if e.meta.get('multi') is not True:
