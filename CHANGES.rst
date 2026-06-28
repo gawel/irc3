@@ -1,7 +1,7 @@
 1.1.11 (unreleased)
 ===================
 
-- Nothing changed yet.
+- Close temporarily created event loop for testing
 
 
 1.1.10 (2023-04-17)
