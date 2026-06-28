@@ -56,8 +56,9 @@ class IrcBot(irc3.IrcBot):
     def __init__(self, **config):
         self.check_required()
         if 'loop' not in config:
-            loop = asyncio.new_event_loop()
-            loop = mock.create_autospec(loop, spec_set=True)
+            tmp_loop = asyncio.new_event_loop()
+            loop = mock.create_autospec(tmp_loop, spec_set=True)
+            tmp_loop.close()
             loop.call_later = call_later
             loop.call_soon = call_soon
             loop.time.return_value = 10
