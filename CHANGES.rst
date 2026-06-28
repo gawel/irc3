@@ -1,4 +1,4 @@
-1.1.11 (unreleased)
+1.1.11 (2026-06-28)
 ===================
 
 - Close temporarily created event loop for testing
