@@ -14,6 +14,9 @@ class Payload:
         self.data = b''
         return data
 
+    def set_read_chunk_size(self, size):
+        pass
+
 
 @pytest.mark.asyncio
 async def test_web_handler(
